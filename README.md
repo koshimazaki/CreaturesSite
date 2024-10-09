@@ -8,6 +8,6 @@ The 3D models are generated using a custom generative AI workflow with **Flux** 
 
 https://github.com/user-attachments/assets/d6d9fe3a-5d6d-40c6-a9a9-401f9ef877eb
 
-There are a few hidden easter eggs—use the 1 and 2 keys to cycle between audio tracks.
+There are a few hidden easter eggs—use the `1` and `2` keys to cycle between audio tracks.
 
 I see this as a living project and will continue adding new features as I explore the **WebGL** and **Three.js** ecosystem.
