@@ -106,7 +106,7 @@ function LoadingScreen() {
           width: '200px', 
           height: '20px', 
           background: '#111',
-          border: '2px solid #00000',
+          border: '2px solid white',
           borderRadius: '10px',
           overflow: 'hidden',
           position: 'relative'
@@ -213,7 +213,7 @@ export default function App() {
     height: 'clamp(24px, 4vw, 56px)',
     opacity: 0.75,
     cursor: 'pointer',
-    marginRight: '0.3vw', // Add this line
+    marginRight: '0.3vw',
   };
 
   const logoStyle = {
@@ -329,7 +329,6 @@ export default function App() {
           <CameraRig />
           <BakeShadows />
 
-          {/* Add the BannerPlane back to the scene */}
           <BannerPlane 
             onClick={handleGeometryChange}
             position={[-1, 2.2, -3]} // Adjust position as needed
@@ -342,7 +341,6 @@ export default function App() {
 
       {/* UI Elements */}
       <div style={{ position: 'absolute', bottom: '30%', left: 0, width: '100%', zIndex: 2 }}>
-        {/* <RetroGraphiteMUIAudioPlayer /> */}
       </div>
 
       {/* Hologram Canvas */}
@@ -363,7 +361,7 @@ export default function App() {
           outlineOpacity: '0.01'
         }}
         camera={{ position: [0, 0, 5], fov: 45 }}
-        className="hologram-canvas" // Add this class
+        className="hologram-canvas" // Add this class for hologram
       >
         <Suspense fallback={null}>
           <HologramOG scale={0.38} position={[0, -1.2, 0]} rotation={[0, -Math.PI * 0.1, 0]} />
@@ -395,7 +393,8 @@ export default function App() {
       <div style={{
         opacity: isLoaded ? 1 : 0,
         transition: 'opacity 2s ease-in-out',
-        // ... other styles
+       
+        
       }}>
         {isLoaded && (
           <>
@@ -408,7 +407,7 @@ export default function App() {
                   left: '2vw', 
                   zIndex: 1002, 
                   opacity: 1,
-                  pointerEvents: 'auto' // Add this
+                  pointerEvents: 'auto' 
                 }}
               >
                 <a 
@@ -460,7 +459,7 @@ export default function App() {
                     src={AboutGame} 
                     alt="Toggle Info" 
                     style={{
-                      opacity: 0.8,
+                      opacity: 0.85,
                       width: 'clamp(32px, 14vw, 180px)',
                       height: 'auto', // Changed to 'auto' to maintain aspect ratio
                       filter: 'invert(0)', // This will make the SVG white. Remove if not needed.

@@ -62,7 +62,7 @@ const sharedTypographyStyle = {
   fontFamily: '"Exo2-Light", "Exo", sans-serif',
   fontWeight: 300,
   fontStyle: 'normal',
-  transition: 'all 0.3s ease-in-out', // Add this line
+  transition: 'all 0.3s ease-in-out', 
 };
 
 const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
