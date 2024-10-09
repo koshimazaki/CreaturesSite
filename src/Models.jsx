@@ -7,6 +7,9 @@ import cyberpunkSpeederModel from '/src/assets/models/cyberpunk_speeder-transfor
 import vcs3Model from '/src/assets/models/vcs3-transformed.glb?url'
 import moogModel from '/src/assets/models/moog-transformed.glb?url'
 import tripoModel from '/src/assets/models/tripo3-transformed.glb?url'
+import DragonModel from '/src/assets/models/Dragon-transformed.glb?url'
+
+
 
 function Speeder({ position, scale, rotation }) {
     const groupRef = useRef()
@@ -39,6 +42,17 @@ function VCS3({ position, scale, rotation }) {
   )
 }
 
+function Dragon({ position, scale, rotation }) {
+    const { nodes, materials } = useGLTF(DragonModel)
+    return (
+        <group position={position} scale={scale} rotation={rotation} dispose={null}>
+        <mesh castShadow receiveShadow geometry={nodes['tripo_node_52f2a499-e337-4ec8-b1a6-e4d7ca6d594c'].geometry} material={materials['tripo_material_52f2a499-e337-4ec8-b1a6-e4d7ca6d594c']} />
+      </group>
+    )
+}
+
+
+
 function Moog({ position, scale, rotation }) {
     const { nodes, materials } = useGLTF(moogModel)
     return (
@@ -59,9 +73,10 @@ function Tripo({ position, scale, rotation }) {
     )
 }
 
-export { Moog, Speeder, Tripo, VCS3 }
+export { Dragon, Moog, Speeder, Tripo, VCS3 }
 
 // Preload models using the same paths
+useGLTF.preload(DragonModel)
 useGLTF.preload(cyberpunkSpeederModel)
 useGLTF.preload(vcs3Model)
 useGLTF.preload(moogModel)

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useCursor } from '@react-three/drei'
 
-export function GeometricShape({ scale = 1, ...props }) {
+export function GeometricShape({ scale = 1, onGeometryChange, ...props }) {
   const ref = useRef()
   const [hovered, hover] = useState(false)
   const [clicked, click] = useState(false)
@@ -20,6 +20,9 @@ export function GeometricShape({ scale = 1, ...props }) {
 
   const handleGeometryChange = () => {
     setGeometryState((prevState) => (prevState + 1) % 4)
+    if (onGeometryChange) {
+      onGeometryChange()
+    }
   }
 
   useEffect(() => {
@@ -41,7 +44,7 @@ export function GeometricShape({ scale = 1, ...props }) {
             </mesh>
             <mesh position={[1, 0, 0]}>
               <sphereGeometry args={[0.3, 32, 32]} />
-              <meshStandardMaterial color={hovered ? '#4daee1' : 'lightblue'} />
+              <meshStandardMaterial color={hovered ? '#4daee1' : 'lime'} />
             </mesh>
             <mesh position={[-1, 0, 0]}>
               <sphereGeometry args={[0.2, 32, 32]} />

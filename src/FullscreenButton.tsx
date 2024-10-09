@@ -50,7 +50,7 @@ const FullscreenButton: React.FC = () => {
   }
 
   return (
-    <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"} arrow placement="left">
+    <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"} arrow placement="top">
       <motion.div
         whileTap={{ scale: 0.9 }}
         style={{

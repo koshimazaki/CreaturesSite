@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
+ import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
 
 
 const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style }) => {

@@ -139,3 +139,65 @@ a, button, [role="button"], input[type="submit"], input[type="button"], .clickab
 .three-js-content {
   font-size: 0 !important;
 }
+
+/* Add these new styles at the end of the file */
+
+.hologram-canvas {
+  position: relative;
+  overflow: hidden;
+}
+
+.hologram-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(to bottom, 
+      rgba(0, 255, 255, 0.1) 1px, 
+      transparent 1px
+    ),
+    linear-gradient(to right, 
+      rgba(0, 255, 255, 0.1) 1px, 
+      transparent 1px
+    );
+  background-size: 6px 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hologram-canvas::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    transparent 0%,
+    rgba(0, 255, 255, 0.262) 50%,
+    transparent 100%
+  );
+  animation: scan 10s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.dotm-overlay {
+  background: url(http://s14.directupload.net/images/111129/44ga9qid.png);
+  background-size: 100px 100px;
+  width: 100%;
+  height: 100%;
+}
