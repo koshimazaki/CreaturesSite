@@ -4,32 +4,10 @@ This is the landing page for the **GlitchCandies: Creatures** web experience, bu
 It leverages [PMDRS Drei](https://github.com/pmndrs/drei) examples and helpers, alongside a [**Space.js Hologram-inspired shader**](https://alien.js.org/examples/three/shader_hologram.html). 
 UI is styled with **MUI** and enhanced with a few CSS tricks and custom GLSL shader.
 
-The 3D models are generated using a custom generative AI workflow with **Flux** and SDXL **LoRAs** (see [**Civitai profile**](https://civitai.com/user/koshimazaki) for download) alongside **Triplo3D** for image-to-3D transformations.
+The 3D models are generated using a custom generative AI workflow with **Flux** and SDXL **LoRAs**(see [**Civitai profile**](https://civitai.com/user/koshimazaki) for download) alongside **Triplo3D** for image-to-3D transformations.
 
-## Easter Eggs
+https://github.com/user-attachments/assets/d6d9fe3a-5d6d-40c6-a9a9-401f9ef877eb
 
-There are a few hidden easter eggs—use the `1` and `2` keys to cycle between audio tracks.
-
-## Development Notes
+There are a few hidden easter eggs—use the 1 and 2 keys to cycle between audio tracks.
 
 I see this as a living project and will continue adding new features as I explore the **WebGL** and **Three.js** ecosystem.
-
-## Video Preview
-
-<style>
-  .video-container {
-    width: 70%; /* Adjust to 70% of the parent container */
-    max-width: 100%;
-    margin: 0 auto; /* Center the video */
-  }
-</style>
-
-<div class="video-container">
-  <iframe 
-    width="100%" 
-    height="auto" 
-    src="https://github.com/user-attachments/assets/d6d9fe3a-5d6d-40c6-a9a9-401f9ef877eb" 
-    frameborder="0" 
-    allowfullscreen>
-  </iframe>
-</div>
