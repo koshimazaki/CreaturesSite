@@ -1,4 +1,4 @@
-# GlitchCandies: Creatures Web Experience Landing Page
+# GlitchCandies: Creatures Landing Page
 
 This is the landing page for the **GlitchCandies: Creatures** web experience, built using [**R3F**](https://github.com/pmndrs/drei), [**Three.js**](https://threejs.org/examples/), and **Vite**. 
 It leverages [PMDRS Drei](https://github.com/pmndrs/drei) examples and helpers, alongside a [**Space.js Hologram-inspired shader**](https://alien.js.org/examples/three/shader_hologram.html). 
