@@ -111,75 +111,111 @@ const playlist = [
   { title: "Morphings", src: morphings },
 ]
 
-export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position = { top: "20px", left: "20px" } }) {  const [isPlaying, setIsPlaying] = useState(false)
+export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position = { top: "20px", left: "20px" } }) {
+  const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(20)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const [isInitialized, setIsInitialized] = useState(false)
   const canvasRef = useRef(null)
-  const titleCanvasRef = useRef(null)
   const audioRef = useRef(null)
   const animationRef = useRef(null)
   const analyserRef = useRef(null)
   const audioContextRef = useRef(null)
-  const [analyser, setAnalyser] = useState(null)
+  const gainNodeRef = useRef(null)
+  const sourceRef = useRef(null)
 
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    audio.volume = volume / 100
-    audio.loop = true
-
-    const handleError = (e) => {
-      console.error("Audio error:", e)
+  const initializeAudio = useCallback(() => {
+    if (!isInitialized && audioRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+      analyserRef.current = audioContextRef.current.createAnalyser()
+      gainNodeRef.current = audioContextRef.current.createGain()
+      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current)
+      
+      sourceRef.current.connect(analyserRef.current)
+      analyserRef.current.connect(gainNodeRef.current)
+      gainNodeRef.current.connect(audioContextRef.current.destination)
+      
+      analyserRef.current.fftSize = 2048
+      
+      // Set initial volume
+      gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContextRef.current.currentTime)
+      
+      setIsInitialized(true)
     }
+  }, [isInitialized, volume])
 
-    audio.addEventListener("error", handleError)
-
-    return () => {
-      audio.removeEventListener("error", handleError)
+  const playAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.error("Error playing audio:", e))
     }
   }, [])
 
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio || !isInitialized) return
-
-    audio.volume = volume / 100
-    
-    if (isPlaying) {
-      const playPromise = audio.play()
-      if (playPromise !== undefined) {
-        playPromise.catch(e => {
-          console.error("Error playing audio:", e)
-          setIsPlaying(false)
-        })
-      }
-    } else {
-      audio.pause()
+  const pauseAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
     }
-  }, [isPlaying, volume, currentTrackIndex, isInitialized])
+  }, [])
+
+  const handlePlayPause = useCallback(() => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+    setIsPlaying(prev => !prev)
+  }, [isInitialized, initializeAudio])
 
   useEffect(() => {
-    if (!isInitialized) return
+    if (isInitialized) {
+      if (isPlaying) {
+        playAudio()
+      } else {
+        pauseAudio()
+      }
+    }
+  }, [isPlaying, isInitialized, playAudio, pauseAudio])
+
+  const handlePrevious = useCallback(() => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+    setCurrentTrackIndex((prevIndex) => (prevIndex - 1 + playlist.length) % playlist.length)
+    setIsPlaying(true)
+  }, [isInitialized, initializeAudio])
+
+  const handleNext = useCallback(() => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+    setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % playlist.length)
+    setIsPlaying(true)
+  }, [isInitialized, initializeAudio])
+
+  useEffect(() => {
+    if (isInitialized && isPlaying) {
+      playAudio()
+    }
+  }, [currentTrackIndex, isInitialized, isPlaying, playAudio])
+
+  useEffect(() => {
+    if (gainNodeRef.current && audioContextRef.current) {
+      gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContextRef.current.currentTime)
+    }
+  }, [volume])
+
+  // Visualizer effect
+  useEffect(() => {
+    if (!isInitialized || !isPlaying || !canvasRef.current || !analyserRef.current) return
 
     const canvas = canvasRef.current
-    if (!canvas) return
-
     const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
     const width = canvas.width
     const height = canvas.height
+
+    const bufferLength = analyserRef.current.frequencyBinCount
+    const dataArray = new Uint8Array(bufferLength)
 
     const drawWaveform = () => {
       ctx.fillStyle = "rgba(0, 0, 0, 0.1)"
       ctx.fillRect(0, 0, width, height)
-
-      if (!analyserRef.current) return
-
-      const bufferLength = analyserRef.current.frequencyBinCount
-      const dataArray = new Uint8Array(bufferLength)
 
       analyserRef.current.getByteTimeDomainData(dataArray)
 
@@ -190,14 +226,12 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
       const sliceWidth = (width * 1.75) / bufferLength
       let x = 0
 
-      const amplitudeBoost = 2.5 // Adjust this value to increase/decrease the visual amplitude
+      const amplitudeBoost = 2.5
 
       for (let i = 0; i < bufferLength; i += 8) {
         const v = dataArray[i] / 128.0
         const y = (v * height) / 2
-
-        // Apply the amplitude boost
-        const boostedY = (height / 2) + ((y - height / 2) * amplitudeBoost*2)
+        const boostedY = (height / 2) + ((y - height / 2) * amplitudeBoost * 0.5)
 
         if (i === 0) {
           ctx.moveTo(x, boostedY)
@@ -217,13 +251,7 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
       animationRef.current = requestAnimationFrame(animate)
     }
 
-    if (isPlaying && analyserRef.current) {
-      animate()
-    } else {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
+    animate()
 
     return () => {
       if (animationRef.current) {
@@ -232,142 +260,13 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
     }
   }, [isPlaying, isInitialized])
 
-  useEffect(() => {
-    const canvas = titleCanvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    const width = canvas.width
-    const height = canvas.height
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)"
-    ctx.fillRect(0, 0, width, height)
-
-    ctx.fillStyle = "white" // Orange color
-    ctx.font = '11px "Press Start 2P", monospace'
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillText(playlist[currentTrackIndex].title, width / 2, height / 2)
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.05)"
-    for (let i = 0; i < height; i += 2) {
-      ctx.fillRect(0, i, width, 1)
-    }
-  }, [currentTrackIndex])
-
-  useEffect(() => {
-    const initializeAudio = () => {
-      if (!isInitialized) {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
-        analyserRef.current = audioContextRef.current.createAnalyser()
-        const source = audioContextRef.current.createMediaElementSource(audioRef.current)
-        source.connect(analyserRef.current)
-        analyserRef.current.connect(audioContextRef.current.destination)
-        setIsInitialized(true)
-        setIsPlaying(true)
-      }
-    }
-
-    const handleFirstInteraction = () => {
-      initializeAudio()
-      document.removeEventListener('click', handleFirstInteraction)
-    }
-
-    document.addEventListener('click', handleFirstInteraction)
-
-    return () => {
-      document.removeEventListener('click', handleFirstInteraction)
-    }
-  }, [isInitialized])
-
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    if (!analyserRef.current) {
-      const newAnalyser = audioContextRef.current.createAnalyser();
-      newAnalyser.fftSize = 256;
-      sourceRef.current.connect(newAnalyser);
-      newAnalyser.connect(audioContextRef.current.destination);
-      analyserRef.current = newAnalyser;
-      setAnalyser(newAnalyser);
-      console.log("Analyser set:", newAnalyser); // Add this line
-    }
-  }, [isPlaying, isInitialized]);
-
-  const handlePlayPause = () => {
-    if (isInitialized) {
-      setIsPlaying(!isPlaying)
-    }
-  }
-
-  const handleStop = () => {
-    const audio = audioRef.current
-    if (!audio || !isInitialized) return
-
-    audio.pause()
-    audio.currentTime = 0
-    setIsPlaying(false)
-  }
-
-  const handlePrevious = useCallback(() => {
-    if (!isInitialized) return
-    setCurrentTrackIndex((prevIndex) => (prevIndex - 1 + playlist.length) % playlist.length)
-    if (!isPlaying) {
-      setIsPlaying(true)
-    }
-  }, [isInitialized, isPlaying])
-
-  const handleNext = useCallback(() => {
-    if (!isInitialized) return
-    setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % playlist.length)
-    if (!isPlaying) {
-      setIsPlaying(true)
-    }
-  }, [isInitialized, isPlaying])
-
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === '1') {
-        handlePrevious()
-      } else if (event.key === '2') {
-        handleNext()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress)
-    }
-  }, [handlePrevious, handleNext])
-
-  const handleVolumeChange = (event, newValue) => {
+  const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue)
-  }
+  }, [])
 
-  const nextTrack = () => {
-    if (audioRef.current) {
-      // Pause the current audio
-      audioRef.current.pause();
-
-      // Set the new source
-      audioRef.current.src = newTrackUrl;
-
-      // Load the new audio
-      audioRef.current.load();
-
-      // Play the new audio
-      audioRef.current
-        .play()
-        .catch((error) => {
-          console.error('Error playing audio:', error);
-        });
-    }
-
-    // ... any additional logic ...
-  };
+  const handleCanvasClick = useCallback((e) => {
+    e.stopPropagation()
+  }, [])
 
   return (
     <>
@@ -381,8 +280,7 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
           }}
           className="audio-player"
         >
-          <CanvasContainer>
-
+          <CanvasContainer onClick={handleCanvasClick}>
             <StyledCanvas ref={canvasRef} width={256} height={50} />
           </CanvasContainer>
           <ControlsContainer 
@@ -445,7 +343,7 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
           <audio
             ref={audioRef}
             src={playlist[currentTrackIndex].src}
-            loop={true}
+            onEnded={handleNext}
           />
         </AudioPlayerContainer>
       </ThemeProvider>

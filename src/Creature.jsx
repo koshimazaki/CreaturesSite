@@ -15,26 +15,26 @@ function OG(props) {
   const [isJumping, setIsJumping] = useState(false)
 
   useEffect(() => {
-    console.log('Available actions:', Object.keys(actions))
+    // console.log('Available actions:', Object.keys(actions))
     const idleAction = actions['idle'] || actions['ninja_idle']
     const jumpAction = actions['twistflip'] || actions['twistflip']
 
-    console.log('Idle action:', idleAction)
-    console.log('Jump action:', jumpAction)
+    // console.log('Idle action:', idleAction)
+    // console.log('Jump action:', jumpAction)
 
     if (idleAction && jumpAction) {
       idleAction.reset().fadeIn(0.5).play()
 
       const handleKeyDown = (event) => {
-        console.log('Key pressed:', event.code)
+        // console.log('Key pressed:', event.code)
         if (event.code === '' && !isJumping) {
-          console.log('Triggering jump animation')
+          // console.log('Triggering jump animation')
           setIsJumping(true)
           idleAction.fadeOut(0.2)
           jumpAction.reset().fadeIn(0.2).play()
           
           setTimeout(() => {
-            console.log('Jump animation complete, returning to idle')
+            // console.log('Jump animation complete, returning to idle')
             jumpAction.fadeOut(0.2)
             idleAction.reset().fadeIn(0.2).play()
             setIsJumping(false)
@@ -49,7 +49,7 @@ function OG(props) {
         Object.values(actions).forEach(action => action.stop())
       }
     } else {
-      console.error('Idle or Jump action not found')
+      // console.error('Idle or Jump action not found')
     }
   }, [actions, isJumping])
 

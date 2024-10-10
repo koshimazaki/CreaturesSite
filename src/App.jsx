@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, Suspense, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, Suspense, useRef, useCallback, lazy } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Sparkles, MeshReflectorMaterial, BakeShadows, Html, useProgress } from '@react-three/drei'
 import { EffectComposer, Bloom,ChromaticAberration, DepthOfField } from '@react-three/postprocessing'
@@ -20,6 +20,9 @@ import FullscreenButton from './FullscreenButton'
 import InfoPanel from './InfoPanel.jsx'
 import { Loader } from '@react-three/drei'
 import { BannerPlane } from './BannerPlane'
+import EmbedFix from './EmbedFix';
+import LoadingScreen from './LoadingScreeen.jsx'
+import IOSStartButton from './IOSStartButton'
 
 import './styles.css'; 
 
@@ -58,82 +61,7 @@ const CameraRig = () => {
 
 const AnimatedIcon = motion.div
 
-function LoadingScreen() {
-  const { progress } = useProgress()
-  return (
-    <Html center>
-      <style>
-        {`
-          @font-face {
-            font-family: 'Micro';
-            src: url(${Micro}) format('opentype');
-            font-weight: bold;
-            font-style: normal;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: 'MinRound';
-            src: url(${MinRound}) format('opentype');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-          }
-          @font-face {
-            font-family: 'ExoSemiBold';
-            src: url(${ExoSemiBold}) format('truetype');
-            font-weight: 600;
-            font-style: normal;
-            font-display: swap;
-          }
-        `}
-      </style>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100vw',
-        height: '100vh',
-        background: '#14171A', // Changed from 'black' to '#151414'
-        color: 'white',
-        fontFamily: 'Micro, sans-serif',
-        fontSize: '36px',
-        opacity: 1,
-        zIndex: 10000
-      }}>
-        <div style={{ marginBottom: '20px', fontFamily: 'Micro, sans-serif' }}>LOADING...</div>
-        <div style={{ 
-          width: '200px', 
-          height: '20px', 
-          background: '#111',
-          border: '2px solid white',
-          borderRadius: '10px',
-          overflow: 'hidden',
-          position: 'relative'
-        }}>
-          <div style={{
-            width: `${progress}%`,
-            height: '100%',
-            background: 'white',
-            transition: 'width 0.3s ease-out'
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: 'black',
-            fontSize: '15px',
-            fontWeight: 'bold',
-            fontFamily: 'Micro, sans-serif'
-          }}>
-            {progress.toFixed(0)}%
-          </div>
-        </div>
-      </div>
-    </Html>
-  )
-}
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 export default function App() {
   const [showTextLore, setShowTextLore] = useState(true)
@@ -142,7 +70,9 @@ export default function App() {
   const infoRef = useRef(null)
   const infoButtonRef = useRef(null)
   const audioPlayerRef = useRef(null)
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [audioInitialized, setAudioInitialized] = useState(false)
+  const [error, setError] = useState(null)
 
   const textLoreContent = useMemo(() => [
     "Welcome to Glitch Candies: Creatures",
@@ -201,12 +131,11 @@ export default function App() {
     setIsInfoVisible(!isInfoVisible);
   };
 
-  const handleGeometryChange = () => {
+  const handleGeometryChange = useCallback(() => {
     if (window.handleGeometryChange) {
       window.handleGeometryChange()
     }
-    // console.log("Geometry change triggered")
-  }
+  }, [])
 
   const iconStyle = {
     width: 'clamp(24px, 4vw, 56px)',
@@ -224,17 +153,69 @@ export default function App() {
     pointerEvents: 'none'
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 100) // Short delay after load
-    return () => clearTimeout(timer)
+  const initializeAudio = useCallback(() => {
+    // Your audio initialization code here
+    // For example:
+    // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // ... other audio setup
+    setAudioInitialized(true)
   }, [])
 
+  const handleStart = useCallback(() => {
+    if (isIOS()) {
+      initializeAudio()
+    }
+    setIsLoaded(true)
+  }, [initializeAudio])
+
+  const handleInteraction = useCallback(() => {
+    if (!isIOS() && !audioInitialized) {
+      initializeAudio()
+    }
+  }, [audioInitialized, initializeAudio])
+
+  useEffect(() => {
+    if (!isIOS()) {
+      const timer = setTimeout(() => setIsLoaded(true), 100)
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isIOS()) {
+      document.addEventListener('click', handleInteraction, { once: true })
+      return () => document.removeEventListener('click', handleInteraction)
+    }
+  }, [handleInteraction])
+
+  // Memoize heavy computations
+  const memoizedComponent = useMemo(() => {
+    // Your heavy computation here
+  }, [/* dependencies */])
+
+  // Error boundary
+  useEffect(() => {
+    const handleError = (error) => {
+      console.error('Caught error:', error)
+      setError(error)
+    }
+    window.addEventListener('error', handleError)
+    return () => window.removeEventListener('error', handleError)
+  }, [])
+
+  if (error) {
+    return <div>An error occurred. Please refresh the page.</div>
+  }
+
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }} onClick={handleInteraction}>
       {/* Main Canvas */}
+      <EmbedFix />
+  
       <Canvas 
-        gl={{ antialias: true, samples: 4 }}
-        shadows 
+        gl={{ antialias: false, powerPreference: "high-performance" }}
+        shadows={false}
         dpr={[1, 1.5]} 
         camera={{ position: [-1.5, 1, 5.5], fov: 45, near: 1, far: 20 }} 
         eventSource={document.getElementById('root')} 
@@ -245,7 +226,7 @@ export default function App() {
         <hemisphereLight intensity={0.15} groundColor="black" />
         <spotLight decay={0} position={[10, 20, 10]} angle={0.12} penumbra={1} intensity={1} castShadow shadow-mapSize={1024} />
         
-        <Suspense fallback={<LoadingScreen />} onLoad={() => setIsLoaded(true)}>
+        <Suspense fallback={<LoadingScreen onStart={handleStart} />}>
           <group position={[-0, -1, 0]}>
             <Instances>
               <Computers scale={0.5} />
@@ -394,7 +375,7 @@ export default function App() {
         opacity: isLoaded ? 1 : 0,
         transition: 'opacity 2s ease-in-out',
        
-        
+
       }}>
         {isLoaded && (
           <>
@@ -436,7 +417,6 @@ export default function App() {
               width: '80%',
               maxWidth: '400px',
             }}>
-           
             </div>
 
 
@@ -566,8 +546,8 @@ export default function App() {
                   GlitchCandies
                 </div>
                 <div style={{
-                  fontFamily: 'Micro, sans-serif',
-                  fontSize: 'clamp(12px, 1.5vw, 18px)',
+                  fontFamily: 'MinRound, sans-serif',
+                  fontSize: 'clamp(13px, 1.51vw, 18px)',
                   color: '#00FFFF',
                   textShadow: '0 0 10px rgba(0,255,255,0.5)',
                 }}>
@@ -578,6 +558,27 @@ export default function App() {
           </>
         )}
       </div>
+
+      {isIOS() && <IOSStartButton onStart={handleStart} isVisible={isLoaded && !audioInitialized} />}
     </div>
   )
+}
+
+// Simple ErrorBoundary component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback
+    }
+    return this.props.children
+  }
 }
