@@ -105,6 +105,18 @@ const playlist = [
   { title: "Swampy Creatures", src: swampyCreatures },
   { title: "Morphings", src: morphings },
 ]
+// import candiesExploration from '/src/assets/audio/Candies_Exploration.mp3?url'
+
+// const playlist = [
+//   { title: "Candies Exploration", src: '/audio/Candies_Exploration.mp3' },
+//   { title: "Floral Mechas", src: '/audio/Floral_Mechas.mp3' },
+//   { title: "Dubtech", src: '/audio/AI12v3.mp3?' },
+//   { title: "Lofi Fields", src: '/audio/Lowfi_Fileds.mp3' },
+//   { title: "Sudden Ambush", src: '/audio/AI5.1.mp3' },
+//   { title: "Swampy Creatures", src: '/audio/AI6.mp3' },
+//   { title: "Morphings", src: '/audio/Morphings.mp3' },
+// ]
+
 
 const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { top: "20px", left: "20px" } }, ref) => {
   const [isPlaying, setIsPlaying] = useState(false)

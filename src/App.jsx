@@ -203,156 +203,142 @@ export default function App() {
     }
   }
   
-  if (!isStarted) {
-    return (
-      <LoadingScreen 
-        isLoaded={isLoaded} 
-        progress={progress}
-        onStart={handleStart}
-        audioPlayerRef={audioPlayerRef}
-      />
-    )
-  }
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setIsLoaded(true), 1000) // Simulate loading time
-  //   return () => clearTimeout(timer)
-  // }, [])
-
- 
-
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      <Canvas 
-        gl={{ antialias: true, samples: 4 }}
-        shadows 
-        dpr={[1, 1.5]} 
-        camera={{ position: [-1.5, 1, 5.5], fov: 45, near: 1, far: 20 }} 
-        eventSource={document.getElementById('root')} 
-        eventPrefix="client"
-        style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-      >
-        <Scene />
-      </Canvas>
+    <>
 
-      <Canvas
-        style={{
-          position: 'absolute',
-          top: 'calc(2vw + clamp(160px, 10.5vw, 180px))',
-          left: '2.3vw',
-          width: 'clamp(120px, 12vw, 180px)',
-          height: 'calc(10vw + clamp(120px, 9vw, 160px))',
-          zIndex: 2,
-          background: 'black',
-          backgroundOpacity: '0.2',
-          opacity: 0.75,
-          outline: '1px solid #373837',
-          outlineOffset: '0px',
-          outlineWidth: '1px',
-          outlineOpacity: '0.01'
-        }}
-        camera={{ position: [0, 0, 5], fov: 45 }}
-        className="hologram-canvas"
-      >
-        <Suspense fallback={null}>
-          <HologramOG scale={0.38} position={[0, -1.2, 0]} rotation={[0, -Math.PI * 0.1, 0]} />
-          <ambientLight intensity={0.8} />
-          <pointLight position={[1, 10, 10]} />
-        </Suspense>
-   
-        <EffectComposer>
-          <ChromaticAberration
-            offset={[0.012, 0.002]}
-            blendFunction={BlendFunction.NORMAL}
-          />
-          <Glitch
-            delay={[1.5, 3.5]}
-            duration={[0.6, 1.0]}
-            strength={[0.3, 1.0]}
-            mode={GlitchMode.SPORADIC}
-            active
-            ratio={0.8}
-          />
-        </EffectComposer>
-      </Canvas>
-
-      <Loader />
+      {!isStarted ? (
+        <LoadingScreen 
+          isLoaded={isLoaded} 
+          progress={progress}
+          onStart={handleStart}
+          audioPlayerRef={audioPlayerRef}
+        />
+      ):(
+        <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+          <Canvas 
+            gl={{ antialias: true, samples: 4 }}
+            shadows 
+            dpr={[1, 1.5]} 
+            camera={{ position: [-1.5, 1, 5.5], fov: 45, near: 1, far: 20 }} 
+            eventSource={document.getElementById('root')} 
+            eventPrefix="client"
+            style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+          >
+            <Scene />
+          </Canvas>
+  
+          <Canvas
+            style={{
+              position: 'absolute',
+              top: 'calc(2vw + clamp(160px, 10.5vw, 180px))',
+              left: '2.3vw',
+              width: 'clamp(120px, 12vw, 180px)',
+              height: 'calc(10vw + clamp(120px, 9vw, 160px))',
+              zIndex: 2,
+              background: 'black',
+              backgroundOpacity: '0.2',
+              opacity: 0.75,
+              outline: '1px solid #373837',
+              outlineOffset: '0px',
+              outlineWidth: '1px',
+              outlineOpacity: '0.01'
+            }}
+            camera={{ position: [0, 0, 5], fov: 45 }}
+            className="hologram-canvas"
+          >
+            <Suspense fallback={null}>
+              <HologramOG scale={0.38} position={[0, -1.2, 0]} rotation={[0, -Math.PI * 0.1, 0]} />
+              <ambientLight intensity={0.8} />
+              <pointLight position={[1, 10, 10]} />
+            </Suspense>
       
-      <Tooltip title="Glitch Candies on X" arrow placement="top">
-        <AnimatedIcon
-          whileTap={{ scale: 0.9 }}
-          style={{ 
-            position: 'absolute', 
-            bottom: '1vw', 
-            left: '2vw', 
-            zIndex: 1002, 
-            opacity: 1,
-            pointerEvents: 'auto'
-          }}
-        >
-          <a 
-            href="https://x.com/glitchcandies" 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            <img 
-              src={cyberpunkIcon}
-              alt="Glitch Candies X"
-              style={{
-                width: 'clamp(24px, 4vw, 56px)',
-                height: 'clamp(24px, 4vw, 56px)',
-                opacity: 0.75,
-                cursor: 'pointer',
-                marginRight: '0.3vw',
+            <EffectComposer>
+              <ChromaticAberration
+                offset={[0.012, 0.002]}
+                blendFunction={BlendFunction.NORMAL}
+              />
+              <Glitch
+                delay={[1.5, 3.5]}
+                duration={[0.6, 1.0]}
+                strength={[0.3, 1.0]}
+                mode={GlitchMode.SPORADIC}
+                active
+                ratio={0.8}
+              />
+            </EffectComposer>
+          </Canvas>
+    
+          <Loader />
+        
+          <Tooltip title="Glitch Candies on X" arrow placement="top">
+            <AnimatedIcon
+              whileTap={{ scale: 0.9 }}
+              style={{ 
+                position: 'absolute', 
+                bottom: '1vw', 
+                left: '2vw', 
+                zIndex: 1002, 
+                opacity: 1,
+                pointerEvents: 'auto'
               }}
-            />
-          </a>
-        </AnimatedIcon>
-      </Tooltip>
+            >
+              <a 
+                href="https://x.com/glitchcandies" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <img 
+                  src={cyberpunkIcon}
+                  alt="Glitch Candies X"
+                  style={{
+                    width: 'clamp(24px, 4vw, 56px)',
+                    height: 'clamp(24px, 4vw, 56px)',
+                    opacity: 0.75,
+                    cursor: 'pointer',
+                    marginRight: '0.3vw',
+                  }}
+                />
+              </a>
+            </AnimatedIcon>
+          </Tooltip>
+  
+          <div style={{
+            position: 'absolute',
+            bottom: '2vw',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1002,
+          }}>
+            <Tooltip title="About the Game" arrow placement="top">
+              <AnimatedIcon
+                ref={infoButtonRef}
+                whileTap={{ scale: 0.9 }}
+                style={{ pointerEvents: 'auto' }}
+                onClick={() => setShowInfoPanel(!showInfoPanel)}
+              >
+                <img 
+                  src={AboutGame} 
+                  alt="Toggle Info" 
+                  style={{
+                    opacity: 0.8,
+                    width: 'clamp(32px, 14vw, 180px)',
+                    height: 'auto',
+                    filter: 'invert(0)',
+                  }} 
+                />
+              </AnimatedIcon>
+            </Tooltip>
+          </div>
 
-      <div style={{
-        position: 'absolute',
-        bottom: '2vw',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1002,
-      }}>
-        <Tooltip title="About the Game" arrow placement="top">
-          <AnimatedIcon
-            ref={infoButtonRef}
-            whileTap={{ scale: 0.9 }}
-            style={{ pointerEvents: 'auto' }}
-            onClick={() => setShowInfoPanel(!showInfoPanel)}
-          >
-            <img 
-              src={AboutGame} 
-              alt="Toggle Info" 
-              style={{
-                opacity: 0.8,
-                width: 'clamp(32px, 14vw, 180px)',
-                height: 'auto',
-                filter: 'invert(0)',
-              }} 
-            />
-          </AnimatedIcon>
-        </Tooltip>
-      </div>
-
-      <RetroGraphiteMUIAudioPlayer
-        ref={audioPlayerRef}
-        width="clamp(125px, 13vw, 190px)"
-        position={{ top: 'calc(1vw + clamp(10px, 1.5vw, 80px))', left: '2vw' }}
-        isVisible={!showInfoPanel}
-      />
-
-      <FullscreenButton style={{ pointerEvents: 'auto', zIndex: 2010 }} />
-
-        <TextLore 
-        texts={textLoreContent} 
-        currentIndex={textIndex} 
-        customFont={ExoSemiBold}
-        onTextComplete={handleTextComplete}
-        style={{ 
+  
+          <FullscreenButton style={{ pointerEvents: 'auto', zIndex: 2010 }} />
+    
+            <TextLore 
+            texts={textLoreContent} 
+            currentIndex={textIndex} 
+            customFont={ExoSemiBold}
+            onTextComplete={handleTextComplete}
+            style={{ 
                 pointerEvents: 'auto',
                 zIndex: 900,
                 bottom: '3vw',
@@ -360,87 +346,100 @@ export default function App() {
                 transform: 'translateX(-50%)',
               }}
             />
-
-
-
-      <InfoPanel 
-        isInfoVisible={showInfoPanel} 
-        onClose={() => setShowInfoPanel(false)}
-        ref={infoRef}
-      />
-
-      <Tooltip title="Visit our website" arrow placement="left">
-        <motion.div
-          style={{
-            position: 'absolute',
-            bottom: '1.2vw',
-            right: '11vw',
-            zIndex: 900,
-            pointerEvents: 'auto',
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <a 
-            href="https://glitchnftstudio.xyz" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{
-              padding: '0.5em 1em',
-              cursor: 'pointer',
-              textDecoration: 'none',
-            }}
-          >
-            <motion.div 
-              style={{ 
-                fontSize: 'clamp(8px, 1.2vw, 12px)', 
-                opacity: 0.6, 
-                color: 'white', 
-                fontFamily: 'Exo',
-                whiteSpace: 'nowrap',
+    
+    
+    
+          <InfoPanel 
+            isInfoVisible={showInfoPanel} 
+            onClose={() => setShowInfoPanel(false)}
+            ref={infoRef}
+          />
+  
+          <Tooltip title="Visit our website" arrow placement="left">
+            <motion.div
+              style={{
+                position: 'absolute',
+                bottom: '1.2vw',
+                right: '11vw',
+                zIndex: 900,
+                pointerEvents: 'auto',
               }}
-              whileHover={{ opacity: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Made by Glitch NFT Studio
+              <a 
+                href="https://glitchnftstudio.xyz" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  padding: '0.5em 1em',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                }}
+              >
+                <motion.div 
+                  style={{ 
+                    fontSize: 'clamp(8px, 1.2vw, 12px)', 
+                    opacity: 0.6, 
+                    color: 'white', 
+                    fontFamily: 'Exo',
+                    whiteSpace: 'nowrap',
+                  }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  Made by Glitch NFT Studio
+                </motion.div>
+              </a>
             </motion.div>
-          </a>
-        </motion.div>
-      </Tooltip>
+          </Tooltip>
+  
+          <Tooltip title="Push that Button!" arrow placement="left">
+            <motion.div
+              style={{
+                position: 'absolute',
+                top: '2vw',
+                right: '2vw',
+                zIndex: 1002,
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleGeometryChange}
+            >
+              <div style={{
+                fontFamily: 'MinRound, sans-serif',
+                fontSize: 'clamp(16px, 2vw, 24px)',
+                color: 'white',
+                textShadow: '0 0 10px rgba(255,255,255,0.5)',
+              }}>
+                GlitchCandies
+              </div>
+              <div style={{
+                fontFamily: 'MinRound, sans-serif',
+                fontSize: 'clamp(13px, 1.51vw, 18px)',
+                color: '#00FFFF',
+                textShadow: '0 0 10px rgba(0,255,255,0.5)',
+              }}>
+                Creatures
+              </div>
+            </motion.div>
+          </Tooltip>
+        </div>
+      )}
 
-      <Tooltip title="Push that Button!" arrow placement="left">
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: '2vw',
-            right: '2vw',
-            zIndex: 1002,
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleGeometryChange}
-        >
-          <div style={{
-            fontFamily: 'MinRound, sans-serif',
-            fontSize: 'clamp(16px, 2vw, 24px)',
-            color: 'white',
-            textShadow: '0 0 10px rgba(255,255,255,0.5)',
-          }}>
-            GlitchCandies
-          </div>
-          <div style={{
-            fontFamily: 'MinRound, sans-serif',
-            fontSize: 'clamp(13px, 1.51vw, 18px)',
-            color: '#00FFFF',
-            textShadow: '0 0 10px rgba(0,255,255,0.5)',
-          }}>
-            Creatures
-          </div>
-        </motion.div>
-      </Tooltip>
-    </div>
+      <div style={{ opacity: isLoaded ? 1 : 0 }}>
+        <RetroGraphiteMUIAudioPlayer
+          ref={audioPlayerRef}
+          width="clamp(125px, 13vw, 190px)"
+          position={{ top: 'calc(1vw + clamp(10px, 1.5vw, 80px))', left: '2vw' }}
+          isVisible={!showInfoPanel}
+        />
+      </div>
+
+    </>
   )
+
 }
