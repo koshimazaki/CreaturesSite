@@ -1,5 +1,31 @@
 @import url('https://rsms.me/inter/inter.css');
 
+
+@font-face {
+  font-family: 'Micro';
+  src: url('/src/assets/fonts/Microgramma_D_Extended_Bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.micro-font {
+  font-family: 'Micro', sans-serif;
+}
+
+@font-face {
+  font-family: 'Monorama';
+  src: url('/src/assets/fonts/Monorama-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.Monorama-font {
+  font-family: 'Monorama', sans-serif;
+}
+
+
+
+
 * {
   box-sizing: border-box;
   cursor: default !important;
@@ -200,4 +226,66 @@ a, button, [role="button"], input[type="submit"], input[type="button"], .clickab
   background-size: 100px 100px;
   width: 100%;
   height: 100%;
+}
+
+/* Add these new styles at the end of the file */
+
+@keyframes shine {
+  0%, 100% {
+    background-position: -200% 0%, center;
+  }
+  50% {
+    background-position: 200% 0%, center;
+  }
+}
+
+.shine-effect {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  
+  --space: 100px;
+  --barwidth: 1.2%;
+  
+  background-image: 
+    repeating-linear-gradient(
+      55deg,
+      rgba(255, 161, 158, 0.15) calc(var(--space) * 1),
+      rgba(85, 178, 255, 0.15) calc(var(--space) * 2),
+      rgba(255, 199, 146, 0.15) calc(var(--space) * 3),
+      rgba(130, 255, 213, 0.15) calc(var(--space) * 4),
+      rgba(253, 170, 240, 0.15) calc(var(--space) * 5),
+      rgba(148, 241, 255, 0.15) calc(var(--space) * 6),
+      rgba(255, 161, 158, 0.15) calc(var(--space) * 7)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.05) var(--barwidth),
+      rgba(255, 255, 255, 0.1) calc(var(--barwidth) + 0.01%),
+      rgba(255, 255, 255, 0.1) calc(var(--barwidth) * 2)
+    );
+  
+  background-size: 400% 400%, 210% 210%;
+  background-position: calc(((var(--posx) - 50) * -2.5) + 50%) calc(((var(--posy) - 50) * -2.5) + 50%), 
+                       calc(((var(--posx) - 50) * 1.5) + 50%) calc(((var(--posy) - 50) * 1.5) + 50%);
+  
+  mix-blend-mode: overlay;
+  filter: brightness(1.2) contrast(1.2) saturate(1.2);
+}
+
+.shine-effect.hovered::after {
+  opacity: 1;
 }

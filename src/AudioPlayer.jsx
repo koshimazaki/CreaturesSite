@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react"
 import { styled, ThemeProvider, createTheme } from "@mui/material/styles"
 import { Box, IconButton, Slider } from "@mui/material"
 import PlayArrowIcon from "@mui/icons-material/PlayArrow"
 import PauseIcon from "@mui/icons-material/Pause"
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious"
 import SkipNextIcon from "@mui/icons-material/SkipNext"
-import StopIcon from "@mui/icons-material/Stop"
 import VolumeUpIcon from "@mui/icons-material/VolumeUp"
 
 // Import audio files
@@ -24,8 +23,8 @@ const theme = createTheme({
       main: "#10b981",
     },
     background: {
-      default: "#15171A", //#1f2937
-      paper: "#15171A", //374151
+      default: "#15171A",
+      paper: "#15171A",
     },
   },
   components: {
@@ -50,11 +49,9 @@ const theme = createTheme({
 const AudioPlayerContainer = styled(Box)(({ theme }) => ({
   width: "10rem",
   backgroundColor: "rgba(55, 65, 81, 0.0)",
-  // borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(1),
   color: theme.palette.common.white,
   boxShadow: theme.shadows[10],
-  // border: "1px solid rgba(107, 114, 128, 0.3)",
   backdropFilter: "blur(8px)",
   position: "fixed",
   top: "20px",
@@ -64,12 +61,10 @@ const AudioPlayerContainer = styled(Box)(({ theme }) => ({
     content: '""',
     position: "absolute",
     inset: 0,
-    // backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='33' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
     opacity: 0.2,
     mixBlendMode: "overlay",
     pointerEvents: "none",
     borderRadius: "inherit",
-    // border: "1px solid red",
   },
   zIndex: 2000,
   pointerEvents: 'auto',
@@ -111,7 +106,7 @@ const playlist = [
   { title: "Morphings", src: morphings },
 ]
 
-export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position = { top: "20px", left: "20px" } }) {
+const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { top: "20px", left: "20px" } }, ref) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(20)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -123,6 +118,19 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
   const audioContextRef = useRef(null)
   const gainNodeRef = useRef(null)
   const sourceRef = useRef(null)
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    handlePlayPause: () => {
+      if (!isInitialized) {
+        initializeAudio();
+      }
+      setIsPlaying(prev => !prev);
+    },
+    initializeAudio,
+    setTrack: (index) => setCurrentTrackIndex(index),
+    setIsPlaying,
+  }));
 
   const initializeAudio = useCallback(() => {
     if (!isInitialized && audioRef.current) {
@@ -137,7 +145,6 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
       
       analyserRef.current.fftSize = 2048
       
-      // Set initial volume
       gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContextRef.current.currentTime)
       
       setIsInitialized(true)
@@ -155,13 +162,6 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
       audioRef.current.pause()
     }
   }, [])
-
-  const handlePlayPause = useCallback(() => {
-    if (!isInitialized) {
-      initializeAudio()
-    }
-    setIsPlaying(prev => !prev)
-  }, [isInitialized, initializeAudio])
 
   useEffect(() => {
     if (isInitialized) {
@@ -201,7 +201,6 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
     }
   }, [volume])
 
-  // Visualizer effect
   useEffect(() => {
     if (!isInitialized || !isPlaying || !canvasRef.current || !analyserRef.current) return
 
@@ -268,22 +267,45 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
     e.stopPropagation()
   }, [])
 
+  // Add keyboard event listeners
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case '1':
+          handlePrevious();
+          break;
+        case '2':
+          handleNext();
+          break;
+        case '3':
+          setIsPlaying(prev => !prev);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handlePrevious, handleNext]);
+
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <AudioPlayerContainer
-          sx={{
-            height: "4rem",
-            width: width,
-            position: "absolute",
-            ...position,
-          }}
-          className="audio-player"
-        >
-          <CanvasContainer onClick={handleCanvasClick}>
-            <StyledCanvas ref={canvasRef} width={256} height={50} />
-          </CanvasContainer>
-          <ControlsContainer 
+    <ThemeProvider theme={theme}>
+      <AudioPlayerContainer
+        sx={{
+          height: "4rem",
+          width: width,
+          position: "absolute",
+          ...position,
+        }}
+        className="audio-player"
+      >
+        <CanvasContainer onClick={handleCanvasClick}>
+          <StyledCanvas ref={canvasRef} width={256} height={50} />
+        </CanvasContainer>
+        <ControlsContainer 
           style={{
             display: 'flex',
             justifyContent: 'center',
@@ -292,61 +314,60 @@ export default function RetroGraphiteMUIAudioPlayer({ width = "18rem", position 
             marginTop: '0.7rem', 
             marginBottom: '0rem',
           }}
+        >
+          <IconButton onClick={handlePrevious} size="small" sx={{ opacity: 0.75, color: "white", padding: "4px" }}>
+            <SkipPreviousIcon fontSize="large" />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              if (!isInitialized) {
+                initializeAudio();
+              }
+              setIsPlaying(prev => !prev);
+            }}
+            size="large"
+            sx={{ opacity: 0.75, color: "white", padding: "4px" }}
           >
-            <IconButton onClick={handlePrevious} size="small" sx={{ opacity: 0.75, color: "white", padding: "4px" }}>
-              <SkipPreviousIcon fontSize="large" />
-            </IconButton>
-            <IconButton onClick={handlePlayPause} size="large" sx={{ opacity: 0.75, color: "white", padding: "4px" }}>
-              {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
-            </IconButton>
-            {/* <IconButton onClick={handleStop} size="small" sx={{ color: "white", padding: "4px" }}>
-              <StopIcon fontSize="small" />
-            </IconButton> */}
-            <IconButton onClick={handleNext} size="large" sx={{ opacity: 0.75, size: "4rem", color: "white", padding: "4px" }}>
-              <SkipNextIcon fontSize="large" />
-            </IconButton>
-          </ControlsContainer>
-          <VolumeContainer>
-            {/* <VolumeUpIcon sx={{ marginRight: 1, color: "white", opacity: 0.5, fontSize: "1rem" }} /> */}
-            <Slider
-              value={volume}
-
-              onChange={handleVolumeChange}
-              aria-labelledby="continuous-slider"
-              min={0}
-              max={100}
-              step={1}
-              sx={{ 
-
-                color: "white",
-                opacity: 0.75,
-                padding: '5px 0',
-                height: '3px',
-                top: '0.5vw',
-                '& .MuiSlider-thumb': {
-                  width: 2,
-                  height: 2,
-                  boxShadow: '0 0 2px 0px rgba(0, 0, 0, 0.1)',
-                  transition: 'box-shadow 0.1s ease-in-out',
-                  '&:focus, &:hover, &.Mui-active': {
-                    // boxShadow: '0px 0px 2px 1px rgba(0, 255, 255, 0.3)',
-                    // Reset on touch devices, it doesn't add specificity
-                
-                  },
-                },
-                '& .MuiSlider-rail': {
-                  opacity: 0.3,
-                },
-              }}
-            />
-          </VolumeContainer>
-          <audio
-            ref={audioRef}
-            src={playlist[currentTrackIndex].src}
-            onEnded={handleNext}
+            {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
+          </IconButton>
+          <IconButton onClick={handleNext} size="large" sx={{ opacity: 0.75, size: "4rem", color: "white", padding: "4px" }}>
+            <SkipNextIcon fontSize="large" />
+          </IconButton>
+        </ControlsContainer>
+        <VolumeContainer>
+          <Slider
+            value={volume}
+            onChange={handleVolumeChange}
+            aria-labelledby="continuous-slider"
+            min={0}
+            max={100}
+            step={1}
+            sx={{ 
+              color: "white",
+              opacity: 0.75,
+              padding: '5px 0',
+              height: '3px',
+              top: '0.5vw',
+              '& .MuiSlider-thumb': {
+                width: 2,
+                height: 2,
+                boxShadow: '0 0 2px 0px rgba(0, 0, 0, 0.1)',
+                transition: 'box-shadow 0.1s ease-in-out',
+              },
+              '& .MuiSlider-rail': {
+                opacity: 0.3,
+              },
+            }}
           />
-        </AudioPlayerContainer>
-      </ThemeProvider>
-    </>
+        </VolumeContainer>
+        <audio
+          ref={audioRef}
+          src={playlist[currentTrackIndex].src}
+          onEnded={handleNext}
+        />
+      </AudioPlayerContainer>
+    </ThemeProvider>
   )
-}
+})
+
+export default RetroGraphiteMUIAudioPlayer

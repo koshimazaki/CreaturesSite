@@ -1,34 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
- import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
-
-
+// import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
 const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style }) => {
   const [visibleText, setVisibleText] = useState([]);
   const [cursor, setCursor] = useState('_');
   const [showCursor, setShowCursor] = useState(true);
   const [isFading, setIsFading] = useState(false);
-
   const scrambleChars = useMemo(() => 'Creatures!#$^&*()_+-=[]{}|;:,./<>?', []);
   const getRandomChar = () => scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-
   const cursorChars = useMemo(() => ['_', '..', ''], []);
   const getRandomCursor = () => cursorChars[Math.floor(Math.random() * cursorChars.length)];
-
   useEffect(() => {
     const currentText = texts[currentIndex];
     const totalDuration = 4000 + currentText.length * 50;
     const typingDuration = totalDuration - 500;
     const startTime = Date.now();
-
     const animationInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       
       if (elapsedTime < typingDuration) {
         const progress = elapsedTime / typingDuration;
         const revealedChars = Math.floor(progress * currentText.length);
-
         const newVisibleText = currentText.split('').map((char, index) => {
           if (index < revealedChars) {
             const charProgress = (elapsedTime - (index * (typingDuration / currentText.length))) / (typingDuration / currentText.length);
@@ -42,7 +34,6 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style }) =>
             return '';
           }
         });
-
         setVisibleText(newVisibleText);
         if (elapsedTime % 250 < 16) {
           setCursor(getRandomCursor());
@@ -61,10 +52,8 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style }) =>
         }
       }
     }, 33);
-
     return () => clearInterval(animationInterval);
   }, [currentIndex, texts, scrambleChars, cursorChars, onTextComplete]);
-
   return (
     <AnimatePresence>
       <motion.div
@@ -135,5 +124,4 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style }) =>
     </AnimatePresence>
   );
 };
-
 export default TextLore;
