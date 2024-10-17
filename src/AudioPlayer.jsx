@@ -111,6 +111,7 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
   const [volume, setVolume] = useState(20)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [currentTrack, setCurrentTrack] = useState(playlist[0]);
   const canvasRef = useRef(null)
   const audioRef = useRef(null)
   const animationRef = useRef(null)
@@ -130,32 +131,41 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
     initializeAudio,
     setTrack: (index) => setCurrentTrackIndex(index),
     setIsPlaying,
+    playAudio: () => {
+      if (audioRef.current && isInitialized) {
+        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      }
+    },
   }));
+
+  useEffect(() => {
+    setCurrentTrack(playlist[currentTrackIndex]);
+  }, [currentTrackIndex]);
 
   const initializeAudio = useCallback(() => {
     if (!isInitialized && audioRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
-      analyserRef.current = audioContextRef.current.createAnalyser()
-      gainNodeRef.current = audioContextRef.current.createGain()
-      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current)
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      gainNodeRef.current = audioContextRef.current.createGain();
       
-      sourceRef.current.connect(analyserRef.current)
-      analyserRef.current.connect(gainNodeRef.current)
-      gainNodeRef.current.connect(audioContextRef.current.destination)
+      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+      sourceRef.current.connect(analyserRef.current);
+      analyserRef.current.connect(gainNodeRef.current);
+      gainNodeRef.current.connect(audioContextRef.current.destination);
       
-      analyserRef.current.fftSize = 2048
+      analyserRef.current.fftSize = 2048;
       
-      gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContextRef.current.currentTime)
+      gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContextRef.current.currentTime);
       
-      setIsInitialized(true)
+      setIsInitialized(true);
     }
-  }, [isInitialized, volume])
+  }, [isInitialized, volume]);
 
   const playAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(e => console.error("Error playing audio:", e))
+    if (audioRef.current && isInitialized) {
+      audioRef.current.play().catch(e => console.error("Error playing audio:", e));
     }
-  }, [])
+  }, [isInitialized])
 
   const pauseAudio = useCallback(() => {
     if (audioRef.current) {
@@ -364,6 +374,7 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
           ref={audioRef}
           src={playlist[currentTrackIndex].src}
           onEnded={handleNext}
+          preload="auto"
         />
       </AudioPlayerContainer>
     </ThemeProvider>

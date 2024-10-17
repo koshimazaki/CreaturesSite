@@ -10,21 +10,22 @@ import { Instances, Computers } from './Computers'
 import OG from './Creature'
 import HologramOG from './HologramOG'
 import { Dragon, Tripo, Moog, Speeder, VCS3 } from './Models.jsx'
-import TextLore from './TextLore.jsx'
+// import TextLore from './TextLore.jsx'
 import RetroGraphiteMUIAudioPlayer from './AudioPlayer'
 import { Tooltip } from '@mui/material'
 import { motion, AnimatePresence } from 'framer-motion'
 import FullscreenButton from './FullscreenButton'
 import InfoPanel from './InfoPanel.jsx'
-import { Loader } from '@react-three/drei'
-import { BannerPlane } from './BannerPlane'
-import LoadingScreen from './LoadingScreen'
-import StartButton from './StartButton'
+// import { Loader } from '@react-three/drei'
+// import { BannerPlane } from './BannerPlane'
+// import LoadingScreen from './LoadingScreen'
+// import StartButton from './StartButton'
+import RiveLoadingScreen from './RiveLoadingScreen'
 
 import './styles.css'
 
 import cyberpunkIcon from '/src/assets/icons/X31.png?url'
-import AboutGame from '/src/assets/images/AboutGame.svg?url'
+// import AboutGame from '/src/assets/images/AboutGame.svg?url'
 
 import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
 import Micro from '/src/assets/fonts/Microgramma_D_Extended_Bold.otf?url'
@@ -87,7 +88,7 @@ function Scene() {
         <CameraRig />
         <BakeShadows />
 
-        <BannerPlane position={[-1, 2.2, -3]} rotation={[0.2, 0, 0]} />
+        {/* <BannerPlane position={[-1, 2.2, -3]} rotation={[0.2, 0, 0]} /> */}
       </Suspense>
     </>
   )
@@ -96,63 +97,70 @@ function Scene() {
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [isStarted, setIsStarted] = useState(false)
-  const [showInfoPanel, setShowInfoPanel] = useState(false)
-  const [isInfoVisible, setIsInfoVisible] = useState(false)
-  const [textIndex, setTextIndex] = useState(0)
+  // const [showInfoPanel, setShowInfoPanel] = useState(false)
+  // const [isInfoVisible, setIsInfoVisible] = useState(false)
+  // const [textIndex, setTextIndex] = useState(0)
   const infoRef = useRef(null)
   const infoButtonRef = useRef(null)
-  const audioPlayerRef = useRef(null)
+  // const audioPlayerRef = useRef(null)
   const { progress } = useProgress()
-  const [showTextLore, setShowTextLore] = useState(true)
+  // const [showTextLore, setShowTextLore] = useState(true)
+  // const [audioInitialized, setAudioInitialized] = useState(false);
+  const [opacity, setOpacity] = useState(0);
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
-  useEffect(() => {
-    console.log('audioPlayerRef:', audioPlayerRef);
-  }, []);
 
-  const textLoreContent = useMemo(() => [
-    "Welcome to Glitch Candies: Creatures",
-    "We are stuck between galaxies...",
-    "Magic worlds are assembling...",
-    "Creatures morph and glitch into new forms...",
-    "Tech and spells are generating...",
-    "Epic bosses are spawning...",
-    "Clues are scattered across...",
-    "Intergalactic travel will continue soon...",
-    "The journey is starting soon...",
-  ], []);
-  const handleGlobalClick = useCallback((event) => {
-    // Close InfoPanel if it's open and the click is outside the panel and info button
-    if (isInfoVisible && 
-        !infoRef.current?.contains(event.target) && 
-        !infoButtonRef.current?.contains(event.target)) {
-      setIsInfoVisible(false);
-      return;
-    }
-    // Prevent advancing text lore if clicking on interactive elements
-    if (
-      event.target.closest('.MuiSlider-root') || 
-      event.target.closest('.MuiIconButton-root') ||
-      event.target.closest('.MuiButtonBase-root') || // Ensure all MUI buttons are excluded
-      event.target.closest('button') || 
-      event.target.closest('a') ||
-      event.target.tagName === 'INPUT' ||
-      event.target.closest('.info-panel') ||
-      event.target.closest('.audio-player') // Add this line to exclude audio player clicks
-    ) {
-      return;
-    }
-    // Advance text lore
-    setTextIndex((prevIndex) => (prevIndex + 1) % textLoreContent.length);
-  }, [isInfoVisible, textLoreContent]);
-  useEffect(() => {
-    document.addEventListener('click', handleGlobalClick);
-    return () => {
-      document.removeEventListener('click', handleGlobalClick);
-    };
-  }, [handleGlobalClick]);
-  const handleTextComplete = useCallback(() => {
-    // This function will be called when each text animation completes
-  }, []);
+  // useEffect(() => {
+  //   console.log('audioPlayerRef:', audioPlayerRef);
+  // }, []);
+
+  // const textLoreContent = useMemo(() => [
+  //   "Welcome to Glitch Candies: Creatures",
+  //   "We are stuck between galaxies...",
+  //   "Magic worlds are assembling...",
+  //   "Creatures morph and glitch into new forms...",
+  //   "Tech and spells are generating...",
+  //   "Epic bosses are spawning...",
+  //   "Clues are scattered across...",
+  //   "Intergalactic travel will continue soon...",
+  //   "The journey is starting soon...",
+  // ], []);
+  // const handleGlobalClick = useCallback((event) => {
+  //   // Don't process global clicks if the scene hasn't started yet
+  //   if (!isStarted) return;
+
+  //   // Close InfoPanel if it's open and the click is outside the panel and info button
+  //   if (isInfoVisible && 
+  //       !infoRef.current?.contains(event.target) && 
+  //       !infoButtonRef.current?.contains(event.target)) {
+  //     setIsInfoVisible(false);
+  //     return;
+  //   }
+  //   // Prevent advancing text lore if clicking on interactive elements
+  //   if (
+  //     event.target.closest('.MuiSlider-root') || 
+  //     event.target.closest('.MuiIconButton-root') ||
+  //     event.target.closest('.MuiButtonBase-root') || 
+  //     event.target.closest('button') || 
+  //     event.target.closest('a') ||
+  //     event.target.tagName === 'INPUT' ||
+  //     event.target.closest('.info-panel') ||
+  //     event.target.closest('.audio-player')
+  //   ) {
+  //     return;
+  //   }
+  //   // Advance text lore
+  //   setTextIndex((prevIndex) => (prevIndex + 1) % textLoreContent.length);
+  // }, [isStarted, isInfoVisible, textLoreContent]);
+  // useEffect(() => {
+  //   document.addEventListener('click', handleGlobalClick);
+  //   return () => {
+  //     document.removeEventListener('click', handleGlobalClick);
+  //   };
+  // }, [handleGlobalClick]);
+  // const handleTextComplete = useCallback(() => {
+  //   // This function will be called when each text animation completes
+  // }, []);
 
 
 // Audio Player 
@@ -160,36 +168,45 @@ export default function App() {
 
 
 
-  // Initialize audio player when the component mounts
-  useEffect(() => {
-    const initAudioPlayer = async () => {
-      if (audioPlayerRef.current) {
-        await audioPlayerRef.current.initializeAudio();
-        audioPlayerRef.current.setTrack(0); // Set to the first track
-        console.log('Audio player initialized in App useEffect');
-      } else {
-        console.log('audioPlayerRef.current is null in App useEffect');
-      }
-    };
-    initAudioPlayer();
-  }, []);
+  // // Initialize audio player when the component mounts
+  // useEffect(() => {
+  //   const initAudioPlayer = async () => {
+  //     if (audioPlayerRef.current) {
+  //       try {
+  //         await audioPlayerRef.current.initializeAudio();
+  //         setAudioInitialized(true);
+  //         console.log('Audio player initialized in App useEffect');
+  //       } catch (error) {
+  //         console.error('Error initializing audio:', error);
+  //       }
+  //     } else {
+  //       console.log('audioPlayerRef.current is null in App useEffect');
+  //     }
+  //   };
+  //   initAudioPlayer();
+  // }, []);
 
 
 
   const handleStart = useCallback(() => {
     console.log('Start button clicked in App component');
     setIsStarted(true);
+    
+    // if (audioInitialized && audioPlayerRef.current) {
+    //   audioPlayerRef.current.playAudio();
+    // }
 
-    console.log('findme -- audioPlayerRef', audioPlayerRef)
-    if (audioPlayerRef.current) {
-      console.log('Initializing and starting audio');
-      audioPlayerRef.current.initializeAudio();
-      audioPlayerRef.current.setTrack(0);
-      audioPlayerRef.current.handlePlayPause();
-    } else {
-      console.log('audioPlayerRef.current is null in App handleStart');
-    }
-  }, [isLoaded, audioPlayerRef, audioPlayerRef.current]);
+    // Start fading in the scene
+    let fadeInterval = setInterval(() => {
+      setOpacity(prevOpacity => {
+        if (prevOpacity >= 1) {
+          clearInterval(fadeInterval);
+          return 1;
+        }
+        return prevOpacity + 0.1;
+      });
+    }, 50);
+  }, []);
 
   useEffect(() => {
     if (progress === 100) {
@@ -205,24 +222,26 @@ export default function App() {
   
   if (!isStarted) {
     return (
-      <LoadingScreen 
+      <RiveLoadingScreen 
         isLoaded={isLoaded} 
         progress={progress}
         onStart={handleStart}
-        audioPlayerRef={audioPlayerRef}
+        // audioPlayerRef={audioPlayerRef}
       />
     )
   }
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setIsLoaded(true), 1000) // Simulate loading time
-  //   return () => clearTimeout(timer)
-  // }, [])
 
  
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div style={{ 
+      width: '100vw', 
+      height: '100vh', 
+      position: 'relative',
+      opacity: opacity,
+      transition: 'opacity 0.5s ease-in-out'
+    }}>
       <Canvas 
         gl={{ antialias: true, samples: 4 }}
         shadows 
@@ -276,7 +295,7 @@ export default function App() {
         </EffectComposer>
       </Canvas>
 
-      <Loader />
+      {/* <Loader /> */}
       
       <Tooltip title="Glitch Candies on X" arrow placement="top">
         <AnimatedIcon
@@ -317,6 +336,8 @@ export default function App() {
         transform: 'translateX(-50%)',
         zIndex: 1002,
       }}>
+
+{/*         
         <Tooltip title="About the Game" arrow placement="top">
           <AnimatedIcon
             ref={infoButtonRef}
@@ -336,38 +357,43 @@ export default function App() {
             />
           </AnimatedIcon>
         </Tooltip>
-      </div>
+*/}
+      </div> 
 
-      <RetroGraphiteMUIAudioPlayer
+      {/* <RetroGraphiteMUIAudioPlayer
         ref={audioPlayerRef}
         width="clamp(125px, 13vw, 190px)"
         position={{ top: 'calc(1vw + clamp(10px, 1.5vw, 80px))', left: '2vw' }}
         isVisible={!showInfoPanel}
-      />
+        isStarted={isStarted}
+      /> */}
 
       <FullscreenButton style={{ pointerEvents: 'auto', zIndex: 2010 }} />
 
-        <TextLore 
+        {/* <TextLore 
         texts={textLoreContent} 
         currentIndex={textIndex} 
         customFont={ExoSemiBold}
         onTextComplete={handleTextComplete}
         style={{ 
-                pointerEvents: 'auto',
-                zIndex: 900,
-                bottom: '3vw',
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-            />
+          pointerEvents: 'auto',
+          zIndex: 900,
+          bottom: 'clamp(4vh, 5vh, 8vh)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          maxWidth: '800px',
+        }}
+        isStarted={isStarted}
+      /> */}
 
 
 
-      <InfoPanel 
+      {/* <InfoPanel 
         isInfoVisible={showInfoPanel} 
         onClose={() => setShowInfoPanel(false)}
         ref={infoRef}
-      />
+      /> */}
 
       <Tooltip title="Visit our website" arrow placement="left">
         <motion.div
@@ -424,18 +450,19 @@ export default function App() {
           onClick={handleGeometryChange}
         >
           <div style={{
-            fontFamily: 'MinRound, sans-serif',
-            fontSize: 'clamp(16px, 2vw, 24px)',
+            fontFamily: 'Min, sans-serif',
+            fontSize: 'clamp(24px, 2vw, 40px)',
             color: 'white',
             textShadow: '0 0 10px rgba(255,255,255,0.5)',
           }}>
             GlitchCandies
           </div>
           <div style={{
-            fontFamily: 'MinRound, sans-serif',
-            fontSize: 'clamp(13px, 1.51vw, 18px)',
+            fontFamily: 'Micro, sans-serif',
+            fontSize: 'clamp(13px, 1.51vw, 1px)',
             color: '#00FFFF',
             textShadow: '0 0 10px rgba(0,255,255,0.5)',
+            marginLeft: '-10px',
           }}>
             Creatures
           </div>

@@ -1,25 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
 
-
-
-const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isStarted }) => {
+const LoreText = ({ isStarted }) => {
   const [visibleText, setVisibleText] = useState([]);
   const [cursor, setCursor] = useState('_');
   const [showCursor, setShowCursor] = useState(true);
   const [isFading, setIsFading] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const loreTexts = useMemo(() => [
+    "Welcome to Glitch Candies: Creatures",
+    "We are stuck between galaxies...",
+    "Magic worlds are assembling...",
+    "Creatures morph and glitch into new forms...",
+    "Tech and spells are generating...",
+    "Epic bosses are spawning...",
+    "Clues are scattered across...",
+    "Intergalactic travel will continue soon...",
+    "The journey is starting soon...",
+  ], []);
+
   const scrambleChars = useMemo(() => 'Creatures!#$^&*()_+-=[]{}|;:,./<>?', []);
-  const getRandomChar = () => scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+  const getRandomChar = useCallback(() => scrambleChars[Math.floor(Math.random() * scrambleChars.length)], [scrambleChars]);
   const cursorChars = useMemo(() => ['_', '..', ''], []);
-  const getRandomCursor = () => cursorChars[Math.floor(Math.random() * cursorChars.length)];
+  const getRandomCursor = useCallback(() => cursorChars[Math.floor(Math.random() * cursorChars.length)], [cursorChars]);
+
+  const onTextComplete = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % loreTexts.length);
+  }, [loreTexts.length]);
+
   useEffect(() => {
     if (!isStarted) return;
 
-    const currentText = texts[currentIndex];
+    const currentText = loreTexts[currentIndex];
     const totalDuration = 4000 + currentText.length * 50;
     const typingDuration = totalDuration - 500;
     const startTime = Date.now();
+
     const animationInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       
@@ -57,10 +74,9 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
         }
       }
     }, 33);
-    return () => clearInterval(animationInterval);
-  }, [currentIndex, texts, scrambleChars, cursorChars, onTextComplete, isStarted]);
 
-  if (!isStarted) return null;
+    return () => clearInterval(animationInterval);
+  }, [currentIndex, loreTexts, getRandomChar, getRandomCursor, onTextComplete, isStarted]);
 
   return (
     <AnimatePresence>
@@ -70,35 +86,28 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
         animate={{ opacity: isFading ? 0 : 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: isFading ? 0.5 : 0.1 }}
-        className="text-lore"
         style={{
           position: 'absolute',
-          bottom: 'clamp(4vh, 5vh, 8vh)',
-          right: '7vw',
-          width: '50%',
-          maxWidth: '800px',
+          bottom: '2.5vw',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          maxWidth: '600px',
+          textAlign: 'center',
+          fontFamily: 'Monorama, sans-serif',
+          fontSize: '24px',
+          color: '#03d7fc',
+          opacity: 0.85,
+          textShadow: '0 0 10px rgba(0,255,255,0.7)',
           pointerEvents: 'none',
-          userSelect: 'none', // Prevent text selection
-          WebkitUserSelect: 'none', // For Safari
-          MozUserSelect: 'none', // For Firefox
-          msUserSelect: 'none', // For IE/Edge
-          zIndex: 900,
-          // Merge the passed style prop here
-          ...style,
+          userSelect: 'none',
         }}
       >
         <p style={{
-          fontSize: 'clamp(16px, 2.5vw, 32px)', // Increased font size
-          color: 'white',
-          opacity: '0.7',
-          textTransform: 'uppercase',
-          fontFamily: "'Exo', sans-serif",
           margin: 0,
           padding: '8px',
-          textAlign: 'left',
-          wordWrap: 'break-word',
           lineHeight: '1.5',
-          cursor: 'default', // Change cursor to default
+          cursor: 'default',
         }}>
           {visibleText.join('')}
           {showCursor && (
@@ -107,32 +116,9 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
             }}>{cursor}</span>
           )}
         </p>
-        <style>{`
-          @font-face {
-            font-family: 'Exo';
-            src: url(${customFont}) format('truetype');
-            font-weight: 600;
-            font-style: normal;
-          }
-          @keyframes caret {
-            50% { opacity: 0; }
-          }
-          /* Hide Google Translate icon */
-          .goog-te-gadget {
-            display: none !important;
-          }
-          .goog-te-banner-frame {
-            display: none !important;
-          }
-          body {
-            top: 0 !important;
-          }
-        `}</style>
       </motion.div>
     </AnimatePresence>
   );
 };
-export default TextLore;
 
-
-
+export default LoreText;
