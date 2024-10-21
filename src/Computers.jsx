@@ -3,19 +3,20 @@ import { useMemo, useContext, createContext, useRef, useState, useCallback } fro
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, Merged, RenderTexture, PerspectiveCamera, Text } from '@react-three/drei'
 THREE.ColorManagement.legacyMode = false
-// import {VideoScreen1, VideoScreen2} from './VideoScreen'
+import {VideoScreen1, VideoScreen2} from './VideoScreen'
 import { GeometricShape } from './GeometricShape'
 import './styles.css'
 
-// // Import video assets
-// import videoSrc1 from '/src/assets/video/AI7_Low.mp4?url'
-// import videoSrc2 from '/src/assets/video/GC_Teaser_Low.mp4?url'
 
-// // Define video sources
-// const VIDEO_SOURCES = {
-//   VIDEO1: videoSrc1,
-//   VIDEO2: videoSrc2
-// };
+// Import video assets
+import videoSrc1 from '/src/assets/video/AI7_Low.mp4?url'
+import videoSrc2 from '/src/assets/video/GC_Teaser_Low.mp4?url'
+
+// Define video sources
+const VIDEO_SOURCES = {
+  VIDEO1: videoSrc1,
+  VIDEO2: videoSrc2
+};
 
 import computersModel from '/src/assets/models/computers_1-transformed.glb?url'
 import inter from './assets/fonts/Microgramma_D_Extended_Bold.otf?url'
@@ -175,10 +176,10 @@ export function Computers(props) {
       <mesh castShadow receiveShadow geometry={n.Object_204.geometry} material={m.Texture} position={[3.2, 4.29, -3.09]} rotation={[-Math.PI, 0.56, 0]} scale={-1} />
       <ScreenInteractive frame="Object_206" panel="Object_207" position={[0.27, 1.53, -2.61]} onGeometryChange={handleGeometryChange} />
      
-      {/* <ScreenVideo frame="Object_209" panel="Object_210" y={5} position={[-1.43, 2.5, -1.8]} rotation={[0, 1, 0]} VideoScreenComponent={VideoScreen1} videoSrc={VIDEO_SOURCES.VIDEO1} isColorSwapped={isColorSwapped} /> */}
+      <ScreenVideo frame="Object_209" panel="Object_210" y={5} position={[-1.43, 2.5, -1.8]} rotation={[0, 1, 0]} VideoScreenComponent={VideoScreen1} videoSrc={VIDEO_SOURCES.VIDEO1} isColorSwapped={isColorSwapped} />
       <ScreenText invert frame="Object_212" panel="Object_213" x={-5} y={5} position={[-2.73, 0.63, -0.52]} rotation={[0, 1.09, 0]} isColorSwapped={isColorSwapped} />
      
-      {/* <ScreenVideo invert frame="Object_215" panel="Object_216" position={[1.84, 0.38, -1.77]} rotation={[0, -Math.PI / 9, 0]} VideoScreenComponent={VideoScreen2} videoSrc={VIDEO_SOURCES.VIDEO2} isColorSwapped={isColorSwapped} /> */}
+      <ScreenVideo invert frame="Object_215" panel="Object_216" position={[1.84, 0.38, -1.77]} rotation={[0, -Math.PI / 9, 0]} VideoScreenComponent={VideoScreen2} videoSrc={VIDEO_SOURCES.VIDEO2} isColorSwapped={isColorSwapped} />
      
       <ScreenText invert frame="Object_218" panel="Object_219" x={2} position={[3.11, 2.15, -0.18]} rotation={[0, -0.79, 0]} scale={0.81} isColorSwapped={isColorSwapped} />
       <ScreenText frame="Object_221" panel="Object_222" y={5} position={[-3.42, 3.06, 1.3]} rotation={[0, 1.22, 0]} scale={0.9} isColorSwapped={isColorSwapped} />
@@ -218,11 +219,11 @@ function ScreenVideo({ frame, panel, videoSrc, invert, VideoScreenComponent, isC
 
   return (
     <Screen frame={frame} panel={panel} {...props}>
-      {/* <PerspectiveCamera makeDefault manual aspect={1 / 1} position={[0, 0, 15]} />
+      <PerspectiveCamera makeDefault manual aspect={1 / 1} position={[0, 0, 15]} />
       <color attach="background" args={[backgroundColor]} />
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} />
-      <VideoScreenComponent videoSrc={videoSrc} /> */}
+      <VideoScreenComponent videoSrc={videoSrc} />
     </Screen>
   )
 }
@@ -353,3 +354,4 @@ function DragonsEye({ instances }) {
     </group>
   )
 }
+

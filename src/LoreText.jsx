@@ -7,6 +7,7 @@ const LoreText = ({ isStarted }) => {
   const [showCursor, setShowCursor] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(false);
 
   const loreTexts = useMemo(() => [
     "Welcome to Glitch Candies: Creatures",
@@ -41,6 +42,9 @@ const LoreText = ({ isStarted }) => {
       const elapsedTime = Date.now() - startTime;
       
       if (elapsedTime < typingDuration) {
+        // Show cursor when typing starts
+        if (!cursorVisible) setCursorVisible(true);
+
         const progress = elapsedTime / typingDuration;
         const revealedChars = Math.floor(progress * currentText.length);
         const newVisibleText = currentText.split('').map((char, index) => {
@@ -70,13 +74,15 @@ const LoreText = ({ isStarted }) => {
           setTimeout(() => {
             setIsFading(true);
             onTextComplete();
+            // Hide cursor when text is complete
+            setCursorVisible(false);
           }, 1000);
         }
       }
     }, 33);
 
     return () => clearInterval(animationInterval);
-  }, [currentIndex, loreTexts, getRandomChar, getRandomCursor, onTextComplete, isStarted]);
+  }, [currentIndex, loreTexts, getRandomChar, getRandomCursor, onTextComplete, isStarted, cursorVisible]);
 
   return (
     <AnimatePresence>
@@ -110,7 +116,7 @@ const LoreText = ({ isStarted }) => {
           cursor: 'default',
         }}>
           {visibleText.join('')}
-          {showCursor && (
+          {showCursor && cursorVisible && (
             <span style={{
               animation: cursor === '_' ? 'caret 1s steps(1) infinite' : 'none',
             }}>{cursor}</span>
