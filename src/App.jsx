@@ -9,7 +9,7 @@ import { easing } from 'maath'
 import { Instances, Computers } from './Computers'
 import OG from './Creature'
 import HologramOG from './HologramOG'
-import { Dragon, Tripo, Moog, Speeder, VCS3 } from './Models.jsx'
+import { Gamepad,Dragon, Tripo, Moog, Speeder, VCS3 } from './Models.jsx'
 import RetroGraphiteMUIAudioPlayer from './AudioPlayer'
 import { Tooltip } from '@mui/material'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -19,6 +19,7 @@ import { BannerPlane } from './BannerPlane'
 import RiveLoadingScreen from './RiveLoadingScreen'
 import LandscapeEnforcer from './LandscapeEnforcer'
 import useStore from './zustandStore'
+import RiveControl from './UI/RiveControl'
 
 
 import './styles.css'
@@ -65,6 +66,9 @@ function Scene() {
         </group>
         <Tripo position={[-1.78, -0.35, 1.84]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
         <VCS3 position={[-1.7, 0.4, -.35]} scale={[1, 1, 1]} rotation={[0, 9, 0]} />
+        
+        <Gamepad position={[-0.5, -1, 0.1]} scale={[0.2, 0.2, 0.2]} rotation={[0, 0.8, 0]} />
+
         <Dragon position={[1.1, 0.4, -1.4]} scale={[1.7, 1.7, 1.7]} rotation={[0, 10.2, 0]} />
         <Speeder position={[1.98, -.8, 2.5]} scale={[0.8, 0.8, 0.8]} rotation={[0, 9.2, 0]} />
         <Moog position={[1.5,-1.2, 1]} scale={[0.1, 0.3, 0.1]} rotation={[0, 5.2, 0]} />
@@ -155,6 +159,7 @@ export default function App() {
         onStart={handleStart}
         audioPlayerRef={audioPlayerRef}
       />
+      <RiveControl />
       {showMainContent && (
         <div style={{ 
           width: '100vw', 

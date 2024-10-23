@@ -1,4 +1,4 @@
-import create from 'zustand'
+import { create } from 'zustand'
 import { isMobile, isTablet, isDesktop } from "react-device-detect"
 
 const useStore = create((set) => ({

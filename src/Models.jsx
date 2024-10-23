@@ -8,8 +8,16 @@ import vcs3Model from '/src/assets/models/vcs3-transformed.glb?url'
 import moogModel from '/src/assets/models/moog-transformed.glb?url'
 import tripoModel from '/src/assets/models/tripo3-transformed.glb?url'
 import DragonModel from '/src/assets/models/Dragon-transformed.glb?url'
+import GamepadModel from '/src/assets/models/gamepad-transformed.glb?url'
 
-
+function Gamepad({ position, scale, rotation }) {
+    const { nodes, materials } = useGLTF(GamepadModel)
+    return (
+        <group position={position} scale={scale} rotation={rotation} dispose={null}>
+      <mesh castShadow receiveShadow geometry={nodes.manette_Material007_0.geometry} material={materials.PaletteMaterial001} rotation={[-Math.PI / 2, 0, -Math.PI / 2]} />
+      </group>
+    )
+}
 
 function Speeder({ position, scale, rotation }) {
     const groupRef = useRef()
@@ -73,9 +81,10 @@ function Tripo({ position, scale, rotation }) {
     )
 }
 
-export { Dragon, Moog, Speeder, Tripo, VCS3 }
+export { Gamepad, Dragon, Moog, Speeder, Tripo, VCS3 }
 
 // Preload models using the same paths
+useGLTF.preload(GamepadModel)
 useGLTF.preload(DragonModel)
 useGLTF.preload(cyberpunkSpeederModel)
 useGLTF.preload(vcs3Model)

@@ -4,7 +4,7 @@ import { Tooltip } from '@mui/material'
 import FullscreenButton from './FullscreenButton'
 import InfoPanel from './InfoPanel'
 import RetroGraphiteMUIAudioPlayer from '../AudioPlayer'
-import PushButton from '../components/PushButton'
+import PushButton from './PushButton'
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas'
 import HealthBarTriangles from './HealthBarTriangles'
 
