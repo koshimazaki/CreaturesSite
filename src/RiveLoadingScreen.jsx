@@ -8,9 +8,11 @@ import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
 
 const RiveLoadingScreen = ({ onStart }) => {
   const isStarted = useStore(state => state.isStarted);
+  const textIndex = useStore(state => state.textIndex); // Get textIndex from the store
+  const setTextIndex = useStore(state => state.setTextIndex); // Get the setter function
+
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [showTextLore, setShowTextLore] = useState(false);
-  const [textIndex, setTextIndex] = useState(0);
 
   // Loading text content
   const textLoreContent = [
@@ -54,10 +56,10 @@ const RiveLoadingScreen = ({ onStart }) => {
   // Handle text completion
   const handleTextComplete = useCallback(() => {
     setTextIndex(prevIndex => {
-      // Loop back to beginning if we reach the end
+      // Move to the next line, loop back to the start if at the end
       return (prevIndex + 1) % textLoreContent.length;
     });
-  }, [textLoreContent.length]);
+  }, [setTextIndex, textLoreContent.length]);
 
   // Stop animations when started
   useEffect(() => {

@@ -49,7 +49,7 @@ const theme = createTheme({
 const AudioPlayerContainer = styled(Box)(({ theme }) => ({
   width: "10rem",
   backgroundColor: "rgba(55, 65, 81, 0.0)",
-  padding: theme.spacing(1),
+  padding: theme.spacing(0.5), // Reduced padding
   color: theme.palette.common.white,
   boxShadow: theme.shadows[10],
   backdropFilter: "blur(8px)",
@@ -72,13 +72,14 @@ const AudioPlayerContainer = styled(Box)(({ theme }) => ({
 }))
 
 const CanvasContainer = styled(Box)({
-  marginBottom: "0.2rem",
+  marginBottom: "0.01rem", // Reduced margin
   position: "relative",
+  padding: "0.01rem", // Reduced padding
 })
 
 const StyledCanvas = styled("canvas")({
   width: "100%",
-  height: "3.2rem",
+  height: "4.2rem",
   backgroundColor: "rgba(21, 23, 26, 0.4)",
   borderRadius: "0.25rem",
   border: "1px solid rgba(107, 114, 128, 0.3)",
@@ -229,7 +230,7 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
       analyserRef.current.getByteTimeDomainData(dataArray)
 
       ctx.lineWidth = 2
-      ctx.strokeStyle = "white"
+      ctx.strokeStyle = "#03d7fc" // Blue color for visualizer waves
       ctx.beginPath()
 
       const sliceWidth = (width * 1.75) / bufferLength
@@ -314,6 +315,7 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
       >
         <CanvasContainer onClick={handleCanvasClick}>
           <StyledCanvas ref={canvasRef} width={256} height={50} />
+          
         </CanvasContainer>
         <ControlsContainer 
           style={{
@@ -323,9 +325,24 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
             gap: '0rem',
             marginTop: '0.7rem', 
             marginBottom: '0rem',
+            padding: '0px',
           }}
         >
-          <IconButton onClick={handlePrevious} size="small" sx={{ opacity: 0.75, color: "white", padding: "4px" }}>
+          <IconButton 
+            onClick={handlePrevious} 
+            size="small" 
+            sx={{ 
+              opacity: 0.75, 
+              color: "#fc0398", // Pink color for icons
+              padding: "2px",
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)', // Dark fill on hover
+              },
+              '&:active': {
+                backgroundColor: 'rgba(0, 0, 0, 1)', // Darker fill when pressed
+              },
+            }}
+          >
             <SkipPreviousIcon fontSize="large" />
           </IconButton>
           <IconButton
@@ -336,11 +353,36 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
               setIsPlaying(prev => !prev);
             }}
             size="large"
-            sx={{ opacity: 0.75, color: "white", padding: "4px" }}
+            sx={{ 
+              opacity: 0.75, 
+              color: "#fc0398", // Pink color for icons
+              padding: "4px",
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)', // Dark fill on hover
+              },
+              '&:active': {
+                backgroundColor: 'rgba(0, 0, 0, 1)', // Darker fill when pressed
+              },
+            }}
           >
             {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
           </IconButton>
-          <IconButton onClick={handleNext} size="large" sx={{ opacity: 0.75, size: "4rem", color: "white", padding: "4px" }}>
+          <IconButton 
+            onClick={handleNext} 
+            size="large" 
+            sx={{ 
+              opacity: 0.95, 
+              size: "4rem", 
+              color: "#fc0398", // Pink color for icons
+              padding: "4px",
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)', // Dark fill on hover
+              },
+              '&:active': {
+                backgroundColor: 'rgba(0, 0, 0, 1)', // Darker fill when pressed
+              },
+            }}
+          >
             <SkipNextIcon fontSize="large" />
           </IconButton>
         </ControlsContainer>
@@ -353,15 +395,15 @@ const RetroGraphiteMUIAudioPlayer = forwardRef(({ width = "18rem", position = { 
             max={100}
             step={1}
             sx={{ 
-              color: "white",
+              color: "#fc0398", // Pink color for the slider
               opacity: 0.75,
-              padding: '5px 0',
+              padding: '1px 0',
               height: '3px',
               top: '0.5vw',
               '& .MuiSlider-thumb': {
                 width: 2,
                 height: 2,
-                boxShadow: '0 0 2px 0px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 0 2px 0px rgba(0, 0, 0, 0.8)',
                 transition: 'box-shadow 0.1s ease-in-out',
               },
               '& .MuiSlider-rail': {

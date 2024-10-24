@@ -21,7 +21,7 @@ import LandscapeEnforcer from './LandscapeEnforcer'
 import useStore from './zustandStore'
 import RiveControl from './UI/RiveControl'
 import Orb from './Orb'
-
+import EmbedFix from './EmbedFix'
 
 import './styles.css'
 
@@ -35,7 +35,7 @@ const CameraRig = () => {
 }
 
 
-function Scene() {
+function Scene({ audioPlayerRef }) {
   return (
     <>
       <color attach="background" args={['black']} />
@@ -65,6 +65,33 @@ function Scene() {
           <OG scale={0.2} position={[0, 0, 0.8]} rotation={[0, -Math.PI * 0.9, 0]} />
           <pointLight distance={1.5} intensity={1} position={[-0.15, 1, 0]} color="hotpink" />
         </group>
+        
+        {/* Add AudioPlayer to the scene */}
+        <Html
+          transform
+          position={[1.95, 1.3, 1.2]}          
+          rotation={[0, Math.PI / 25, 0]} // Set the fixed rotation around Y-axis
+          scale={0.14}
+          style={{
+            width: '50%',
+            height: '50%',
+            pointerEvents: 'auto'
+          }}
+        >
+          <div
+            style={{ 
+              transformStyle: "preserve-3d", // Ensure 3D transformations are preserved
+              perspective: 1000, // Add perspective for 3D effect
+            }}
+          >
+            <RetroGraphiteMUIAudioPlayer
+              ref={audioPlayerRef}
+              width="15rem"
+              position={{ top: "0px", left: "0px" }}
+            />
+          </div>
+        </Html>
+        
         <Tripo position={[-1.98, -0.35, 1.99]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
         
         <Palm position={[-2.4, -1.35, 1.3]} scale={[0.2, 0.2,0.2]} rotation={[0, 0, 0]} />
@@ -111,12 +138,12 @@ function Scene() {
         />
 
         <Orb 
-          position={[-.7, -0.6, -.5]} 
+          position={[-2.1, -0.6, 0.6]} 
           scale={[0.07, 0.07, 0.07]}
           colorA="#fc0398"
           colorB="#fc0398"
           timeOffset={.1}  // Different offset
-          yRange={{ min: -0.12, max: 0.28 }}  // Different range
+          yRange={{ min: 0.12, max: 0.28 }}  // Different range
         />
 
         <EffectComposer disableNormalPass multisampling={16}>
@@ -136,6 +163,7 @@ function Scene() {
 export default function App() {
   const audioPlayerRef = useRef(null)
   const { progress } = useProgress()
+  const [isRotated, setIsRotated] = useState(false)
   
   const isLoaded = useStore(state => state.isLoaded)
   const isStarted = useStore(state => state.isStarted)
@@ -182,11 +210,7 @@ export default function App() {
     console.log('Start button clicked in App component');
     setIsStarted(true);
     
-    if (audioInitialized && audioPlayerRef.current) {
-      audioPlayerRef.current.playAudio();
-    }
-
-    // Start fading in the scene
+    // Remove audio initialization from here since we'll handle it in the main scene
     setShowMainContent(true);
     const fadeInterval = setInterval(() => {
       incrementOpacity();
@@ -194,13 +218,17 @@ export default function App() {
         clearInterval(fadeInterval);
       }
     }, 50);
-  }, [audioInitialized, incrementOpacity, opacity, setIsStarted]);
+  }, [incrementOpacity, opacity, setIsStarted]);
+
+  const handlePanelClick = () => {
+    setIsRotated(true)
+    setTimeout(() => setIsRotated(false), 3000) // Revert back after 3 seconds
+  }
 
   return (
     <LandscapeEnforcer>
       <RiveLoadingScreen 
         onStart={handleStart}
-        audioPlayerRef={audioPlayerRef}
       />
       <RiveControl />
       {showMainContent && (
@@ -223,13 +251,15 @@ export default function App() {
             eventPrefix="client"
             style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
           >
-            <Scene />
+            <Scene 
+              audioPlayerRef={audioPlayerRef} 
+            />
           </Canvas>
 
           <Canvas
             style={{
               position: 'absolute',
-              top: 'calc(2vw + clamp(160px, 10.5vw, 180px))',
+              top: 'calc(0.1vw + clamp(100px, 8.5vw, 120px))',
               left: '2.3vw',
               width: 'clamp(120px, 12vw, 180px)',
               height: 'calc(6vw + clamp(120px, 9vw, 160px))',
@@ -268,7 +298,7 @@ export default function App() {
           </Canvas>
         
             <UIOverlay />    
-
+            <EmbedFix />
         </div>
       )}
     </LandscapeEnforcer>

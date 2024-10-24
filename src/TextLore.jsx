@@ -14,13 +14,18 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
   const cursorChars = useMemo(() => ['_', '..', ''], []);
   const getRandomCursor = () => cursorChars[Math.floor(Math.random() * cursorChars.length)];
   useEffect(() => {
-    if (!isStarted) return;
+    if (!isStarted || !texts || texts.length === 0) return;
 
     const currentText = texts[currentIndex];
+    if (!currentText) return;
+
+    console.log('Starting animation for text:', currentText); // Debug log
+
     const totalDuration = 4000 + currentText.length * 50;
     const typingDuration = totalDuration - 500;
     const startTime = Date.now();
-    
+    let animationCompleted = false;
+
     const animationInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       
@@ -46,25 +51,23 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
         }
         setShowCursor(true);
         setIsFading(false);
-      } else {
+      } else if (!animationCompleted) {
         setVisibleText(currentText.split(''));
         setShowCursor(false);
-        if (elapsedTime >= totalDuration) {
-          clearInterval(animationInterval);
-          setTimeout(() => {
-            setIsFading(true);
-            // Loop back to the beginning if we're at the end
-            onTextComplete();
-            if (currentIndex === texts.length - 1) {
-              // setTextIndex(0);
-            }
-          }, 1000);
-        }
+        animationCompleted = true;
+        clearInterval(animationInterval);
+        setTimeout(() => {
+          setIsFading(true);
+          onTextComplete();
+        }, 1000);
       }
     }, 33);
 
-    return () => clearInterval(animationInterval);
-  }, [currentIndex, texts, scrambleChars, cursorChars, onTextComplete, isStarted]);
+    return () => {
+      console.log('Clearing interval for text:', currentText); // Debug log
+      clearInterval(animationInterval);
+    };
+  }, [currentIndex, texts, onTextComplete, isStarted]);
 
   if (!isStarted) return null;
 
