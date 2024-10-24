@@ -19,15 +19,18 @@ const FullscreenButton: React.FC = () => {
     }
   }, [])
 
+  // Handle key press for fullscreen
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === '/') {
+      toggleFullscreen()
+    } else if (event.key === 'Escape') {
+      setIsFullscreen(false)
+    }
+  }, [toggleFullscreen])
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsFullscreen(false)
-      }
     }
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
@@ -37,7 +40,7 @@ const FullscreenButton: React.FC = () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [handleKeyDown])
 
   useEffect(() => {
     document.body.style.overflow = isFullscreen ? 'hidden' : ''
@@ -50,7 +53,7 @@ const FullscreenButton: React.FC = () => {
   }
 
   return (
-    <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"} arrow placement="top">
+    <Tooltip title={`${isFullscreen ? "Exit" : "Enter"} Fullscreen (press '/')`} arrow placement="top">
       <motion.div
         whileTap={{ scale: 0.9 }}
         style={{

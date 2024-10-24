@@ -20,6 +20,7 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
     const totalDuration = 4000 + currentText.length * 50;
     const typingDuration = totalDuration - 500;
     const startTime = Date.now();
+    
     const animationInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       
@@ -52,11 +53,16 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
           clearInterval(animationInterval);
           setTimeout(() => {
             setIsFading(true);
+            // Loop back to the beginning if we're at the end
             onTextComplete();
+            if (currentIndex === texts.length - 1) {
+              // setTextIndex(0);
+            }
           }, 1000);
         }
       }
     }, 33);
+
     return () => clearInterval(animationInterval);
   }, [currentIndex, texts, scrambleChars, cursorChars, onTextComplete, isStarted]);
 
@@ -70,35 +76,29 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
         animate={{ opacity: isFading ? 0 : 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: isFading ? 0.5 : 0.1 }}
-        className="text-lore"
         style={{
           position: 'absolute',
-          bottom: 'clamp(4vh, 5vh, 8vh)',
-          right: '7vw',
-          width: '50%',
-          maxWidth: '800px',
+          bottom: '2.5vw',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          maxWidth: '600px',
+          textAlign: 'center',
+          fontFamily: 'Monorama, sans-serif',
+          fontSize: '24px',
+          color: '#03d7fc',
+          opacity: 0.85,
+          textShadow: '0 0 10px rgba(0,255,255,0.7)',
           pointerEvents: 'none',
-          userSelect: 'none', // Prevent text selection
-          WebkitUserSelect: 'none', // For Safari
-          MozUserSelect: 'none', // For Firefox
-          msUserSelect: 'none', // For IE/Edge
-          zIndex: 900,
-          // Merge the passed style prop here
-          ...style,
+          userSelect: 'none',
+          ...style, // This will override any duplicate properties from above
         }}
       >
         <p style={{
-          fontSize: 'clamp(16px, 2.5vw, 32px)', // Increased font size
-          color: 'white',
-          opacity: '0.7',
-          textTransform: 'uppercase',
-          fontFamily: "'Exo', sans-serif",
           margin: 0,
           padding: '8px',
-          textAlign: 'left',
-          wordWrap: 'break-word',
           lineHeight: '1.5',
-          cursor: 'default', // Change cursor to default
+          cursor: 'default',
         }}>
           {visibleText.join('')}
           {showCursor && (
@@ -116,16 +116,6 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
           }
           @keyframes caret {
             50% { opacity: 0; }
-          }
-          /* Hide Google Translate icon */
-          .goog-te-gadget {
-            display: none !important;
-          }
-          .goog-te-banner-frame {
-            display: none !important;
-          }
-          body {
-            top: 0 !important;
           }
         `}</style>
       </motion.div>

@@ -9,6 +9,56 @@ import moogModel from '/src/assets/models/moog-transformed.glb?url'
 import tripoModel from '/src/assets/models/tripo3-transformed.glb?url'
 import DragonModel from '/src/assets/models/Dragon-transformed.glb?url'
 import GamepadModel from '/src/assets/models/gamepad-transformed.glb?url'
+import PalmModel from '/src/assets/models/palm.glb?url'
+import PyramidModel from '/src/assets/models/pyramid.glb?url'
+
+
+function Palm({ position, scale, rotation }) {
+    const { nodes, materials } = useGLTF(PalmModel)
+    const groupRef = useRef()
+    
+    // Add animation using useFrame
+    useFrame((state) => {
+        const time = state.clock.getElapsedTime()
+        
+        // Gentle swaying rotation
+        if (groupRef.current) {
+            // Sway around Y axis
+            groupRef.current.rotation.y = rotation[1] + Math.sin(time * 0.5) * 0.1
+            
+            // Slight tilt in X and Z
+            groupRef.current.rotation.x = Math.sin(time * 0.3) * 0.05
+            groupRef.current.rotation.z = Math.cos(time * 0.4) * 0.05
+            
+            // Subtle "breathing" scale
+            const breathingScale = 1 + Math.sin(time * 0.8) * 0.03
+            groupRef.current.scale.set(
+                scale[0] * breathingScale,
+                scale[1] * breathingScale,
+                scale[2] * breathingScale
+            )
+        }
+    })
+
+    return (
+        <group 
+            ref={groupRef} 
+            position={position} 
+            scale={scale} 
+            rotation={rotation}
+        >
+            {/* Scene node rendering */}
+            {nodes.Scene && nodes.Scene.children && nodes.Scene.children.map((child, index) => (
+                <primitive key={index} object={child} />
+            ))}
+            
+            {/* Direct mesh rendering */}
+            {nodes.Palm_01 && (
+                <primitive object={nodes.Palm_01} />
+            )}
+        </group>
+    )
+}
 
 function Gamepad({ position, scale, rotation }) {
     const { nodes, materials } = useGLTF(GamepadModel)
@@ -74,20 +124,109 @@ function Moog({ position, scale, rotation }) {
 
 function Tripo({ position, scale, rotation }) {
     const { nodes, materials } = useGLTF(tripoModel)
+    const groupRef = useRef()
+    
+    // Add gentle animation using useFrame
+    useFrame((state) => {
+        const time = state.clock.getElapsedTime()
+        
+        if (groupRef.current) {
+            // Very subtle rotation around Y axis
+            groupRef.current.rotation.y = rotation[1] + Math.sin(time * 0.2) * 0.1
+            
+            // Extremely gentle tilt
+            groupRef.current.rotation.x = Math.sin(time * 0.15) * 0.08
+            groupRef.current.rotation.z = Math.cos(time * 0.15) * 0.08
+            
+            // Very subtle breathing effect
+            const breathingScale = 1 + Math.sin(time * 0.3) * 0.008
+            groupRef.current.scale.set(
+                scale[0] * breathingScale,
+                scale[1] * breathingScale,
+                scale[2] * breathingScale
+            )
+        }
+    })
+
     return (
-        <group position={position} scale={scale} rotation={rotation} dispose={null}>
-        <mesh castShadow receiveShadow geometry={nodes['tripo_node_8daeafd4-b61b-4a05-af54-1987b972f516'].geometry} material={materials['tripo_material_8daeafd4-b61b-4a05-af54-1987b972f516']} />
-      </group>
+        <group 
+            ref={groupRef} 
+            position={position} 
+            scale={scale} 
+            rotation={rotation} 
+            dispose={null}
+        >
+            <mesh 
+                castShadow 
+                receiveShadow 
+                geometry={nodes['tripo_node_8daeafd4-b61b-4a05-af54-1987b972f516'].geometry} 
+                material={materials['tripo_material_8daeafd4-b61b-4a05-af54-1987b972f516']} 
+            />
+        </group>
     )
 }
 
-export { Gamepad, Dragon, Moog, Speeder, Tripo, VCS3 }
+function Pyramid({ position, scale, rotation }) {
+    const { nodes, materials } = useGLTF(PyramidModel)
+    const groupRef = useRef()
+    
+    // Add very subtle animation
+    useFrame((state) => {
+        const time = state.clock.getElapsedTime()
+        
+        if (groupRef.current) {
+            // Very subtle rotation
+            groupRef.current.rotation.y = rotation[1] + Math.sin(time * 0.1) * 0.02
+            
+            // Minimal tilt
+            groupRef.current.rotation.x = Math.sin(time * 0.08) * 0.005
+            groupRef.current.rotation.z = Math.cos(time * 0.08) * 0.005
+            
+            // Subtle breathing scale
+            const breathingScale = 1 + Math.sin(time * 0.2) * 0.004
+            groupRef.current.scale.set(
+                scale[0] * breathingScale,
+                scale[1] * breathingScale,
+                scale[2] * breathingScale
+            )
+            
+            // Gentle up and down movement
+            const hoverY = Math.sin(time * 0.5) * 0.05  // Adjust 0.05 for hover height
+            groupRef.current.position.y = position[1] + hoverY
+        }
+    })
+
+    return (
+        <group 
+            ref={groupRef} 
+            position={position} 
+            scale={scale} 
+            rotation={rotation}
+        >
+            <mesh 
+                castShadow 
+                receiveShadow 
+                geometry={nodes.Cube002.geometry} 
+                material={materials['Gradient.001']} 
+                position={[1.755, 10.672, -0.455]} 
+                rotation={[-Math.PI, 1.559, -Math.PI]} 
+                scale={[26.784, 10.911, 28.843]} 
+            />
+        </group>
+    )
+}
+
+export { Palm, Gamepad, Dragon, Moog, Speeder, Tripo, VCS3, Pyramid }
 
 // Preload models using the same paths
+useGLTF.preload(PalmModel)
 useGLTF.preload(GamepadModel)
 useGLTF.preload(DragonModel)
 useGLTF.preload(cyberpunkSpeederModel)
 useGLTF.preload(vcs3Model)
 useGLTF.preload(moogModel)
 useGLTF.preload(tripoModel)
+useGLTF.preload(PyramidModel)
 
+// Update the preload
+useGLTF.preload('/palm.glb')

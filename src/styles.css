@@ -23,6 +23,9 @@
   font-family: 'Monorama', sans-serif;
 }
 
+.rive-container {
+  touch-action: none; /* Prevent unwanted touch behaviors */
+}
 
 
 

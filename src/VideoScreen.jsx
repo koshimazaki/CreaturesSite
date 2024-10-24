@@ -22,7 +22,20 @@ function VideoScreen2({ videoSrc }) {
       </mesh>
     )
   }
+
+
+  function VideoScreen3({ videoSrc }) {
+    const videoTexture = useVideoTexture(videoSrc)
   
-  export { VideoScreen1, VideoScreen2 }
+    return (
+      <mesh position={[-5.5, 6.29, -2.64]} scale={[3.5, 2.9, 1]}rotation={[0, 0.04, 0]}>
+        <planeGeometry />
+        <meshBasicMaterial map={videoTexture} toneMapped={false} />
+      </mesh>
+    )
+  }
+
+  
+  export { VideoScreen1, VideoScreen2, VideoScreen3 }
   
     

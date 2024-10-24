@@ -9,7 +9,7 @@ import { easing } from 'maath'
 import { Instances, Computers } from './Computers'
 import OG from './Creature'
 import HologramOG from './HologramOG'
-import { Gamepad,Dragon, Tripo, Moog, Speeder, VCS3 } from './Models.jsx'
+import { Palm, Gamepad, Dragon, Tripo, Moog, Speeder, VCS3, Pyramid } from './Models.jsx'
 import RetroGraphiteMUIAudioPlayer from './AudioPlayer'
 import { Tooltip } from '@mui/material'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -20,6 +20,7 @@ import RiveLoadingScreen from './RiveLoadingScreen'
 import LandscapeEnforcer from './LandscapeEnforcer'
 import useStore from './zustandStore'
 import RiveControl from './UI/RiveControl'
+import Orb from './Orb'
 
 
 import './styles.css'
@@ -64,7 +65,11 @@ function Scene() {
           <OG scale={0.2} position={[0, 0, 0.8]} rotation={[0, -Math.PI * 0.9, 0]} />
           <pointLight distance={1.5} intensity={1} position={[-0.15, 1, 0]} color="hotpink" />
         </group>
-        <Tripo position={[-1.78, -0.35, 1.84]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
+        <Tripo position={[-1.98, -0.35, 1.99]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
+        
+        <Palm position={[-2.4, -1.35, 1.3]} scale={[0.2, 0.2,0.2]} rotation={[0, 0, 0]} />
+        <Pyramid position={[-2.1, -1.25, 0.5]} scale={[0.04, 0.04,0.04]} rotation={[0, 2.6, 0]} />
+
         <VCS3 position={[-1.7, 0.4, -.35]} scale={[1, 1, 1]} rotation={[0, 9, 0]} />
         
         <Gamepad position={[-0.5, -1, 0.1]} scale={[0.2, 0.2, 0.2]} rotation={[0, 0.8, 0]} />
@@ -76,6 +81,44 @@ function Scene() {
         <Sparkles count={50} scale={[2,2.5,2]} size={3} speed={0.2} color="pink" position={[-5.5, 0, 0.5]} />
         <Sparkles count={50} scale={[1,2.5,2]} size={5} speed={0.2} color="lightblue" position={[4.5, 0, 1.4]} />        
         
+
+        <Orb 
+        position={[1.6, -0.6, -.2]} 
+        scale={[0.2, 0.2, 0.2]}
+        colorA="#fe00fe"
+        colorB="#0080ff"
+        timeOffset={2}
+        yRange={{ min: -0.2, max: 0.1 }}
+        />
+
+        {/* Second orb */}
+        {/* <Orb 
+          position={[2.1, -0.4, -.4]} 
+          scale={[0.1, 0.1, 0.1]}
+          colorA="#fc0398"
+          colorB="#03d7fc"
+          timeOffset={1.5}  // Offset animation phase
+          yRange={{ min: 0.15, max: 0.35 }}  // Different range
+        /> */}
+
+        <Orb 
+          position={[0.9, -0.6, -.95]} 
+          scale={[0.08, 0.08, 0.08]}
+          colorA="#ff1493"
+          colorB="#4169e1"
+          timeOffset={4.2}  // Different offset
+          yRange={{ min: -0.4, max: -0.2 }}  // Different range
+        />
+
+        <Orb 
+          position={[-.7, -0.6, -.5]} 
+          scale={[0.07, 0.07, 0.07]}
+          colorA="#fc0398"
+          colorB="#fc0398"
+          timeOffset={.1}  // Different offset
+          yRange={{ min: -0.12, max: 0.28 }}  // Different range
+        />
+
         <EffectComposer disableNormalPass multisampling={16}>
           <Bloom luminanceThreshold={0.25} mipmapBlur luminanceSmoothing={0.2} intensity={5} />
           <DepthOfField target={[0, 0, 13]} focalLength={0.28} bokehScale={10} height={800} />
@@ -84,7 +127,7 @@ function Scene() {
         <CameraRig />
         <BakeShadows />
 
-        <BannerPlane position={[-1, 2.2, -3]} rotation={[0.2, 0, 0]} />
+        <BannerPlane sampling={4} position={[-1, 2.2, -3]} rotation={[0.2, 0, 0]} />
       </Suspense>
     </>
   )
@@ -169,7 +212,7 @@ export default function App() {
           left: 0,
           opacity: opacity,
           transition: 'opacity 0.5s ease-in-out',
-          zIndex: 2,
+          zIndex: 1000,
         }}>
           <Canvas 
             gl={{ antialias: true, samples: 4 }}
@@ -189,8 +232,8 @@ export default function App() {
               top: 'calc(2vw + clamp(160px, 10.5vw, 180px))',
               left: '2.3vw',
               width: 'clamp(120px, 12vw, 180px)',
-              height: 'calc(10vw + clamp(120px, 9vw, 160px))',
-              zIndex: 2,
+              height: 'calc(6vw + clamp(120px, 9vw, 160px))',
+              zIndex: 1,
               background: 'black',
               backgroundOpacity: '0.2',
               opacity: 0.75,
@@ -223,8 +266,9 @@ export default function App() {
               />
             </EffectComposer>
           </Canvas>
-          
-          <UIOverlay />    
+        
+            <UIOverlay />    
+
         </div>
       )}
     </LandscapeEnforcer>

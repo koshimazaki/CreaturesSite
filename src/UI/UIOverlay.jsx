@@ -6,35 +6,34 @@ import InfoPanel from './InfoPanel'
 import RetroGraphiteMUIAudioPlayer from '../AudioPlayer'
 import PushButton from './PushButton'
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas'
-import HealthBarTriangles from './HealthBarTriangles'
+import { Html } from '@react-three/drei'
 
 const AnimatedIcon = motion.div
 import cyberpunkIcon from '/src/assets/icons/X31.png?url'
-// import AboutGame from '/src/assets/images/AboutGame.svg?url'
 
-import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
-import Micro from '/src/assets/fonts/Microgramma_D_Extended_Bold.otf?url'
-import MinRound from '/src/assets/fonts/MinRoundRegular.otf?url'
+// Geometry Change  
+
+const handleGeometryChange = () => {
+  if (window.handleGeometryChange) {
+    window.handleGeometryChange()
+  }
+}
 
 export default function UIOverlay() {
   const controls = useAnimation();
   const [isKeyPressed, setIsKeyPressed] = useState(false);
 
-  const handleGeometryChange = useCallback(() => {
-    // Your geometry change logic here
-    console.log('Geometry change triggered');
-    // Add your actual geometry change logic here
-  }, []);
-
-  const { RiveComponent, rive } = useRive({
+  // Updated Rive component setup with proper cleanup
+  const { rive, RiveComponent } = useRive({
     src: '/buttons.riv',
-    artboard: 'Push',
-    animations: ['Menu rotation', 'Menu text rotation', 'Push the button'],
+    stateMachines: ['State Machine 1'], // Add your state machine name if you have one
+    animations: ['Bling'],
+    artboard: 'Healthbar',
+    autoplay: true,
     layout: new Layout({
       fit: Fit.Contain,
       alignment: Alignment.Center,
     }),
-    autoplay: true,
     onLoad: () => {
       console.log('Push button Rive file loaded successfully');
     },
@@ -43,13 +42,43 @@ export default function UIOverlay() {
     },
   });
 
+  // Combined action handler
+  const handleButtonAction = useCallback(() => {
+    if (rive) {
+      try {
+        const animation = rive.animationByName('Push the button');
+        if (animation) {
+          animation.reset();
+          animation.play();
+        }
+      } catch (error) {
+        console.error('Error playing Rive animation:', error);
+      }
+    }
+    handleGeometryChange();
+  }, [rive]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (rive) {
+        try {
+          rive.cleanup();
+        } catch (error) {
+          console.error('Error cleaning up Rive:', error);
+        }
+      }
+    };
+  }, [rive]);
+
+  // Key handlers
   const handleKeyDown = useCallback((event) => {
     if (event.key === '0' && !isKeyPressed) {
       setIsKeyPressed(true);
       controls.set({ scale: 0.95 });
-      handleGeometryChange();
+      handleButtonAction();
     }
-  }, [handleGeometryChange, isKeyPressed, controls]);
+  }, [handleButtonAction, isKeyPressed, controls]);
 
   const handleKeyUp = useCallback((event) => {
     if (event.key === '0') {
@@ -58,6 +87,15 @@ export default function UIOverlay() {
     }
   }, [controls]);
 
+  // Auto-play menu animations
+  useEffect(() => {
+    if (rive) {
+      rive.play('Menu rotation');
+      rive.play('Menu text rotation');
+    }
+  }, [rive]);
+
+  // Key event listeners
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -67,69 +105,84 @@ export default function UIOverlay() {
     };
   }, [handleKeyDown, handleKeyUp]);
 
-  const handleHealthBarClick = useCallback(() => {
-    console.log('Health Bar clicked');
-    // Add any specific logic for when the health bar is clicked
-  }, []);
-
   return (
-    <>
-      <FullscreenButton style={{ pointerEvents: 'auto', zIndex: 2010 }} />
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none', // This allows clicks to pass through the container
+      zIndex: 2000, // Increased z-index to be above Canvas
+    }}>
+      {/* Fullscreen Button */}
+      <div style={{ 
+        position: 'absolute',
+        bottom: '1vw',
+        right: '1vw',
+        zIndex: 2010,
+        pointerEvents: 'auto', // Enable clicks for this element
+      }}>
+        <FullscreenButton />
+      </div>
 
-      {/* <RetroGraphiteMUIAudioPlayer /> */}
-      {/* Add other UI components here */}
-   
-
-// panel 
-
-        <HealthBarTriangles
-          style={{
-            top: '2vw',
-            left: '2vw',
-            width: '200px',
-            height: '50px',
-          }}
-        />
-
+      {/* First Push Button (Healthbar) - Keep original larger size */}
+      <Tooltip title="Push that Button! (or press '0')" arrow placement="left">
         <motion.div
           style={{
             position: 'absolute',
-            top: '2vw',
-            right: '2vw',
-            zIndex: 1002,
-            width: '100px',
+            top: '0.5vw',
+            left: '2.3vw',
+            zIndex: 2002,
+            width: 'clamp(120px, 12vw, 180px)', // Original larger size
             height: '100px',
-            cursor: 'pointer',
+            pointerEvents: 'auto',
           }}
-          animate={controls}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleGeometryChange}
         >
-          <RiveComponent />
+          <PushButton 
+            onClick={handleButtonAction}
+            artboard="Healthbar"
+            animations={['Bling']}
+            style={{
+              width: 'clamp(120px, 12vw, 180px)', // Match container size
+              height: '100px'
+            }}
+          />
         </motion.div>
+      </Tooltip>
 
-    {/* Add HealthBarTriangles here */}
-    <HealthBarTriangles
-        style={{
-          top: '2vw',
-          right: '20vw',
-          width: '200px',  // Adjust size as needed
-          height: '50px',  // Adjust size as needed
-        }}
-      />
+      {/* Second Push Button - Natural size */}
+      <Tooltip title="Push that Button! (or press '1')" arrow placement="left">
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '0.5vw',
+            right: '2.3vw',
+            zIndex: 2002,
+            width: '100px', // Natural size for Push artboard
+            height: '100px',
+            pointerEvents: 'auto',
+          }}
+        >
+          <PushButton 
+            onClick={handleGeometryChange}
+            artboard="Push"
+            animations={['Push the button', 'Menu rotation', 'Menu text rotation']}
+            keyBinding="1"
+          />
+        </motion.div>
+      </Tooltip>
 
-
-// Made by GNS 
-
-        <Tooltip title="Visit our website" arrow placement="left">
+      {/* Website Link */}
+      <Tooltip title="Visit our website" arrow placement="left">
         <motion.div
           style={{
             position: 'absolute',
             bottom: '1.2vw',
             right: '11vw',
-            zIndex: 900,
-            pointerEvents: 'auto',
+            zIndex: 2000,
+            cursor: 'pointer',
+            pointerEvents: 'auto', // Enable clicks for this element
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -142,6 +195,7 @@ export default function UIOverlay() {
               padding: '0.5em 1em',
               cursor: 'pointer',
               textDecoration: 'none',
+              pointerEvents: 'auto', // Enable clicks for this element
             }}
           >
             <motion.div 
@@ -160,24 +214,27 @@ export default function UIOverlay() {
         </motion.div>
       </Tooltip>
 
-   Candies on X 
-
-  <Tooltip title="Glitch Candies on X" arrow placement="top">
+      {/* X/Twitter Icon */}
+      <Tooltip title="Glitch Candies on X" arrow placement="top">
         <AnimatedIcon
           whileTap={{ scale: 0.9 }}
           style={{ 
             position: 'absolute', 
             bottom: '1vw', 
             left: '2vw', 
-            zIndex: 1002, 
+            zIndex: 2002, 
             opacity: 1,
-            pointerEvents: 'auto'
+            cursor: 'pointer',
+            pointerEvents: 'auto', // Enable clicks for this element
           }}
         >
           <a 
             href="https://x.com/glitchcandies" 
             target="_blank" 
             rel="noopener noreferrer"
+            style={{
+              pointerEvents: 'auto', // Enable clicks for this element
+            }}
           >
             <img 
               src={cyberpunkIcon}
@@ -187,7 +244,6 @@ export default function UIOverlay() {
                 height: 'clamp(24px, 4vw, 56px)',
                 opacity: 0.75,
                 cursor: 'pointer',
-                marginRight: '0.3vw',
               }}
             />
           </a>
@@ -200,25 +256,19 @@ export default function UIOverlay() {
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1002,
+        pointerEvents: 'auto',
       }}>
-
-{/* // Audio Player  */}
-
-    {/* <RetroGraphiteMUIAudioPlayer
+       
+       {/* <RetroGraphiteMUIAudioPlayer
         // ref={audioPlayerRef}
         width="clamp(125px, 13vw, 190px)"
         position={{ top: 'calc(1vw + clamp(10px, 1.5vw, 80px))', left: '2vw' }}
-        isVisible={!showInfoPanel}
-        isStarted={isStarted}
+        // isVisible={!showInfoPanel}
+        // isStarted={isStarted}
       /> */}
 
 
-    </div> 
-   
-
-
-
-
-    </>
-  )
+      </div>
+    </div>
+  );
 }

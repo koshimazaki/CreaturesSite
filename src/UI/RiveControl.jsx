@@ -1,14 +1,13 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRive, Layout, Fit, Alignment, EventType } from '@rive-app/react-canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 import useStore from '../zustandStore';
-import RiveDebugComponent from './RiveDebug';
 
-const RiveControl = ({ onStart, audioPlayerRef, onMenuStateChange, currentMenuState }) => {
+const RiveControl = ({ onStart, show }) => {
   const setIsStarted = useStore(state => state.setIsStarted);
-  const [showPlayButton, setShowPlayButton] = useState(true);
+  const incrementOpacity = useStore(state => state.incrementOpacity);
 
-  // Play button setup
+  // Play button setup with improved animation handling
   const { rive: playRive, RiveComponent: PlayComponent } = useRive({
     src: '/buttons.riv',
     artboard: 'Play',
@@ -23,97 +22,74 @@ const RiveControl = ({ onStart, audioPlayerRef, onMenuStateChange, currentMenuSt
     }
   });
 
-  // Spin button setup
-  const { rive: spinRive, RiveComponent: SpinComponent } = useRive({
-    src: '/buttons.riv',
-    artboard: 'Spin',
-    animations: ['Menu text rotation', 'Menu rotation'],
-    autoplay: true,
-    layout: new Layout({
-      fit: Fit.Contain,
-      alignment: Alignment.Center,
-    }),
-    onLoad: () => {
-      console.log('🎯 Spin button loaded');
+  // Handle click/tap event
+  const handleClick = useCallback(() => {
+    console.log('Play button clicked');
+
+    // Start fade sequence
+    const fadeInterval = setInterval(() => {
+      incrementOpacity();
+    }, 50);
+
+    // Trigger Rive animation and state changes
+    if (playRive) {
+      playRive.play('Hologram');
+      
+      // Allow animation to complete before state change
+      setTimeout(() => {
+        playRive.stop();
+        setIsStarted(true);
+        onStart?.();
+        clearInterval(fadeInterval);
+      }, 300);
+    } else {
+      setIsStarted(true);
+      onStart?.();
+      clearInterval(fadeInterval);
     }
-  });
+  }, [playRive, setIsStarted, onStart, incrementOpacity]);
 
-  // Handle button events
-  useEffect(() => {
-    const handlePlayEvent = (event) => {
-      console.log('▶️ Play button event:', event);
-      if (event.data?.name === 'Open Menu') {
-        console.log('🎮 Play button triggered menu open');
-        setShowPlayButton(false);
-        setTimeout(() => {
-          setIsStarted(true);
-          onStart && onStart();
-        }, 500);
-      }
-    };
-
-    const handleSpinEvent = (event) => {
-      console.log('🎯 Spin button event:', event);
-      // Toggle menu state when spin is clicked
-      const newState = currentMenuState === 1 ? 2 : 1;
-      onMenuStateChange(newState);
-    };
-
-    if (playRive) playRive.on(EventType.RiveEvent, handlePlayEvent);
-    if (spinRive) spinRive.on(EventType.RiveEvent, handleSpinEvent);
-
-    return () => {
-      if (playRive) playRive.off(EventType.RiveEvent, handlePlayEvent);
-      if (spinRive) spinRive.off(EventType.RiveEvent, handleSpinEvent);
-    };
-  }, [playRive, spinRive, setIsStarted, onStart, onMenuStateChange, currentMenuState]);
+  if (!show) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      pointerEvents: 'none',
-    }}>
-      <AnimatePresence>
-        {showPlayButton && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{
-              position: 'absolute',
-              bottom: '4vw',
-              left: '10vw',
-              width: '200px',
-              height: '200px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-            }}
-          >
-            <PlayComponent />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '2.5vw',
-          right: '14vw',
-          width: '200px',
-          height: '200px',
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <SpinComponent />
-      </motion.div>
-    </div>
+    <AnimatePresence>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 10000,
+      }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 260,
+            damping: 20 
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            position: 'absolute',
+            bottom: '10vw',
+            left: '7vw',
+            width: '200px',
+            height: '200px',
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+          onClick={handleClick}
+        >
+          <PlayComponent />
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 };
 
