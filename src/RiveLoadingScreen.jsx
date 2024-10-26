@@ -1,22 +1,29 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { motion } from 'framer-motion';
+// RiveLoadingScreen.jsx
+import React, { useCallback, useState, useEffect } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
+import { motion, AnimatePresence } from 'framer-motion';
 import useStore from './zustandStore';
+import useAudioStore from './Audio/audioStore';
 import RiveControl from './UI/RiveControl';
 import TextLore from './TextLore';
 import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
+import AudioPlayer from './Audio/AudioPlayer';
 
 const RiveLoadingScreen = ({ onStart }) => {
   const isStarted = useStore(state => state.isStarted);
-  const textIndex = useStore(state => state.textIndex); // Get textIndex from the store
-  const setTextIndex = useStore(state => state.setTextIndex); // Get the setter function
+  const setIsStarted = useStore(state => state.setIsStarted);
+  const textIndex = useStore(state => state.textIndex);
+  const setTextIndex = useStore(state => state.setTextIndex);
+  const incrementOpacity = useStore(state => state.incrementOpacity);
 
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [showTextLore, setShowTextLore] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+
+  const { initializeAudio, playAudio, audioPlayerRef } = useAudioStore();
 
   // Loading text content
   const textLoreContent = [
-    
     "Welcome to Glitch Candies: Creatures",
     "We are stuck between galaxies...",
     "Initialising Glitch Protocol...",
@@ -27,7 +34,6 @@ const RiveLoadingScreen = ({ onStart }) => {
     "Clues are scattered across...",
     "Intergalactic travel will continue soon...",
     "The journey is starting soon...",
-
   ];
 
   // Creature setup
@@ -42,35 +48,43 @@ const RiveLoadingScreen = ({ onStart }) => {
     }),
     onLoad: () => {
       console.log('Creature loaded');
-      // Start timer after Creature loads
-      setTimeout(() => {
-        setShowTextLore(true); // Show TextLore after 4 seconds
-      }, 4000);
-      
-      setTimeout(() => {
-        setShowPlayButton(true); // Show play button after 6.5 seconds
-      }, 6500);
+      setTimeout(() => setShowTextLore(true), 4000);
+      setTimeout(() => setShowPlayButton(true), 6500);
     },
   });
 
-  // Handle text completion
   const handleTextComplete = useCallback(() => {
-    setTextIndex(prevIndex => {
-      // Move to the next line, loop back to the start if at the end
-      return (prevIndex + 1) % textLoreContent.length;
-    });
+    setTextIndex(prevIndex => (prevIndex + 1) % textLoreContent.length);
   }, [setTextIndex, textLoreContent.length]);
 
-  // Stop animations when started
   useEffect(() => {
     if (isStarted) {
       creatureRive?.stop();
     }
   }, [isStarted, creatureRive]);
 
-  const handleStart = useCallback(() => {
-    onStart?.();
-  }, [onStart]);
+  const handleStart = useCallback(async () => {
+    if (isStarted) return;
+    
+    console.log('Starting sequence...');
+    
+    try {
+      await onStart(); // This will handle audio initialization and play
+      setShowAudioPlayer(true);
+      setIsStarted(true);
+      
+      const fadeInterval = setInterval(incrementOpacity, 50);
+
+      setTimeout(() => {
+        setShowPlayButton(false);
+        clearInterval(fadeInterval);
+      }, 500);
+
+    } catch (error) {
+      console.error('Error in start sequence:', error);
+      setIsStarted(false);
+    }
+  }, [isStarted, setIsStarted, onStart, incrementOpacity]);
 
   return (
     <motion.div 
@@ -102,8 +116,6 @@ const RiveLoadingScreen = ({ onStart }) => {
         <CreatureComponent />
       </motion.div>
 
-     
-
       <TextLore 
         texts={textLoreContent}
         currentIndex={textIndex}
@@ -114,22 +126,21 @@ const RiveLoadingScreen = ({ onStart }) => {
           bottom: '2.5vw',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '80%',
-          maxWidth: '600px',
-          textAlign: 'center',
-          fontFamily: 'Monorama, sans-serif',
-          fontSize: '24px',
-          color: '#03d7fc',
-          opacity: 0.85,
-          textShadow: '0 0 10px rgba(0,255,255,0.7)',
-          pointerEvents: 'none',
-          userSelect: 'none',
         }}
-        isStarted={showTextLore}
-        
       />
 
       <RiveControl onStart={handleStart} show={showPlayButton} />
+
+      {showAudioPlayer && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: 10001
+        }}>
+          <AudioPlayer ref={audioPlayerRef} />
+        </div>
+      )}
     </motion.div>
   );
 };
