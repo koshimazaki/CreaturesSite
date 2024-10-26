@@ -118,7 +118,7 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
       for (let i = 0; i < bufferLength; i += 8) {
         const v = dataArray[i] / 128.0;
         const y = (v * canvas.height) / 2;
-        const boostedY = (canvas.height / 2) + ((y - canvas.height / 2) * 3.5 * 0.5);
+        const boostedY = (canvas.height / 2) + ((y - canvas.height / 2) * 3.5 * 2);
 
         if (i === 0) {
           ctx.moveTo(x, boostedY);

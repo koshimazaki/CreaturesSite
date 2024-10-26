@@ -35,7 +35,7 @@ export default function UIOverlay() {
       alignment: Alignment.Center,
     }),
     onLoad: () => {
-      console.log('Push button Rive file loaded successfully');
+      // console.log('Push button Rive file loaded successfully');
     },
     onError: (err) => {
       console.error('Error loading push button Rive file:', err);

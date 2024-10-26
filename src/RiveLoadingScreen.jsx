@@ -7,8 +7,64 @@ import useAudioStore from './Audio/audioStore';
 import RiveControl from './UI/RiveControl';
 import TextLore from './TextLore';
 import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
+// Import the full runtime
+import { Runtime } from '@rive-app/canvas';
 
 const RiveLoadingScreen = ({ onStart }) => {
+  useEffect(() => {
+    // Store original console methods
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    
+    // Create a filter function
+    const isRiveMessage = (msg) => {
+      if (typeof msg !== 'string') return false;
+      return msg.includes('StateMachine exceeded') || 
+             msg.includes('rive.wasm') ||
+             msg.includes('exceeded max iterations');
+    };
+
+    // Override both warn and error
+    console.warn = (...args) => {
+      if (!args[0] || !isRiveMessage(args[0])) {
+        originalWarn.apply(console, args);
+      }
+    };
+
+    console.error = (...args) => {
+      if (!args[0] || !isRiveMessage(args[0])) {
+        originalError.apply(console, args);
+      }
+    };
+
+    // Add window error handler, stackoverflows from RIVE
+    const originalOnError = window.onerror;
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      if (!isRiveMessage(msg)) {
+        return originalOnError ? originalOnError(msg, url, lineNo, columnNo, error) : false;
+      }
+      return true; // Suppress Rive errors
+    };
+
+    // Cleanup
+    return () => {
+      console.warn = originalWarn;
+      console.error = originalError;
+      window.onerror = originalOnError;
+    };
+  }, []);
+
+  // Move the log level setting inside the component
+  useEffect(() => {
+    try {
+      if (Runtime && typeof Runtime.setLogLevel === 'function') {
+        Runtime.setLogLevel(0); // Disable all logs
+      }
+    } catch (e) {
+      console.log('Unable to set Rive log level');
+    }
+  }, []);
+
   const isStarted = useStore(state => state.isStarted);
   const setIsStarted = useStore(state => state.setIsStarted);
   const textIndex = useStore(state => state.textIndex);
@@ -47,10 +103,10 @@ const RiveLoadingScreen = ({ onStart }) => {
       alignment: Alignment.Center,
     }),
     onLoad: () => {
-      console.log('Creature loaded');
+      console.log('Supernatural Creatures are assembling... content loaded');
       // Let's add some debug logs
       setTimeout(() => {
-        console.log('Setting showTextLore to true');
+        // console.log('Setting showTextLore to true');
         setShowTextLore(true);
       }, 2000);
       setTimeout(() => setShowPlayButton(true), 6500);
@@ -77,7 +133,7 @@ const RiveLoadingScreen = ({ onStart }) => {
   const handleStart = useCallback(async () => {
     if (isStarted) return;
     
-    console.log('Starting sequence...');
+    // console.log('Starting sequence...');
     
     try {
       await onStart(); // This will handle audio initialization and play
@@ -97,11 +153,13 @@ const RiveLoadingScreen = ({ onStart }) => {
     }
   }, [isStarted, setIsStarted, onStart, incrementOpacity]);
 
-  useEffect(() => {
-    console.log('showTextLore:', showTextLore);
-    console.log('textIndex:', textIndex);
-    console.log('textLoreContent:', textLoreContent);
-  }, [showTextLore, textIndex]);
+
+
+  // useEffect(() => {
+  //   console.log('showTextLore:', showTextLore);
+  //   console.log('textIndex:', textIndex);
+  //   console.log('textLoreContent:', textLoreContent);
+  // }, [showTextLore, textIndex]);
 
   return (
     <motion.div 

@@ -9,24 +9,11 @@ const useStore = create((set, get) => ({
   progress: 0,
   scenePreloaded: false,
   
-  // Text Lore States
+  // Only keep these basic text states if needed
   textIndex: 0,
   showTextLore: false,
-  textLoreContent: [
-    "_",
-    "Welcome to Glitch Candies: Creatures",
-    "We are stuck between galaxies...",
-    "Initialising Glitch Protocol...",
-    "Magic worlds are assembling...",
-    "Creatures morph and glitch into new forms...",
-    "Tech and spells are generating...",
-    "Epic bosses are spawning...",
-    "Clues are scattered across...",
-    "Intergalactic travel will continue soon...",
-    "The journey is starting soon...",
-  ],
-
-  // Text Lore Actions
+  
+  // Basic actions
   setTextIndex: (value) => {
     if (typeof value === 'function') {
       set((state) => ({ textIndex: value(state.textIndex) }));
@@ -34,32 +21,8 @@ const useStore = create((set, get) => ({
       set({ textIndex: value });
     }
   },
-
-  incrementTextIndex: () => {
-    const state = get();
-    const nextIndex = (state.textIndex + 1) % state.textLoreContent.length;
-    set({ textIndex: nextIndex });
-  },
   
   setShowTextLore: (value) => set({ showTextLore: value }),
-
-  // Add these new states
-  isTypingStarted: false,
-  shouldShowText: false,
-
-  // Add these new actions
-  setIsTypingStarted: (value) => set({ isTypingStarted: value }),
-  setShouldShowText: (value) => set({ shouldShowText: value }),
-
-  // Modify completeFirstRun to handle typing state
-  completeFirstRun: () => {
-    set((state) => ({
-      isFirstRun: false,
-      isTextVisible: true,
-      shouldShowText: true,
-      textIndex: (state.textIndex + 1) % state.textLoreContent.length
-    }));
-  },
 
   // Other existing actions
   setIsLoaded: (value) => set({ isLoaded: value }),

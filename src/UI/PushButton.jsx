@@ -21,7 +21,7 @@ const PushButton = ({
     }),
     autoplay: true,
     onLoad: () => {
-      console.log('Push button Rive file loaded successfully');
+      // console.log('Push button Rive file loaded successfully');
       if (rive) {
         animations.forEach(animation => {
           if (animation.includes('Menu')) {

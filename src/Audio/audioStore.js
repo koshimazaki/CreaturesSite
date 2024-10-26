@@ -32,7 +32,8 @@ const useAudioStore = create(
       howl: null,
       analyser: null,
       audioContext: null,
-      audioNodes: new Map(),
+      sourceNode: null,
+      gainNode: null,  // Add this line
       playlist: playlist,
       loop: true,
 
@@ -41,41 +42,50 @@ const useAudioStore = create(
         const state = get();
         
         try {
-          // Cleanup previous instance
-          if (state.howl) {
-            state.howl.unload();
+          // Always create a fresh AudioContext
+          if (state.audioContext) {
+            await state.audioContext.close();
           }
-
-          // Create or reuse AudioContext
-          const audioContext = state.audioContext || new (window.AudioContext || window.webkitAudioContext)();
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
           
           // Set up analyser
           const analyser = audioContext.createAnalyser();
           analyser.fftSize = 2048;
           analyser.smoothingTimeConstant = 0.8;
 
+          // Create gain node with initial volume
+          const gainNode = audioContext.createGain();
+          // Convert initial volume to exponential scale
+          const normalizedValue = state.volume / 100;
+          const exponentialValue = normalizedValue * normalizedValue;
+          gainNode.gain.setValueAtTime(exponentialValue, audioContext.currentTime);
+
           // Create new Howl instance
           const howl = new Howl({
             src: [state.playlist[state.currentTrack].src],
             autoplay: false,
             html5: true,
-            volume: state.volume / 100,
+            volume: 1, // Set to max since we're using gainNode
             format: ['mp3'],
             onload: function() {
               try {
                 const node = this._sounds[0]._node;
                 if (!node) return;
 
-                // Only create new audio nodes if needed
-                if (!state.audioNodes.has(node)) {
-                  node.crossOrigin = 'anonymous';
-                  const sourceNode = audioContext.createMediaElementSource(node);
-                  sourceNode.connect(analyser);
-                  analyser.connect(audioContext.destination);
-                  state.audioNodes.set(node, sourceNode);
-                }
+                node.crossOrigin = 'anonymous';
+                const sourceNode = audioContext.createMediaElementSource(node);
+                
+                // Connect nodes: source -> gain -> analyser -> destination
+                sourceNode.connect(gainNode);
+                gainNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                set({ sourceNode });
               } catch (error) {
-                console.error('Error connecting audio nodes:', error);
+                // Only log errors that aren't about already connected nodes
+                if (!error.message.includes('HTMLMediaElement already connected')) {
+                  console.error('Error connecting audio nodes:', error);
+                }
               }
             },
             onplay: () => set({ isPlaying: true }),
@@ -98,6 +108,7 @@ const useAudioStore = create(
             howl,
             analyser,
             audioContext,
+            gainNode,
             isInitialized: true
           });
 
@@ -140,11 +151,9 @@ const useAudioStore = create(
 
         const wasPlaying = state.isPlaying;
         
-        // Clear audio nodes before unloading
-        state.audioNodes.clear();
-        
         if (state.howl) {
           state.howl.stop();
+          state.howl.unload();
         }
 
         set({ currentTrack: index });
@@ -160,19 +169,13 @@ const useAudioStore = create(
         try {
           const nextIndex = (state.currentTrack + 1) % playlist.length;
           
-          // Clear audio nodes before unloading
-          state.audioNodes.clear();
+          // Complete cleanup
+          await state.cleanup();
           
-          if (state.howl) {
-            state.howl.unload();
-          }
-
-          set({ 
-            currentTrack: nextIndex,
-            howl: null,
-            isPlaying: false
-          });
+          // Add small delay to ensure cleanup is complete
+          await new Promise(resolve => setTimeout(resolve, 50));
           
+          set({ currentTrack: nextIndex });
           await state.initializeAudio();
           state.playAudio();
           
@@ -186,19 +189,13 @@ const useAudioStore = create(
         try {
           const prevIndex = (state.currentTrack - 1 + playlist.length) % playlist.length;
           
-          // Clear audio nodes before unloading
-          state.audioNodes.clear();
+          // Complete cleanup
+          await state.cleanup();
           
-          if (state.howl) {
-            state.howl.unload();
-          }
-
-          set({ 
-            currentTrack: prevIndex,
-            howl: null,
-            isPlaying: false
-          });
+          // Add small delay to ensure cleanup is complete
+          await new Promise(resolve => setTimeout(resolve, 50));
           
+          set({ currentTrack: prevIndex });
           await state.initializeAudio();
           state.playAudio();
           
@@ -209,39 +206,48 @@ const useAudioStore = create(
 
       // Volume Control
       setVolume: (newVolume) => {
+        const state = get();
         const clampedVolume = Math.min(100, Math.max(0, newVolume));
-        Howler.volume(clampedVolume / 100);
+        
+        // Convert percentage to exponential scale for more natural volume control
+        const normalizedValue = clampedVolume / 100;
+        const exponentialValue = normalizedValue * normalizedValue; // Square for exponential curve
+        
+        if (state.gainNode) {
+          state.gainNode.gain.setValueAtTime(exponentialValue, state.audioContext.currentTime);
+        }
+        
         set({ volume: clampedVolume });
       },
 
       // Cleanup
-      cleanup: () => {
+      cleanup: async () => {
         const state = get();
         
-        // Clean up audio nodes
-        state.audioNodes.forEach((sourceNode) => {
-          try {
-            sourceNode.disconnect();
-          } catch (error) {
-            console.warn('Error disconnecting node:', error);
-          }
-        });
+        if (state.sourceNode) {
+          state.sourceNode.disconnect();
+        }
+
+        if (state.gainNode) {
+          state.gainNode.disconnect();
+        }
 
         if (state.howl) {
           state.howl.unload();
         }
 
         if (state.audioContext) {
-          state.audioContext.close();
+          await state.audioContext.close();
         }
 
         set({
           howl: null,
           analyser: null,
           audioContext: null,
+          sourceNode: null,
+          gainNode: null,
           isInitialized: false,
-          isPlaying: false,
-          audioNodes: new Map()
+          isPlaying: false
         });
       },
 

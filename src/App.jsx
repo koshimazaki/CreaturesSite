@@ -69,7 +69,7 @@ export default function App() {
         await initializeAudio();
       }
       await playAudio();
-      console.log('Audio playing from App');
+      // console.log('Audio playing from App');
     } catch (error) {
       console.error('Error starting audio:', error);
     }
