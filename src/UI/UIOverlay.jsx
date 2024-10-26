@@ -112,8 +112,8 @@ export default function UIOverlay() {
       left: 0,
       width: '100%',
       height: '100%',
-      pointerEvents: 'none', // This allows clicks to pass through the container
-      zIndex: 2000, // Increased z-index to be above Canvas
+      pointerEvents: 'none',
+      zIndex: 2000,
     }}>
       {/* Fullscreen Button */}
       <div style={{ 
@@ -121,7 +121,7 @@ export default function UIOverlay() {
         bottom: '1vw',
         right: '1vw',
         zIndex: 2010,
-        pointerEvents: 'auto', // Enable clicks for this element
+        pointerEvents: 'auto', // Ensure this is set
       }}>
         <FullscreenButton />
       </div>
@@ -182,7 +182,7 @@ export default function UIOverlay() {
             right: '11vw',
             zIndex: 2000,
             cursor: 'pointer',
-            pointerEvents: 'auto', // Enable clicks for this element
+            pointerEvents: 'auto', // Ensure this is set
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -195,7 +195,7 @@ export default function UIOverlay() {
               padding: '0.5em 1em',
               cursor: 'pointer',
               textDecoration: 'none',
-              pointerEvents: 'auto', // Enable clicks for this element
+              pointerEvents: 'auto', // Ensure this is set
             }}
           >
             <motion.div 
@@ -225,7 +225,7 @@ export default function UIOverlay() {
             zIndex: 2002, 
             opacity: 1,
             cursor: 'pointer',
-            pointerEvents: 'auto', // Enable clicks for this element
+            pointerEvents: 'auto', // Ensure this is set
           }}
         >
           <a 
@@ -233,7 +233,7 @@ export default function UIOverlay() {
             target="_blank" 
             rel="noopener noreferrer"
             style={{
-              pointerEvents: 'auto', // Enable clicks for this element
+              pointerEvents: 'auto', // Ensure this is set
             }}
           >
             <img 

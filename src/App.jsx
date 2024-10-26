@@ -87,6 +87,7 @@ export default function App() {
           left: 0,
           transition: 'opacity 0.5s ease-in-out',
           zIndex: 1000,
+          pointerEvents: 'none',
         }}>
           <Canvas 
             gl={{ antialias: true, samples: 4 }}
@@ -95,7 +96,13 @@ export default function App() {
             camera={{ position: [-1.5, 1, 5.5], fov: 45, near: 1, far: 20 }} 
             eventSource={document.getElementById('root')} 
             eventPrefix="client"
-            style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+            style={{ 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              zIndex: 1,
+              pointerEvents: 'auto'
+            }}
           >
             <Experience />
           </Canvas>
