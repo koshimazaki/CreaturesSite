@@ -15,6 +15,14 @@ import './styles.css';
 import HologramOG from './HologramOG';
 import UIOverlay from './UI/UIOverlay';
 import EmbedFix from './EmbedFix';
+import { Html } from '@react-three/drei'
+import { motion } from 'framer-motion'
+import { Tooltip } from '@mui/material'
+import cyberpunkIcon from '/src/assets/icons/X31.png?url'
+import FullscreenButton from './UI/FullscreenButton'
+import PushButton from './UI/PushButton'
+
+
 
 export default function App() {
   const { progress } = useProgress();
@@ -75,20 +83,20 @@ export default function App() {
     }
   };
 
+  const handleGeometryChange = () => {
+    if (window.handleGeometryChange) {
+      window.handleGeometryChange()
+    }
+  }
+
+
+
   return (
     <LandscapeEnforcer>
       <RiveLoadingScreen onStart={handleStart} />
       {isStarted && (
-        <div style={{ 
-          width: '100vw', 
-          height: '100vh', 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          transition: 'opacity 0.5s ease-in-out',
-          zIndex: 1000,
-          pointerEvents: 'none',
-        }}>
+        <>
+          {/* Main Scene Canvas */}
           <Canvas 
             gl={{ antialias: true, samples: 4 }}
             shadows 
@@ -97,31 +105,141 @@ export default function App() {
             eventSource={document.getElementById('root')} 
             eventPrefix="client"
             style={{ 
-              position: 'absolute', 
+              position: 'fixed', 
               top: 0, 
-              left: 0, 
+              left: 0,
+              width: '100vw',
+              height: '100vh',
               zIndex: 1,
-              pointerEvents: 'auto'
             }}
           >
-            <Experience />
+            <Suspense fallback={null}>
+              <Experience />
+              
+              <Html fullscreen style={{ pointerEvents: 'none', zIndex: 1000 }}>
+                <div style={{
+                  opacity: isLoaded ? 1 : 0,
+                  transition: 'opacity 2s ease-in-out',
+                }}>
+                  {isLoaded && (
+                    <>
+                    
+                      {/* Second Push Button - Natural size */}
+      <Tooltip title="Push that Button! or hit 0" arrow placement="left">
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '0.5vw',
+            right: '2.3vw',
+            zIndex: 2002,
+            width: '100px', // Natural size for Push artboard
+            height: '100px',
+            pointerEvents: 'auto',
+          }}
+        >
+          <PushButton 
+            onClick={handleGeometryChange}
+            artboard="Push"
+            animations={['Push the button', 'Menu rotation', 'Menu text rotation']}
+            keyBinding="1"
+          />
+        </motion.div>
+      </Tooltip>
+
+                    
+                      {/* X/Twitter Icon */}
+                      <Tooltip title="Glitch Candies on X" arrow placement="top">
+                        <motion.div
+                          style={{ 
+                            position: 'absolute', 
+                            bottom: '1vw', 
+                            left: '2vw', 
+                            zIndex: 1002,
+                            pointerEvents: 'auto',
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <a 
+                            href="https://x.com/glitchcandies" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <img 
+                              src={cyberpunkIcon}
+                              alt="Glitch Candies X"
+                              style={{
+                                width: 'clamp(24px, 4vw, 56px)',
+                                height: 'clamp(24px, 4vw, 56px)',
+                                opacity: 0.75,
+                                cursor: 'pointer',
+                              }}
+                            />
+                          </a>
+                        </motion.div>
+                      </Tooltip>
+
+                      {/* Made by text */}
+                      <Tooltip title="Visit our website" arrow placement="left">
+                        <motion.div
+                          style={{
+                            position: 'absolute',
+                            bottom: '1.9vw',
+                            right: '11vw',
+                            zIndex: 1002,
+                            pointerEvents: 'auto',
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <a 
+                            href="https://glitchnftstudio.xyz" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <div style={{ 
+                              fontSize: 'clamp(8px, 1.2vw, 12px)', 
+                              opacity: 0.6, 
+                              color: 'white', 
+                              fontFamily: 'Exo',
+                              whiteSpace: 'nowrap',
+                              cursor: 'pointer',
+                            }}>
+                              Made by Glitch NFT Studio
+                            </div>
+                          </a>
+                        </motion.div>
+                      </Tooltip>
+
+                      {/* Fullscreen button */}
+                      <div style={{ 
+                        position: 'absolute',
+                        bottom: '0vw',
+                        right: '1vw',
+                        zIndex: 1010,
+                        pointerEvents: 'auto',
+                      }}>
+                        <FullscreenButton />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Html>
+            </Suspense>
           </Canvas>
 
+          {/* Hologram Canvas */}
           <Canvas
             style={{
               position: 'absolute',
               top: 'calc(0.1vw + clamp(100px, 8.5vw, 120px))',
               left: '2.3vw',
-              width: 'clamp(120px, 12vw, 180px)',
+              width: 'clamp(110px, 12vw, 160px)',
               height: 'calc(6vw + clamp(120px, 9vw, 160px))',
-              zIndex: 1,
+              zIndex: 2,
               background: 'black',
-              backgroundOpacity: '0.2',
               opacity: 0.75,
               outline: '1px solid #373837',
-              outlineOffset: '0px',
-              outlineWidth: '1px',
-              outlineOpacity: '0.01'
             }}
             camera={{ position: [0, 0, 5], fov: 45 }}
             className="hologram-canvas"
@@ -148,9 +266,20 @@ export default function App() {
             </EffectComposer>
           </Canvas>
 
-          <UIOverlay />    
-          <EmbedFix />
-        </div>
+          {/* UI Layer */}
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}>
+            <UIOverlay />
+            <EmbedFix />
+          </div>
+        </>
       )}
     </LandscapeEnforcer>
   );
