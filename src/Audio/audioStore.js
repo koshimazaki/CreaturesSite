@@ -140,6 +140,9 @@ const useAudioStore = create(
 
         const wasPlaying = state.isPlaying;
         
+        // Clear audio nodes before unloading
+        state.audioNodes.clear();
+        
         if (state.howl) {
           state.howl.stop();
         }
@@ -155,22 +158,21 @@ const useAudioStore = create(
       nextTrack: async () => {
         const state = get();
         try {
-          // Calculate next track index
           const nextIndex = (state.currentTrack + 1) % playlist.length;
           
-          // Stop current track and clean up
+          // Clear audio nodes before unloading
+          state.audioNodes.clear();
+          
           if (state.howl) {
             state.howl.unload();
           }
 
-          // Update track index immediately
           set({ 
             currentTrack: nextIndex,
-            howl: null, // Clear the current howl instance
+            howl: null,
             isPlaying: false
           });
           
-          // Initialize and play new track
           await state.initializeAudio();
           state.playAudio();
           
@@ -182,22 +184,21 @@ const useAudioStore = create(
       previousTrack: async () => {
         const state = get();
         try {
-          // Calculate previous track index
           const prevIndex = (state.currentTrack - 1 + playlist.length) % playlist.length;
           
-          // Stop current track and clean up
+          // Clear audio nodes before unloading
+          state.audioNodes.clear();
+          
           if (state.howl) {
             state.howl.unload();
           }
 
-          // Update track index immediately
           set({ 
             currentTrack: prevIndex,
             howl: null,
             isPlaying: false
           });
           
-          // Initialize and play new track
           await state.initializeAudio();
           state.playAudio();
           
