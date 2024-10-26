@@ -1,19 +1,27 @@
 import { create } from 'zustand';
-import { isMobile, isTablet } from "react-device-detect";
+import { isMobile, isTablet, isIOS, isAndroid } from "react-device-detect";
 
 const useStore = create((set, get) => ({
+  // Enhanced device detection
   deviceType: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop',
+  isIOS: isIOS,
+  isAndroid: isAndroid,
+  
+  // Device-specific feature flags
+  shouldShowEffects: !isAndroid, // Disable effects for Android
+  shouldShowFullscreen: !(isMobile || isTablet), // Only show on desktop
+  shouldAllowEntry: !isIOS, // Disable entry for iOS
+  
+  // Existing state
   isLoaded: false,
   isStarted: false,
   opacity: 0,
   progress: 0,
   scenePreloaded: false,
-  
-  // Only keep these basic text states if needed
   textIndex: 0,
   showTextLore: false,
   
-  // Basic actions
+  // Existing actions
   setTextIndex: (value) => {
     if (typeof value === 'function') {
       set((state) => ({ textIndex: value(state.textIndex) }));
@@ -23,8 +31,6 @@ const useStore = create((set, get) => ({
   },
   
   setShowTextLore: (value) => set({ showTextLore: value }),
-
-  // Other existing actions
   setIsLoaded: (value) => set({ isLoaded: value }),
   setIsStarted: (value) => set({ isStarted: value }),
   setProgress: (value) => set({ progress: value }),

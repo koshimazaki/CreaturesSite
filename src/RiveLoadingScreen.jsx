@@ -10,12 +10,22 @@ import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
 // Import the full runtime
 import { Runtime } from '@rive-app/canvas';
 
+
+
+
 const RiveLoadingScreen = ({ onStart }) => {
+  const shouldAllowEntry = useStore(state => state.shouldAllowEntry); // Move this to component level
+  const isStarted = useStore(state => state.isStarted);
+  const setIsStarted = useStore(state => state.setIsStarted);
+  const textIndex = useStore(state => state.textIndex);
+  const setTextIndex = useStore(state => state.setTextIndex);
+  const incrementOpacity = useStore(state => state.incrementOpacity);
+
   useEffect(() => {
     // Store original console methods
     const originalWarn = console.warn;
     const originalError = console.error;
-    
+
     // Create a filter function
     const isRiveMessage = (msg) => {
       if (typeof msg !== 'string') return false;
@@ -64,12 +74,6 @@ const RiveLoadingScreen = ({ onStart }) => {
       console.log('Unable to set Rive log level');
     }
   }, []);
-
-  const isStarted = useStore(state => state.isStarted);
-  const setIsStarted = useStore(state => state.setIsStarted);
-  const textIndex = useStore(state => state.textIndex);
-  const setTextIndex = useStore(state => state.setTextIndex);
-  const incrementOpacity = useStore(state => state.incrementOpacity);
 
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [showTextLore, setShowTextLore] = useState(false);
@@ -192,23 +196,64 @@ const RiveLoadingScreen = ({ onStart }) => {
       </motion.div>
 
       {showTextLore && textIndex !== undefined && (
-        <TextLore 
-          texts={textLoreContent}
-          currentIndex={textIndex}
-          customFont={ExoSemiBold}
-          onTextComplete={handleTextComplete}
-          isStarted={true}  // Add this prop
-          style={{
+        <>
+          {/* Dark gradient overlay */}
+          <div style={{
             position: 'absolute',
-            bottom: '2.5vw',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10000,
-          }}
-        />
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: '10vh', // Adjust height as needed
+            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 95%)',
+            zIndex: 9999, // Just below the text
+            pointerEvents: 'none', // Makes sure it doesn't interfere with interactions
+          }} />
+          
+          {/* Text Lore component */}
+          <TextLore 
+            texts={textLoreContent}
+            currentIndex={textIndex}
+            customFont={ExoSemiBold}
+            onTextComplete={handleTextComplete}
+            isStarted={true}
+            style={{
+              position: 'absolute',
+              bottom: '1vw',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10000,
+              fontSize: '1vw',
+            }}
+          />
+        </>
       )}
-
-      <RiveControl onStart={handleStart} show={showPlayButton} />
+      {!shouldAllowEntry && (
+        <div style={{
+          position: 'absolute',
+          top: '75%',
+          left: '2vw',
+          transform: 'translateY(-50%)',
+          color: '#fc0398',
+          textAlign: 'left',
+          fontFamily: 'Monorama, sans-serif',
+          padding: '5px',
+          zIndex: 10000,
+          fontSize: '14px',
+          textShadow: '0 0 10px rgba(252, 3, 152, 0.7), 0 0 20px rgba(252, 3, 152, 0.5)',
+          lineHeight: '1.2', // Added for better line spacing
+        }}>
+          <p style={{
+            margin: 0,
+            letterSpacing: '0.05em',
+          }}>
+            Load on Desktop<br />
+            for full experience
+          </p>
+        </div>
+      )}
+      {shouldAllowEntry && (
+        <RiveControl onStart={handleStart} show={showPlayButton} />
+      )}
     </motion.div>
   );
 };

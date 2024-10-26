@@ -35,6 +35,8 @@ const CameraRig = () => {
 };
 
 function Experience({ audioPlayerRef }) {
+    const shouldShowEffects = useStore(state => state.shouldShowEffects);
+    
     return (
       <>
         <CameraRig />
@@ -165,11 +167,13 @@ function Experience({ audioPlayerRef }) {
   
           <BannerPlane sampling={4} position={[-1, 2.2, -3]} rotation={[0.2, 0, 0]} />
           
-          <EffectComposer disableNormalPass multisampling={16}>
-            <Bloom luminanceThreshold={0.25} mipmapBlur luminanceSmoothing={0.2} intensity={5} />
-            <DepthOfField target={[0, 0, 13]} focalLength={0.28} bokehScale={10} height={800} />
-          </EffectComposer>
-          
+          {/* Only show effects on non-Android devices */}
+          {shouldShowEffects && (
+            <EffectComposer disableNormalPass multisampling={16}>
+              <Bloom luminanceThreshold={0.25} mipmapBlur luminanceSmoothing={0.2} intensity={5} />
+              <DepthOfField target={[0, 0, 13]} focalLength={0.28} bokehScale={10} height={800} />
+            </EffectComposer>
+          )}
           <BakeShadows />
         </Suspense>
       </>

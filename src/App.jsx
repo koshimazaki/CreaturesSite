@@ -32,7 +32,12 @@ export default function App() {
     isStarted,
     setIsLoaded,
     setProgress,
-    setDeviceType
+    setDeviceType,
+    shouldShowEffects,
+    shouldShowFullscreen,
+    shouldAllowEntry,
+    isAndroid,
+    isIOS 
   } = useStore();
 
   // Audio store state and methods
@@ -210,7 +215,8 @@ export default function App() {
                         </motion.div>
                       </Tooltip>
 
-                      {/* Fullscreen button */}
+                        {/* Fullscreen button - Only on desktop */}
+                        {shouldShowFullscreen && (
                       <div style={{ 
                         position: 'absolute',
                         bottom: '0vw',
@@ -220,6 +226,8 @@ export default function App() {
                       }}>
                         <FullscreenButton />
                       </div>
+                    )}
+
                     </>
                   )}
                 </div>
@@ -250,10 +258,13 @@ export default function App() {
             </Suspense>
 
             <EffectComposer>
+          {/* Only show effects on non-Android devices */}
+          {shouldShowEffects && (
               <ChromaticAberration
                 offset={[0.012, 0.002]}
                 blendFunction={BlendFunction.NORMAL}
               />
+                )}
               <Glitch
                 delay={[1.5, 3.5]}
                 duration={[0.6, 1.0]}
