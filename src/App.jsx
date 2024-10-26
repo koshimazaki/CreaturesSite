@@ -231,9 +231,9 @@ export default function App() {
           <Canvas
             style={{
               position: 'absolute',
-              top: 'calc(0.1vw + clamp(100px, 8.5vw, 120px))',
-              left: '2.3vw',
-              width: 'clamp(110px, 12vw, 160px)',
+              top: 'calc(0.1vw + clamp(100px, 8.5vw, 100px))',
+              left: '2.5vw',
+              width: 'clamp(110px, 12vw, 170px)',
               height: 'calc(6vw + clamp(120px, 9vw, 160px))',
               zIndex: 2,
               background: 'black',
