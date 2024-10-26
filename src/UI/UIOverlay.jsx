@@ -11,7 +11,6 @@ import { Html } from '@react-three/drei'
 const AnimatedIcon = motion.div
 import cyberpunkIcon from '/src/assets/icons/X31.png?url'
 
-
 // TRIANGLES and RIVE FUNCTIONS  - UI OVERLAY inside the main canvas
 
 export default function UIOverlay() {
@@ -102,7 +101,6 @@ export default function UIOverlay() {
 
   return (
     <>
-
       {/* First Push Button (Healthbar) - Keep original larger size */}
       <Tooltip title="Push that Button! (or press '0')" arrow placement="left">
         <motion.div

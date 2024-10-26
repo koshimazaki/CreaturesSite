@@ -23,7 +23,6 @@ import FullscreenButton from './UI/FullscreenButton'
 import PushButton from './UI/PushButton'
 
 
-
 export default function App() {
   const { progress } = useProgress();
 
@@ -90,12 +89,12 @@ export default function App() {
   }
 
 
-
   return (
     <LandscapeEnforcer>
       <RiveLoadingScreen onStart={handleStart} />
       {isStarted && (
         <>
+        
           {/* Main Scene Canvas */}
           <Canvas 
             gl={{ antialias: true, samples: 4 }}
@@ -123,28 +122,28 @@ export default function App() {
                 }}>
                   {isLoaded && (
                     <>
-                    
+                
                       {/* Second Push Button - Natural size */}
-      <Tooltip title="Push that Button! or hit 0" arrow placement="left">
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: '0.5vw',
-            right: '2.3vw',
-            zIndex: 2002,
-            width: '100px', // Natural size for Push artboard
-            height: '100px',
-            pointerEvents: 'auto',
-          }}
-        >
-          <PushButton 
-            onClick={handleGeometryChange}
-            artboard="Push"
-            animations={['Push the button', 'Menu rotation', 'Menu text rotation']}
-            keyBinding="1"
-          />
-        </motion.div>
-      </Tooltip>
+                      <Tooltip title="Push that Button! or hit 0" arrow placement="left">
+                        <motion.div
+                          style={{
+                            position: 'absolute',
+                            top: '0.5vw',
+                            right: '2.3vw',
+                            zIndex: 2002,
+                            width: '100px', // Natural size for Push artboard
+                            height: '100px',
+                            pointerEvents: 'auto',
+                          }}
+                           >
+                          <PushButton 
+                            onClick={handleGeometryChange}
+                            artboard="Push"
+                            animations={['Push the button', 'Menu rotation', 'Menu text rotation']}
+                            keyBinding="1"
+                          />
+                        </motion.div>
+                      </Tooltip>
 
                     
                       {/* X/Twitter Icon */}
