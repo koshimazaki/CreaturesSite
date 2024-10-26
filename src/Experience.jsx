@@ -11,13 +11,11 @@ import OG from './Creature';
 import { Palm, Gamepad, Dragon, Tripo, Moog, Speeder, VCS3, Pyramid } from './Models';
 import HologramOG from './HologramOG'
 
-import useStore from './zustandStore';
+import useStore from './stores/zustandStore';
 import Orb from './Orb';
 import { BannerPlane } from './BannerPlane';
 import AudioPlayer from './Audio/AudioPlayer';
 import useAudioStore from './Audio/audioStore';
-
-
 import './styles.css';
 import { Science } from '@mui/icons-material';
 

@@ -2,12 +2,11 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { motion, AnimatePresence } from 'framer-motion';
-import useStore from './zustandStore';
+import useStore from './stores/zustandStore';
 import useAudioStore from './Audio/audioStore';
 import RiveControl from './UI/RiveControl';
 import TextLore from './TextLore';
 import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
-import AudioPlayer from './Audio/AudioPlayer';
 
 const RiveLoadingScreen = ({ onStart }) => {
   const isStarted = useStore(state => state.isStarted);
@@ -24,6 +23,7 @@ const RiveLoadingScreen = ({ onStart }) => {
 
   // Loading text content
   const textLoreContent = [
+    "___",
     "Welcome to Glitch Candies: Creatures",
     "We are stuck between galaxies...",
     "Initialising Glitch Protocol...",
@@ -48,14 +48,25 @@ const RiveLoadingScreen = ({ onStart }) => {
     }),
     onLoad: () => {
       console.log('Creature loaded');
-      setTimeout(() => setShowTextLore(true), 4000);
+      // Let's add some debug logs
+      setTimeout(() => {
+        console.log('Setting showTextLore to true');
+        setShowTextLore(true);
+      }, 2000);
       setTimeout(() => setShowPlayButton(true), 6500);
     },
   });
 
   const handleTextComplete = useCallback(() => {
-    setTextIndex(prevIndex => (prevIndex + 1) % textLoreContent.length);
-  }, [setTextIndex, textLoreContent.length]);
+    setTextIndex((prevIndex) => (prevIndex + 1) % textLoreContent.length);
+  }, [textLoreContent.length, setTextIndex]);
+
+  // Add initialization effect
+  useEffect(() => {
+    if (textIndex === undefined) {
+      setTextIndex(0);
+    }
+  }, [textIndex, setTextIndex]);
 
   useEffect(() => {
     if (isStarted) {
@@ -85,6 +96,12 @@ const RiveLoadingScreen = ({ onStart }) => {
       setIsStarted(false);
     }
   }, [isStarted, setIsStarted, onStart, incrementOpacity]);
+
+  useEffect(() => {
+    console.log('showTextLore:', showTextLore);
+    console.log('textIndex:', textIndex);
+    console.log('textLoreContent:', textLoreContent);
+  }, [showTextLore, textIndex]);
 
   return (
     <motion.div 
@@ -116,31 +133,24 @@ const RiveLoadingScreen = ({ onStart }) => {
         <CreatureComponent />
       </motion.div>
 
-      <TextLore 
-        texts={textLoreContent}
-        currentIndex={textIndex}
-        customFont={ExoSemiBold}
-        onTextComplete={handleTextComplete}
-        style={{
-          position: 'absolute',
-          bottom: '2.5vw',
-          left: '50%',
-          transform: 'translateX(-50%)',
-        }}
-      />
+      {showTextLore && textIndex !== undefined && (
+        <TextLore 
+          texts={textLoreContent}
+          currentIndex={textIndex}
+          customFont={ExoSemiBold}
+          onTextComplete={handleTextComplete}
+          isStarted={true}  // Add this prop
+          style={{
+            position: 'absolute',
+            bottom: '2.5vw',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 10000,
+          }}
+        />
+      )}
 
       <RiveControl onStart={handleStart} show={showPlayButton} />
-
-      {showAudioPlayer && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          zIndex: 10001
-        }}>
-          <AudioPlayer ref={audioPlayerRef} />
-        </div>
-      )}
     </motion.div>
   );
 };

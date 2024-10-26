@@ -1,30 +1,35 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 // import Exo from './assets/fonts/Exo-SemiBold.ttf?url'
+import useStore from './stores/zustandStore';
 
-
-
-const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isStarted }) => {
+const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isStarted = true }) => {
   const [visibleText, setVisibleText] = useState([]);
   const [cursor, setCursor] = useState('_');
   const [showCursor, setShowCursor] = useState(true);
   const [isFading, setIsFading] = useState(false);
+  
+  // Get Zustand states
+  const isFirstRun = useStore(state => state.isFirstRun);
+  const shouldShowText = useStore(state => state.shouldShowText);
+  const setIsTypingStarted = useStore(state => state.setIsTypingStarted);
+  const setShouldShowText = useStore(state => state.setShouldShowText);
+  const completeFirstRun = useStore(state => state.completeFirstRun);
+
   const scrambleChars = useMemo(() => 'Creatures!#$^&*()_+-=[]{}|;:,./<>?', []);
   const getRandomChar = () => scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
   const cursorChars = useMemo(() => ['_', '..', ''], []);
   const getRandomCursor = () => cursorChars[Math.floor(Math.random() * cursorChars.length)];
+
   useEffect(() => {
-    if (!isStarted || !texts || texts.length === 0) return;
+    if (!isStarted || !texts || texts.length === 0 || typeof currentIndex !== 'number') return;
 
     const currentText = texts[currentIndex];
     if (!currentText) return;
 
-    console.log('Starting animation for text:', currentText); // Debug log
-
-    const totalDuration = 4000 + currentText.length * 50;
+    const totalDuration = 4000 + currentText.length * 50; // Original timing calculation
     const typingDuration = totalDuration - 500;
     const startTime = Date.now();
-    let animationCompleted = false;
 
     const animationInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
@@ -32,6 +37,7 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
       if (elapsedTime < typingDuration) {
         const progress = elapsedTime / typingDuration;
         const revealedChars = Math.floor(progress * currentText.length);
+
         const newVisibleText = currentText.split('').map((char, index) => {
           if (index < revealedChars) {
             const charProgress = (elapsedTime - (index * (typingDuration / currentText.length))) / (typingDuration / currentText.length);
@@ -45,34 +51,36 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
             return '';
           }
         });
+
         setVisibleText(newVisibleText);
         if (elapsedTime % 250 < 16) {
           setCursor(getRandomCursor());
         }
         setShowCursor(true);
         setIsFading(false);
-      } else if (!animationCompleted) {
+      } else {
         setVisibleText(currentText.split(''));
         setShowCursor(false);
-        animationCompleted = true;
-        clearInterval(animationInterval);
-        setTimeout(() => {
-          setIsFading(true);
-          onTextComplete();
-        }, 1000);
+        if (elapsedTime >= totalDuration) {
+          clearInterval(animationInterval);
+          setTimeout(() => {
+            setIsFading(true);
+            setTimeout(() => {
+              onTextComplete();
+            }, 500);
+          }, 1000);
+        }
       }
-    }, 33);
+    }, 33); // Original interval timing
 
-    return () => {
-      console.log('Clearing interval for text:', currentText); // Debug log
-      clearInterval(animationInterval);
-    };
+    return () => clearInterval(animationInterval);
   }, [currentIndex, texts, onTextComplete, isStarted]);
 
-  if (!isStarted) return null;
+  // Don't render if we shouldn't show text yet
+  if (!isStarted || !texts || typeof currentIndex !== 'number') return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <motion.div
         key={currentIndex}
         initial={{ opacity: 0 }}
@@ -94,7 +102,8 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
           textShadow: '0 0 10px rgba(0,255,255,0.7)',
           pointerEvents: 'none',
           userSelect: 'none',
-          ...style, // This will override any duplicate properties from above
+          zIndex: 10000,
+          ...style,
         }}
       >
         <p style={{
@@ -104,11 +113,7 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
           cursor: 'default',
         }}>
           {visibleText.join('')}
-          {showCursor && (
-            <span style={{
-              animation: cursor === '_' ? 'caret 1s steps(1) infinite' : 'none',
-            }}>{cursor}</span>
-          )}
+          {showCursor && <span className="cursor">{cursor}</span>}
         </p>
         <style>{`
           @font-face {
@@ -125,7 +130,5 @@ const TextLore = ({ texts, currentIndex, customFont, onTextComplete, style, isSt
     </AnimatePresence>
   );
 };
+
 export default TextLore;
-
-
-

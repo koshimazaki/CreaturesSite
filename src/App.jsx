@@ -8,7 +8,7 @@ import { easing } from 'maath'
 import { useProgress } from '@react-three/drei';
 import RiveLoadingScreen from './RiveLoadingScreen';
 import LandscapeEnforcer from './LandscapeEnforcer';
-import useStore from './zustandStore';
+import useStore from './stores/zustandStore';
 import useAudioStore from './Audio/audioStore';
 import Experience from './Experience';
 import './styles.css';
