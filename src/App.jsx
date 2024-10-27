@@ -138,8 +138,8 @@ export default function App() {
                             top: '0.5vw',
                             right: '2.3vw',
                             zIndex: 2002,
-                            width: '140px',
-                            height: '140px',
+                            width: '6.8vw',
+                            height: '6.8vw',
                             pointerEvents: 'auto',
                           }}
                           whileHover={{ scale: 1.05 }}
