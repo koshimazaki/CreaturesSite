@@ -20,8 +20,9 @@ import { motion } from 'framer-motion'
 import { Tooltip } from '@mui/material'
 import cyberpunkIcon from '/src/assets/icons/X31.png?url'
 import FullscreenButton from './UI/FullscreenButton'
-import PushButton from './UI/PushButton'
-
+// import PushButton from './UI/PushButton'
+import { isMobile, isTablet } from 'react-device-detect';
+import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 
 export default function App() {
   const { progress } = useProgress();
@@ -68,7 +69,8 @@ export default function App() {
   // Handle device type changes
   useEffect(() => {
     const handleResize = () => {
-      setDeviceType(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+      // Use the same logic as the store
+      setDeviceType(isMobile || isTablet ? 'mobile' : 'desktop');
     };
     window.addEventListener('resize', handleResize);
     handleResize();
@@ -129,23 +131,31 @@ export default function App() {
                     <>
                 
                       {/* Second Push Button - Natural size */}
-                      <Tooltip title="Push that Button! or hit 0" arrow placement="left">
+                      <Tooltip title="Push that button!" arrow placement="left">
                         <motion.div
                           style={{
                             position: 'absolute',
                             top: '0.5vw',
                             right: '2.3vw',
                             zIndex: 2002,
-                            width: '100px', // Natural size for Push artboard
-                            height: '100px',
+                            width: '140px',
+                            height: '140px',
                             pointerEvents: 'auto',
                           }}
-                           >
-                          <PushButton 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <img 
+                            src={GCLogo} 
+                            alt="Glitch Candies Creatures"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              filter: 'drop-shadow(0 0 5px rgba(252, 3, 152, 0.7)) drop-shadow(0 0 10px rgba(252, 3, 152, 0.5))',
+                              animation: 'glow 2s ease-in-out infinite alternate',
+                              cursor: 'pointer',
+                            }}
                             onClick={handleGeometryChange}
-                            artboard="Push"
-                            animations={['Push the button', 'Menu rotation', 'Menu text rotation']}
-                            keyBinding="1"
                           />
                         </motion.div>
                       </Tooltip>

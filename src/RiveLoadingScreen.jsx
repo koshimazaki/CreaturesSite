@@ -14,12 +14,20 @@ import { Runtime } from '@rive-app/canvas';
 
 
 const RiveLoadingScreen = ({ onStart }) => {
-  const shouldAllowEntry = useStore(state => state.shouldAllowEntry); // Move this to component level
+  const shouldAllowEntry = useStore(state => state.shouldAllowEntry);
   const isStarted = useStore(state => state.isStarted);
   const setIsStarted = useStore(state => state.setIsStarted);
   const textIndex = useStore(state => state.textIndex);
   const setTextIndex = useStore(state => state.setTextIndex);
   const incrementOpacity = useStore(state => state.incrementOpacity);
+  const getTextContent = useStore(state => state.getTextContent);
+  const deviceType = useStore(state => state.deviceType);
+
+  // Move console.log inside the component
+  console.log('deviceType:', deviceType, 'fontSize:', deviceType === 'desktop' ? '24px' : '14px');
+
+  // Get the appropriate text content from the store
+  const textLoreContent = getTextContent();
 
   useEffect(() => {
     // Store original console methods
@@ -81,20 +89,6 @@ const RiveLoadingScreen = ({ onStart }) => {
 
   const { initializeAudio, playAudio, audioPlayerRef } = useAudioStore();
 
-  // Loading text content
-  const textLoreContent = [
-    "___",
-    "Welcome to Glitch Candies: Creatures",
-    "We are stuck between galaxies...",
-    "Initialising Glitch Protocol...",
-    "Magic worlds are assembling...",
-    "Creatures morph and glitch into new forms...",
-    "Tech and spells are generating...",
-    "Epic bosses are spawning...",
-    "Clues are scattered across...",
-    "Intergalactic travel will continue soon...",
-    "The journey is starting soon...",
-  ];
 
   // Creature setup
   const { rive: creatureRive, RiveComponent: CreatureComponent } = useRive({
@@ -197,19 +191,17 @@ const RiveLoadingScreen = ({ onStart }) => {
 
       {showTextLore && textIndex !== undefined && (
         <>
-          {/* Dark gradient overlay */}
           <div style={{
             position: 'absolute',
             bottom: 0,
             left: 0,
             width: '100%',
-            height: '10vh', // Adjust height as needed
-            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 95%)',
-            zIndex: 9999, // Just below the text
-            pointerEvents: 'none', // Makes sure it doesn't interfere with interactions
+            height: deviceType === 'desktop' ? '10vh' : '15vh',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
+            zIndex: 9999,
+            pointerEvents: 'none',
           }} />
           
-          {/* Text Lore component */}
           <TextLore 
             texts={textLoreContent}
             currentIndex={textIndex}
@@ -218,11 +210,15 @@ const RiveLoadingScreen = ({ onStart }) => {
             isStarted={true}
             style={{
               position: 'absolute',
-              bottom: '1vw',
-              left: '50%',
-              transform: 'translateX(-50%)',
+              bottom: '2vw',
+              left: deviceType === 'desktop' ? '50%' : '1.8vw',
+              transform: deviceType === 'desktop' ? 'translateX(-50%)' : 'none',
               zIndex: 10000,
-              fontSize: '1vw',
+              fontSize: deviceType === 'desktop' ? '25px' : '8px',
+              textAlign: deviceType === 'desktop' ? 'center' : 'left',
+              width: '90%',
+              lineHeight: '1.2', // Added for better line spacing
+
             }}
           />
         </>
@@ -230,7 +226,7 @@ const RiveLoadingScreen = ({ onStart }) => {
       {!shouldAllowEntry && (
         <div style={{
           position: 'absolute',
-          top: '75%',
+          top: '72%',
           left: '2vw',
           transform: 'translateY(-50%)',
           color: '#fc0398',

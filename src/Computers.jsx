@@ -309,6 +309,9 @@ function Leds({ instances }) {
       <instances.Sphere position={[-4.71, 4.59, -1.81]} scale={0.005} color={[1, 2, 1]} />
       <instances.Sphere position={[-3.03, 2.85, 1.19]} scale={0.005} color={[1, 2, 1]} />
       <instances.Sphere position={[-1.21, 1.73, -1.49]} scale={0.005} color={[1, 2, 1]} />
+     
+      {/* <instances.Sphere position={[-3.2, 1.37, 4.57]} scale={0.1} color={[1, 2, 1]} /> */}
+
     </group>
   )
 }
@@ -316,47 +319,83 @@ function Leds({ instances }) {
 // Renders dragon's eye
 function DragonsEye({ instances }) {
   const ref = useRef()
-  const { nodes } = useGLTF(computersModel)
-  const blinkTimerRef = useRef(0)
+  const blinkTimerRef = useRef(Math.random() * 5 + 2)
   const isBlinkingRef = useRef(false)
-
-  useMemo(() => {
-    nodes.Sphere.material = new THREE.MeshBasicMaterial()
-    nodes.Sphere.material.toneMapped = false
-  }, [])
-
-  useFrame((state, delta) => {
+  
+  useFrame((state) => {
     if (ref.current) {
-      const instance = ref.current.children[0]
+      const time = state.clock.getElapsedTime()
+      
+      // Dragon eye - keep original blinking behavior unchanged
+      const dragonEye = ref.current.children[0]
       const baseColor = new THREE.Color('#03d7fc')
       
       // Regular fading
       const t = (1 + Math.sin(state.clock.elapsedTime)) / 2
       
       // Random blinking
-      blinkTimerRef.current -= delta
+      blinkTimerRef.current -= state.delta
       if (blinkTimerRef.current <= 0) {
-        isBlinkingRef.current = Math.random() < 0.1 // 10% chance to start blinking
-        blinkTimerRef.current = Math.random() * 5 + 2 // Set next blink check in 2-7 seconds
+        isBlinkingRef.current = Math.random() < 0.1
+        blinkTimerRef.current = Math.random() * 5 + 2
       }
 
       let finalColor
       if (isBlinkingRef.current) {
         const blinkSpeed = 15
         const blinkT = (1 + Math.sin(state.clock.elapsedTime * blinkSpeed)) / 2
-        finalColor = baseColor.clone().multiplyScalar(blinkT * 0.2) // Blink to 20% brightness
+        finalColor = baseColor.clone().multiplyScalar(blinkT * 0.2)
       } else {
-        finalColor = baseColor.clone().multiplyScalar(0.2 + t * 0.8) // Regular fade between 20% and 100% brightness
+        finalColor = baseColor.clone().multiplyScalar(0.2 + t * 0.8)
       }
 
-      instance.color.copy(finalColor)
+      dragonEye.color.copy(finalColor)
+
+      // Second sphere - Tripo's eye
+      const secondSphere = ref.current.children[1]
+      if (secondSphere) {
+        // Breathing scale animation
+        const breathingScale = 1 + Math.sin(time * 0.3) * 0.008
+        const baseScale = 0.1
+        secondSphere.scale.set(
+          baseScale * breathingScale,
+          baseScale * breathingScale,
+          baseScale * breathingScale
+        )
+
+        // Gentle opacity pulsing
+        const pulseT = (1 + Math.sin(time * 0.5)) / 2
+        const minOpacity = 0.1
+        const maxOpacity = 0.55
+        secondSphere.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT
+      }
     }
   })
 
   return (
     <group ref={ref}>
-      <instances.Sphere position={[2.235, 3.51, -1.76]} scale={0.12} color='#03d7fc' />
+      <instances.Sphere 
+        position={[2.235, 3.51, -1.76]} 
+        scale={0.12} 
+        color='#03d7fc'
+      />
+      <instances.Sphere 
+        position={[-3.22, 1.37, 4.56]} 
+        scale={0.2} 
+        color={'#03d7fc'}
+        opacity={0.3}
+        transparent={true}
+      />
     </group>
   )
 }
+
+
+
+
+
+
+
+
+
 

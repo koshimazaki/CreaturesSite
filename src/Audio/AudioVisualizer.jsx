@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { styled, ThemeProvider, createTheme } from "@mui/material/styles";
 import { Box, IconButton, Slider } from "@mui/material";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import PauseIcon from "@mui/icons-material/Pause";
-import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
-import SkipNextIcon from "@mui/icons-material/SkipNext";
+import PrevIcon from '../assets/icons/prev.svg';  // Add this
+import NextIcon from '../assets/icons/next.svg';
+import PlayIcon from '../assets/icons/playpunkt.svg';  // Add this
+import PauseIcon from '../assets/icons/pause.svg';  // Add this
 import useAudioStore from './audioStore';
 
 const theme = createTheme({
@@ -56,7 +56,7 @@ const ControlsContainer = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  gap: "5px",
+  gap: "3px",
 });
 
 const VolumeContainer = styled(Box)({
@@ -385,7 +385,8 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
             sx={{ 
               opacity: 0.95, 
               color: VISUALIZER_THEME.colors.controlButtons,
-              padding: "4px",
+              padding: "6px",
+              marginRight: "4px",  // Adjust previous button closer to play
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
               },
@@ -394,14 +395,23 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
               },
             }}
           >
-            <SkipPreviousIcon fontSize="large" />
+            <img 
+              src={PrevIcon} 
+              alt="Previous"
+              style={{ 
+                width: '1.5em',
+                height: '1.5em',
+                filter: `brightness(0) saturate(100%) invert(19%) sepia(90%) saturate(6048%) hue-rotate(315deg) brightness(101%) contrast(101%)`
+              }} 
+            />
           </IconButton>
           <IconButton
             onClick={isPlaying ? pauseAudio : playAudio}
             sx={{ 
               opacity: 0.75, 
               color: VISUALIZER_THEME.colors.controlButtons,
-              padding: "4px",
+              padding: "6px",
+              marginLeft: "-2px",
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
               },
@@ -410,14 +420,26 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
               },
             }}
           >
-            {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
+            <img 
+              src={isPlaying ? PauseIcon : PlayIcon} 
+              alt={isPlaying ? "Pause" : "Play"}
+              style={{ 
+                width: '1.5em',
+                height: '1.5em',
+                filter: `brightness(0) saturate(100%) invert(19%) sepia(90%) saturate(6048%) hue-rotate(315deg) brightness(101%) contrast(101%)`,
+                transform: `rotate(${isPlaying ? 0 : 90}deg)`, // Start at 0 for play, rotate to 90 for pause
+                transition: 'transform 0.3s ease-in-out',
+                transformOrigin: 'center'
+              }} 
+            />
           </IconButton>
           <IconButton 
             onClick={nextTrack}
             sx={{ 
               opacity: 0.95, 
               color: VISUALIZER_THEME.colors.controlButtons,
-              padding: "4px",
+              padding: "6px",
+              marginLeft: "-2px",  // Adjust next button closer to play
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
               },
@@ -426,7 +448,15 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
               },
             }}
           >
-            <SkipNextIcon fontSize="large" />
+            <img 
+              src={NextIcon} 
+              alt="Next"
+              style={{ 
+                width: '1.5em', // Adjust size to match other icons
+                height: '1.5em',
+                filter: `brightness(0) saturate(100%) invert(19%) sepia(90%) saturate(6048%) hue-rotate(315deg) brightness(101%) contrast(101%)` // This will color it to match #fc0398
+              }} 
+            />
           </IconButton>
         </ControlsContainer>
         <VolumeContainer>
