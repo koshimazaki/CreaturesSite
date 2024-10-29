@@ -46,7 +46,14 @@ function OG(props) {
 
       return () => {
         window.removeEventListener('keydown', handleKeyDown)
-        Object.values(actions).forEach(action => action.stop())
+        // Add safety check for actions
+        if (actions) {
+          Object.values(actions).forEach(action => {
+            if (action && typeof action.stop === 'function') {
+              action.stop()
+            }
+          })
+        }
       }
     } else {
       // console.error('Idle or Jump action not found')

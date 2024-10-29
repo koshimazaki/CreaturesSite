@@ -58,6 +58,19 @@ const useStore = create((set, get) => ({
   textIndex: 0,
   showTextLore: false,
   
+  // Info panel state
+  isInfoVisible: false,
+  setInfoVisible: (value) => {
+    // console.log('Setting info visible:', value); // Add debug log
+    set({ isInfoVisible: value });
+  },
+  infoRef: null,
+  setInfoRef: (ref) => set({ infoRef: ref }),
+  
+  // Rive loading screen state
+  showLoadingScreen: true,
+  setShowLoadingScreen: (value) => set({ showLoadingScreen: value }),
+  
   // Existing actions
   setTextIndex: (value) => {
     if (typeof value === 'function') {
@@ -74,6 +87,36 @@ const useStore = create((set, get) => ({
   incrementOpacity: () => set((state) => ({ opacity: Math.min(state.opacity + 0.1, 1) })),
   setScenePreloaded: (value) => set({ scenePreloaded: value }),
   setDeviceType: (type) => set({ deviceType: type }),
+  
+  // Add info panel actions
+  toggleInfo: () => set((state) => ({ isInfoVisible: !state.isInfoVisible })),
+  
+  // Update returnToRive to handle transition sequencing
+  isTransitioning: false, // Add new state for transition handling
+  returnToRive: () => {
+    const state = get();
+    if (state.isTransitioning) return; // Prevent multiple transitions
+
+    // Start transition
+    set({ isTransitioning: true });
+
+    // First fade out the scene
+    set({ opacity: 0 });
+
+    // Show loading screen after fade
+    setTimeout(() => {
+      set({ showLoadingScreen: true });
+      
+      // Then reset other states
+      setTimeout(() => {
+        set({ 
+          isStarted: false,
+          textIndex: 0,
+          isTransitioning: false // Reset transition flag
+        });
+      }, 200);
+    }, 300);
+  },
 }));
 
 export default useStore;

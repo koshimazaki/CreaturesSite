@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 
-const LandscapeEnforcer = ({ children }) => {
+const LandscapeEnforcer = forwardRef(({ children }, ref) => {
   const [isLandscape, setIsLandscape] = useState(true);
   const [riveError, setRiveError] = useState(null);
 
@@ -77,6 +77,9 @@ const LandscapeEnforcer = ({ children }) => {
   }
 
   return children;
-};
+});
+
+LandscapeEnforcer.displayName = 'LandscapeEnforcer';
+
 
 export default LandscapeEnforcer;

@@ -28,18 +28,18 @@ const FullscreenOverlay = styled(motion.div)({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  background: 'rgba(0, 0, 0, 0.5)',
-  zIndex: 10000, // Increased z-index
+  background: 'rgba(0, 0, 0, 0.8)', // Changed from 0.5 to 0.85 for darker overlay
+  zIndex: 10000,
 })
 
 const StyledPaper = styled(MotionPaper)(({ theme }) => ({
-  background: 'rgba(0, 0, 0, 0.8)',
+  background: 'rgba(0, 0, 0, 0.8)', // Keep background alpha
   color: '#f0f7f9',
   padding: '40px',
   borderRadius: '20px',
   zIndex: 10001, // Ensure this is above the overlay
   fontSize: 15,
-  opacity: 0.7,
+  opacity: 1, // Changed from 0.7 to 1
   lineHeight: 2,
   width: '90%',
   maxWidth: '800px',
@@ -62,10 +62,23 @@ const sharedTypographyStyle = {
   fontFamily: '"Exo2-Light", "Exo", sans-serif',
   fontWeight: 300,
   fontStyle: 'normal',
-  transition: 'all 0.3s ease-in-out', 
+  transition: 'all 0.3s ease-in-out',
 };
 
-const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
+// Add new styles for the glowing effects
+const blueGlowStyle = {
+  color: '#7CDBF3',  // Solid color without alpha
+  textShadow: '0 0 3px rgba(3, 215, 252, 0.1), 0 0 5px rgba(3, 215, 252, 0.3)',
+};
+
+const pinkGlowStyle = {
+  color: '#fc0398',
+  textShadow: '0 0 3px rgba(252, 3, 152, 0.2), 0 0 5px rgba(252, 3, 152, 0.8)',
+};
+
+import GCLogo from '/src/assets/images/GC_Creatures_Logo.svg';
+
+const Info = forwardRef(({ isInfoVisible, onClose }, ref) => {
   useEffect(() => {
     preloadFont();
   }, []);
@@ -80,6 +93,7 @@ const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
     <AnimatePresence>
       {isInfoVisible && (
         <FullscreenOverlay
+          ref={ref}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -87,7 +101,6 @@ const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
           onClick={handleOverlayClick}
         >
           <StyledPaper
-            ref={ref}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -106,95 +119,107 @@ const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
               <CloseIcon />
             </IconButton>
             <Box sx={{ 
-              opacity: 0.95, 
               fontSize: 15, 
               fontFamily: 'Exo2, Exo', 
               fontStyle: 'regular',
-              width: '100%', // Ensure full width
-              height: '100%', // Ensure full height
+              width: '100%',
+              height: '100%',
               display: 'flex',
               flexDirection: 'column',
+              alignItems: 'flex-start', // Changed from 'center' to 'flex-start'
             }}>
-              <Typography 
-                variant="h4" 
-                gutterBottom 
-                sx={{ 
-                  ...sharedTypographyStyle,
-                  fontFamily: '"Exo", "Exo", sans-serif',
-                  fontSize: { xs: '1.5rem', sm: '1.9505rem' }, 
-                  opacity: 0.85 
+              {/* Logo */}
+              <Box
+                sx={{
+                  width: { xs: '200px', sm: '250px' },
+                  height: 'auto',
+                  mb: 4,
+                  alignSelf: 'center', // Center only the logo
+                  '& img': {
+                    width: '100%',
+                    height: 'auto',
+                    filter: 'drop-shadow(0 0 5px rgba(252, 3, 152, 0.7)) drop-shadow(0 0 10px rgba(252, 3, 152, 0.5))',
+                  }
                 }}
               >
-                GlitchCandies: Creatures
-              </Typography>
+                <img src={GCLogo} alt="Glitch Candies Creatures" />
+              </Box>
+
+      
+        
+              
+
+              {/* Description with blue glow */}
               <Typography 
                 variant="body1" 
                 sx={{ 
-                  fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
-                  opacity: 0.95, 
-                  fontWeight: 300,
-                  fontStyle: 'normal', 
-                  fontFamily: '"Exo2-Light", "Exo", sans-serif',
-                  mb: 2 // margin bottom
+                  ...sharedTypographyStyle,
+                  ...blueGlowStyle,
+                  fontSize: { xs: '1.3rem', sm: '1.35rem' }, 
+                  mb: 2,
                 }}
               >
-                GlitchCandies: Creatures is a unique blend of a game and audiovisual art, built using the immersive framework of Three.js and React Three Fiber.
+                GlitchCandies Creatures is a unique blend of a game and audiovisual art, built using the immersive framework of Three.js and React Three Fiber.
               </Typography>
+
               <Typography 
                 variant="body1"  
                 sx={{ 
-                  fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
-                  opacity: 0.95, 
-                  fontWeight: 300,
-                  fontStyle: 'normal', 
-                  fontFamily: '"Exo2-Light", "Exo", sans-serif',
-                  mb: 2
+                  ...sharedTypographyStyle,
+                  ...blueGlowStyle,
+                  fontSize: { xs: '1.2rem', sm: '1.25rem' }, 
+                  mb: 2,
                 }}
               >
                 Set in a 3D world, it offers an experience that combines the charm of classic platformers with the unpredictability of generative art, 
                 reminiscent of Kirby's playful exploration and Risk of Rain's engaging, replayable mechanics.
               </Typography>
+
+              {/* Key Features title with pink glow */}
               <Typography 
                 variant="h6"  
                 sx={{ 
-                  fontSize: { xs: '1rem', sm: '1.25rem' }, 
-                  opacity: 0.95, 
-                  fontWeight: 300,
-                  fontStyle: 'normal', 
-                  fontFamily: '"Exo2-Light", "Exo", sans-serif',
-                  mb: 1
+                  ...sharedTypographyStyle,
+                  ...pinkGlowStyle,
+                  fontSize: { xs: '1.3rem', sm: '1.5rem' }, 
+                  mb: 1,
                 }}
               >
                 Key Features:
               </Typography>
-              <Box sx={{ opacity: 0.95, mb: 2 }}>
+
+              {/* Features list with blue glow */}
+              <Box sx={{ 
+                mb: 2,
+                ...blueGlowStyle,
+                fontSize: { xs: '0.95rem', sm: '1.05rem' }, 
+              }}>
                 <ul style={{ 
                   margin: 0, 
                   paddingLeft: '1.5rem',
-                  fontSize: { xs: '0.8rem', sm: '0.95rem' },
+                  fontSize: { xs: '1.2rem', sm: '1.25rem' }, 
                   fontFamily: '"Exo2-Light", "Exo", sans-serif',
                   fontWeight: 300,
-                  lineHeight: 1.6
+                  lineHeight: 1.7,
                 }}>
                   <li>Creatures made from elemental forces that evolve as you progress</li>
                   <li>Interactive environments with glitch-inspired shaders and reactive particle systems</li>
-                  <li>Spell collection, coop monster hunting, and epic boss encounters                </li>
-                  <li>Aesthetics and pipelines shaped by cutting-edge generative AI
-                  </li>
-                  <li>Art based on the Glitch Candies and Supernatural Creatures NFT collections
-                  </li>
+                  <li>Spell collection, coop monster hunting, and epic boss encounters</li>
+                  <li>Aesthetics and pipelines shaped by cutting-edge generative AI</li>
+                  <li>Art based on the Glitch Candies and Supernatural Creatures NFT collections</li>
                 </ul>
               </Box>
+
+              {/* Final text with blue glow */}
               <Typography 
                 variant="body1"  
                 sx={{ 
-                  fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
-                  opacity: 0.95, 
-                  fontWeight: 300,
-                  fontStyle: 'normal', 
-                  fontFamily: '"Exo2-Light", "Exo", sans-serif',
-                  mb: 2
-                }}>
+                  ...sharedTypographyStyle,
+                  ...blueGlowStyle,
+                  fontSize: { xs: '1.2rem', sm: '1.25rem' }, 
+                  mb: 2,
+                }}
+              >
                 We're actively developing both single-player and multiplayer modes, with a demo launching soon.
               </Typography>
             </Box>
@@ -214,4 +239,6 @@ const InfoPanel = forwardRef(({ isInfoVisible, onClose }, ref) => {
   );
 });
 
-export default InfoPanel
+Info.displayName = 'Info';
+
+export default Info

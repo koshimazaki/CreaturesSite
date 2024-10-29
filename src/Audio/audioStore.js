@@ -262,6 +262,12 @@ const useAudioStore = create(
       partialize: (state) => ({
         volume: state.volume
       }),
+      onRehydrateStorage: () => (state) => {
+        // If no stored state or volume is found, ensure volume is set to 30
+        if (!state || typeof state.volume !== 'number') {
+          useAudioStore.setState({ volume: 30 });
+        }
+      }
     }
   )
 );

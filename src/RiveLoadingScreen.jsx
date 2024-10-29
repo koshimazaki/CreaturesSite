@@ -1,12 +1,16 @@
 // RiveLoadingScreen.jsx
 import React, { useCallback, useState, useEffect } from 'react';
-import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
+import { useRive, useStateMachineInput, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 import useStore from './stores/zustandStore';
 import useAudioStore from './Audio/audioStore';
 import RiveControl from './UI/RiveControl';
 import TextLore from './TextLore';
 import ExoSemiBold from '/src/assets/fonts/Exo-SemiBold.ttf?url'
+import { Tooltip } from '@mui/material'
+import Info from './UI/InfoPanel';
+import GCLogo from './assets/images/GC_Creatures_Logo.svg';
+import ColorTransition from './ColorTransition';
 // Import the full runtime
 import { Runtime } from '@rive-app/canvas';
 
@@ -14,17 +18,21 @@ import { Runtime } from '@rive-app/canvas';
 
 
 const RiveLoadingScreen = ({ onStart }) => {
-  const shouldAllowEntry = useStore(state => state.shouldAllowEntry);
-  const isStarted = useStore(state => state.isStarted);
-  const setIsStarted = useStore(state => state.setIsStarted);
-  const textIndex = useStore(state => state.textIndex);
-  const setTextIndex = useStore(state => state.setTextIndex);
-  const incrementOpacity = useStore(state => state.incrementOpacity);
-  const getTextContent = useStore(state => state.getTextContent);
-  const deviceType = useStore(state => state.deviceType);
+  const {
+    shouldAllowEntry,
+    isStarted,
+    setIsStarted,
+    textIndex,
+    setTextIndex,
+    incrementOpacity,
+    getTextContent,
+    deviceType,
+    isInfoVisible,
+    setInfoVisible
+  } = useStore();
 
   // Move console.log inside the component
-  console.log('deviceType:', deviceType, 'fontSize:', deviceType === 'desktop' ? '24px' : '14px');
+  // console.log('deviceType:', deviceType, 'fontSize:', deviceType === 'desktop' ? '24px' : '14px');
 
   // Get the appropriate text content from the store
   const textLoreContent = getTextContent();
@@ -85,9 +93,11 @@ const RiveLoadingScreen = ({ onStart }) => {
 
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [showTextLore, setShowTextLore] = useState(false);
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [showLogo, setShowLogo] = useState(false);
+  const [showAboutButton, setShowAboutButton] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const { initializeAudio, playAudio, audioPlayerRef } = useAudioStore();
+  const { initializeAudio, playAudio } = useAudioStore();
 
 
   // Creature setup
@@ -101,15 +111,77 @@ const RiveLoadingScreen = ({ onStart }) => {
       alignment: Alignment.Center,
     }),
     onLoad: () => {
-      console.log('Supernatural Creatures are assembling... content loaded');
-      // Let's add some debug logs
-      setTimeout(() => {
-        // console.log('Setting showTextLore to true');
+      // console.log('Creature loaded');
+      if (isInitialLoad) {
+        // Initial load - delayed appearance
+        setTimeout(() => setShowTextLore(true), 2000);
+        setTimeout(() => {
+          setShowPlayButton(true);
+          setShowLogo(true);
+          setShowAboutButton(true);
+        }, 7000);
+      } else {
+        // Quick fade-in when returning from scene
         setShowTextLore(true);
-      }, 2000);
-      setTimeout(() => setShowPlayButton(true), 6500);
+        setShowPlayButton(true);
+        setShowLogo(true);
+        setShowAboutButton(true);
+      }
     },
+    // Add cleanup
+    onStop: () => {
+      // console.log('Creature stopping');
+    }
   });
+
+  // Use the state machine input hook with nested path
+  const menuStateInput = useStateMachineInput(
+    creatureRive,
+    "Creature_SM",
+    "Menu state",
+    { stateMachinePath: "Creature/Menu" } // Add nested path configuration
+  );
+
+  // Effect to handle state changes
+  useEffect(() => {
+    if (menuStateInput && !isStarted) {
+      try {
+        console.log("Setting menu state input to 2");
+        menuStateInput.value = 2;
+      } catch (error) {
+        console.error("Error setting menu state:", error);
+      }
+    }
+  }, [menuStateInput, isStarted]);
+
+  // Debug logging
+  useEffect(() => {
+    if (menuStateInput) {
+      console.log("Menu state input:", menuStateInput);
+      console.log("Current value:", menuStateInput.value);
+    }
+  }, [menuStateInput]);
+
+  // Play animations when component mounts or becomes visible
+  useEffect(() => {
+    if (creatureRive && !isStarted) {
+      // Play all animations
+      creatureRive.play('Loop-corners');
+      creatureRive.play('Loop-arrows');
+      creatureRive.play('Loop-progress bar 1');
+      creatureRive.play('Loop circles');
+      creatureRive.play('Loop-Cross group');
+      creatureRive.play('Loop-Triangles');
+      creatureRive.play('Loop-focus lines');
+    }
+  }, [creatureRive, isStarted]);
+
+  // Stop animations when started
+  useEffect(() => {
+    if (isStarted && creatureRive) {
+      creatureRive.stop();
+    }
+  }, [isStarted, creatureRive]);
 
   const handleTextComplete = useCallback(() => {
     setTextIndex((prevIndex) => (prevIndex + 1) % textLoreContent.length);
@@ -122,34 +194,33 @@ const RiveLoadingScreen = ({ onStart }) => {
     }
   }, [textIndex, setTextIndex]);
 
-  useEffect(() => {
-    if (isStarted) {
-      creatureRive?.stop();
-    }
-  }, [isStarted, creatureRive]);
-
   const handleStart = useCallback(async () => {
     if (isStarted) return;
     
-    // console.log('Starting sequence...');
-    
     try {
-      await onStart(); // This will handle audio initialization and play
-      setShowAudioPlayer(true);
+      // Reset and play audio from beginning
+      await initializeAudio();
+      await playAudio();
       setIsStarted(true);
       
       const fadeInterval = setInterval(incrementOpacity, 50);
 
       setTimeout(() => {
         setShowPlayButton(false);
+        setShowLogo(false);
+        setShowAboutButton(false);
+        setShowTextLore(false);
         clearInterval(fadeInterval);
-      }, 500);
+      }, 200);
+
+      // Set isInitialLoad to false after first start
+      setIsInitialLoad(false);
 
     } catch (error) {
       console.error('Error in start sequence:', error);
       setIsStarted(false);
     }
-  }, [isStarted, setIsStarted, onStart, incrementOpacity]);
+  }, [isStarted, setIsStarted, initializeAudio, playAudio, incrementOpacity]);
 
 
 
@@ -158,6 +229,39 @@ const RiveLoadingScreen = ({ onStart }) => {
   //   console.log('textIndex:', textIndex);
   //   console.log('textLoreContent:', textLoreContent);
   // }, [showTextLore, textIndex]);
+
+  // Debug logging
+  useEffect(() => {
+    // console.log('showPlayButton state:', showPlayButton);
+  }, [showPlayButton]);
+
+  // Effect to handle showing elements when returning
+  useEffect(() => {
+    if (!isStarted && !isInitialLoad) {
+      // Quick fade-in when returning
+      setTimeout(() => {
+        setShowPlayButton(true);
+        setShowTextLore(true);
+        setShowLogo(true);
+        setShowAboutButton(true);
+      }, 100);
+    }
+  }, [isStarted, isInitialLoad]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      setShowPlayButton(false);
+      setShowTextLore(false);
+      if (creatureRive) {
+        try {
+          creatureRive.cleanup();
+        } catch (error) {
+          console.log('Cleanup error:', error);
+        }
+      }
+    };
+  }, [creatureRive]);
 
   return (
     <motion.div 
@@ -198,7 +302,7 @@ const RiveLoadingScreen = ({ onStart }) => {
             width: '100%',
             height: deviceType === 'desktop' ? '10vh' : '15vh',
             background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
-            zIndex: 9999,
+            zIndex: 1, // Lowered from 9999 to sit behind other elements
             pointerEvents: 'none',
           }} />
           
@@ -210,15 +314,14 @@ const RiveLoadingScreen = ({ onStart }) => {
             isStarted={true}
             style={{
               position: 'absolute',
-              bottom: '2vw',
-              left: deviceType === 'desktop' ? '50%' : '1.8vw',
+              bottom: deviceType === 'desktop' ? '2vw' : '60%',
+              left: deviceType === 'desktop' ? '50%' : '72%',
               transform: deviceType === 'desktop' ? 'translateX(-50%)' : 'none',
               zIndex: 10000,
-              fontSize: deviceType === 'desktop' ? '25px' : '8px',
+              fontSize: deviceType === 'desktop' ? '25px' : '10px',
               textAlign: deviceType === 'desktop' ? 'center' : 'left',
               width: '90%',
-              lineHeight: '1.2', // Added for better line spacing
-
+              lineHeight: '1.2',
             }}
           />
         </>
@@ -226,8 +329,8 @@ const RiveLoadingScreen = ({ onStart }) => {
       {!shouldAllowEntry && (
         <div style={{
           position: 'absolute',
-          top: '72%',
-          left: '2vw',
+          top: '5.2vw',
+          left: '1vw',
           transform: 'translateY(-50%)',
           color: '#fc0398',
           textAlign: 'left',
@@ -248,9 +351,109 @@ const RiveLoadingScreen = ({ onStart }) => {
         </div>
       )}
       {shouldAllowEntry && (
-        <RiveControl onStart={handleStart} show={showPlayButton} />
+        <RiveControl 
+          onStart={handleStart} 
+          show={showPlayButton} 
+          style={{
+            position: 'absolute',
+            top: 'clamp(40%, 50vh, 45%)',  // Clamps between 40% and 60% vertically
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'clamp(140px, 15vw, 220px)',  // Clamps the width between 120px and 200px
+            height: 'auto',
+            zIndex: 2001
+          }}
+        />
       )}
+
+      {/* GC Logo */}
+      {showLogo && (
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '-.5vw',
+            right: '2vw',
+            zIndex: 2002,
+            width: '10vw',
+            height: '10vw',
+            pointerEvents: 'auto',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <img 
+            src={GCLogo} 
+            alt="Glitch Candies Creatures"
+            style={{
+              width: '100%',
+              height: '100%',
+              filter: 'drop-shadow(0 0 5px rgba(252, 3, 152, 0.7)) drop-shadow(0 0 10px rgba(252, 3, 152, 0.5))',
+              animation: 'glow 2s ease-in-out infinite alternate',
+              cursor: 'pointer',
+              display: 'block',
+            }}
+          />
+        </motion.div>
+      )}
+
+      {/* About Game Button */}
+      {showAboutButton && (
+        <Tooltip title="Learn More" arrow placement="top">
+          <motion.div
+            style={{
+              position: 'absolute',
+              bottom: deviceType === 'desktop' ? '1vw' : '1vw',
+              left: deviceType === 'desktop' ? '2.3vw' : 'clamp(40%, 42%, 45%)',
+              zIndex: 2020,
+              pointerEvents: 'auto',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.1)',
+              borderRadius: '4px',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <button
+              onClick={() => setInfoVisible(true)}
+              style={{
+                background: 'transparent',
+                border: '1px solid #03d7fc',
+                color: '#03d7fc',
+                padding: '0.5vw 1.5vw',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: 'clamp(12px, 1vw, 16px)',
+                fontFamily: 'Monorama',
+                filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.7)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.5))',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#03d7fc20';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'transparent';
+              }}
+            >
+              About Game
+            </button>
+          </motion.div>
+        </Tooltip>
+      )}
+
+      <ColorTransition isTransitioning={true} />
     </motion.div>
+
+
+
+
+
   );
 };
 
