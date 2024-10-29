@@ -24,6 +24,8 @@ import FullscreenButton from './UI/FullscreenButton'
 import { isMobile, isTablet } from 'react-device-detect';
 import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 import Info from './UI/InfoPanel';
+import MorphingButton from './MorphingButton';
+import MorphingButton2 from './MorphingButton2';
 
 
 
@@ -250,56 +252,52 @@ export default function App() {
                 </Tooltip>
 
 
+                <Tooltip title="Learn More" arrow placement="top">
+                  <motion.div
+                    style={{
+                      position: 'absolute',
+                      bottom: '1vw',
+                      left: '2.3vw',
+                      zIndex: 2002,
+                      pointerEvents: 'auto',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)', // For Safari support
+                      backgroundColor: 'rgba(0, 0, 0, 0.4)', // Lighter dark overlay
+                      borderRadius: '4px',
+                      // padding: '0.1vw 0.5vw',
+
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <button
+                      ref={infoButtonRef}
+                      onClick={() => setInfoVisible(!isInfoVisible)}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid #03d7fc',
+                        color: '#03d7fc',
+                        padding: '0.5vw 1.5vw',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: 'clamp(12px, 1vw, 16px)',
+                        fontFamily: 'Monorama',
+                        filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.7)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.5))',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#03d7fc20';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'transparent';
+                      }}
+                    >
+                      About Game
+                    </button>
+                  </motion.div>
+                </Tooltip>
 
 
-
-
-                        <Tooltip title="Learn More" arrow placement="top">
-                          <motion.div
-                            style={{
-                              position: 'absolute',
-                              bottom: '1vw',
-                              left: '2.3vw',
-                              zIndex: 2002,
-                              pointerEvents: 'auto',
-                              backdropFilter: 'blur(8px)',
-                              WebkitBackdropFilter: 'blur(8px)', // For Safari support
-                              backgroundColor: 'rgba(0, 0, 0, 0.4)', // Lighter dark overlay
-                              borderRadius: '4px',
-                              // padding: '0.1vw 0.5vw',
-
-                            }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <button
-                              ref={infoButtonRef}
-                              onClick={() => setInfoVisible(!isInfoVisible)}
-                              style={{
-                                background: 'transparent',
-                                border: '1px solid #03d7fc',
-                                color: '#03d7fc',
-                                padding: '0.5vw 1.5vw',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: 'clamp(12px, 1vw, 16px)',
-                                fontFamily: 'Monorama',
-                                filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.7)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.5))',
-                                transition: 'all 0.3s ease',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.target.style.background = '#03d7fc20';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.background = 'transparent';
-                              }}
-                            >
-                              About Game
-                            </button>
-                          </motion.div>
-                        </Tooltip>
-
-                    
 
                       {/* Second Push Button - Natural size */}
                       <Tooltip title="Push that button!" arrow placement="right">
@@ -415,6 +413,37 @@ export default function App() {
                       </div>
                     )}
 
+                    {/* Add MorphingButton here */}
+                    <motion.div
+                      style={{
+                        position: 'absolute',
+                        bottom: '4vw',
+                        left: '50%',
+                        transform: 'translateY(-50%)',
+                        zIndex: 2002,
+                        pointerEvents: 'auto',
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <MorphingButton />
+                    </motion.div>
+
+                    <motion.div
+                      style={{
+                        position: 'absolute',
+                        bottom: '1vw',
+                        left: '20%',
+                        transform: 'translateY(-50%)',
+                        zIndex: 2002,
+                        pointerEvents: 'auto',
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <MorphingButton2 />
+                    </motion.div>
+
                     </>
                   )}
                 </div>
@@ -462,6 +491,8 @@ export default function App() {
               />
             </EffectComposer>
           </Canvas>
+
+  
 
           {/* UI Layer */}
           <div style={{

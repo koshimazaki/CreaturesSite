@@ -15,8 +15,6 @@ import ColorTransition from './ColorTransition';
 import { Runtime } from '@rive-app/canvas';
 
 
-
-
 const RiveLoadingScreen = ({ onStart }) => {
   const {
     shouldAllowEntry,
