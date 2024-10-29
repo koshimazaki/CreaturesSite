@@ -8,8 +8,11 @@ import { easing } from 'maath'
 import { useProgress } from '@react-three/drei';
 import RiveLoadingScreen from './RiveLoadingScreen';
 import LandscapeEnforcer from './LandscapeEnforcer';
+
 import useStore from './stores/zustandStore';
 import useAudioStore from './Audio/audioStore';
+// import { useActionStore } from './stores/actionStore';
+
 import Experience from './Experience';
 import './styles.css';
 import HologramOG from './HologramOG';
@@ -26,6 +29,9 @@ import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 import Info from './UI/InfoPanel';
 import MorphingButton from './MorphingButton';
 import MorphingButton2 from './MorphingButton2';
+import CustomCursor from './UI/CustomCursor';
+import { makeInteractive } from './utils/styles';
+// import DynamicSceneControl from './SceneMods/DynamicSceneControl';
 
 
 
@@ -170,6 +176,20 @@ export default function App() {
   const infoButtonRef = useRef(null);
 
   return (
+    <>
+      <CustomCursor />
+      
+      <style>
+        {`
+          body {
+            cursor: none;
+          }
+          a, button, [role="button"] {
+            cursor: none;
+          }
+        `}
+      </style>
+
     <LandscapeEnforcer>
       {showLoadingScreen && <RiveLoadingScreen onStart={handleStart} />}
       {isStarted && (
@@ -298,40 +318,37 @@ export default function App() {
                 </Tooltip>
 
 
-
                       {/* Second Push Button - Natural size */}
                       <Tooltip title="Push that button!" arrow placement="right">
                         <motion.div
+                          {...makeInteractive}
                           style={{
                             position: 'absolute',
-                            top: '-.5vw',  // Original position
+                            top: '-.5vw',
                             right: '2vw',
                             zIndex: 2002,
                             width: '6.8vw',
                             height: '6.8vw',
                             pointerEvents: 'auto',
-                            // Add this to visualize the container
-                            // border: '1px solid red'
                           }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          <img 
-                            src={GCLogo} 
-                            alt="Glitch Candies Creatures"
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              filter: 'drop-shadow(0 0 5px rgba(252, 3, 152, 0.7)) drop-shadow(0 0 10px rgba(252, 3, 152, 0.5))',
-                              animation: 'glow 2s ease-in-out infinite alternate',
-                              cursor: 'pointer',
-                              // Add this to remove any default spacing
-                              display: 'block',
-                              // Add this to visualize the image bounds
-                              // border: '1px solid blue'
-                            }}
-                            onClick={handleGeometryChange}
-                          />
+                          <div {...makeInteractive} style={{ width: '100%', height: '100%' }}>
+                            <img 
+                              src={GCLogo} 
+                              alt="Glitch Candies Creatures"
+                              {...makeInteractive}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                filter: 'drop-shadow(0 0 5px rgba(252, 3, 152, 0.7)) drop-shadow(0 0 10px rgba(252, 3, 152, 0.5))',
+                                animation: 'glow 2s ease-in-out infinite alternate',
+                                display: 'block',
+                              }}
+                              onClick={handleGeometryChange}
+                            />
+                          </div>
                         </motion.div>
                       </Tooltip>
 
@@ -369,7 +386,7 @@ export default function App() {
                       </Tooltip>
 
                       {/* Made by text */}
-                      <Tooltip title="Visit our website" arrow placement="left">
+                      <Tooltip title="Visit our website" arrow placement="top">
                         <motion.div
                           style={{
                             position: 'absolute',
@@ -417,8 +434,8 @@ export default function App() {
                     <motion.div
                       style={{
                         position: 'absolute',
-                        bottom: '4vw',
-                        left: '50%',
+                        bottom: 'clamp(2vw, 2.5vw, 3vw)',
+                        left: 'clamp(43%, 44%, 45%)',
                         transform: 'translateY(-50%)',
                         zIndex: 2002,
                         pointerEvents: 'auto',
@@ -429,7 +446,7 @@ export default function App() {
                       <MorphingButton />
                     </motion.div>
 
-                    <motion.div
+                    {/* <motion.div
                       style={{
                         position: 'absolute',
                         bottom: '1vw',
@@ -442,7 +459,7 @@ export default function App() {
                       whileTap={{ scale: 0.95 }}
                     >
                       <MorphingButton2 />
-                    </motion.div>
+                    </motion.div> */}
 
                     </>
                   )}
@@ -516,6 +533,10 @@ export default function App() {
         isInfoVisible={isInfoVisible} 
         onClose={() => setInfoVisible(false)} 
       />
+
+
+
     </LandscapeEnforcer>
+  </>
   );
 }

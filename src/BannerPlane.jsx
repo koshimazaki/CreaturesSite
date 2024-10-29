@@ -4,6 +4,9 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import bannerImage from '/src/assets/images/Logobaner.png'
 
+
+
+
 const vertexShader = `
   varying vec2 vUv;
   varying vec3 vViewPosition;

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { motion } from 'framer-motion';
 
+
+
+
 const MorphingButton = () => {
   const [isPressed, setIsPressed] = useState(false);
   const stateOrder = [3, 0, 2, 1]; // Custom order of states
@@ -74,8 +77,8 @@ const MorphingButton = () => {
   return (
     <div style={{
       position: 'relative',
-      width: '220px',
-      height: '220px',
+      width: '240px',
+      height: '240px',
       background: 'rgba(0, 0, 0, 0.02)',
       borderRadius: '12px',
       overflow: 'hidden',
