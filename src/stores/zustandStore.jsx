@@ -117,6 +117,51 @@ const useStore = create((set, get) => ({
       }, 200);
     }, 300);
   },
+
+  // New Scene Control State
+  activeModel: null,
+  modelStates: {
+    pyramid: { visible: false, position: [0, 0, 0], rotation: [0, 0, 0] },
+    fire: { visible: false, position: [0, 1, 0], rotation: [0, 0, 0] },
+    boss: { visible: false, position: [0, 0.5, 0], rotation: [0, 0, 0] },
+    mainCharacter: { visible: false, position: [0, 0, 0], rotation: [0, 0, 0] }
+  },
+
+  // New Scene Control Actions
+  setActiveModel: (modelName) => set((state) => {
+    // Reset all models first
+    const resetModels = Object.keys(state.modelStates).reduce((acc, key) => ({
+      ...acc,
+      [key]: { ...state.modelStates[key], visible: false }
+    }), {});
+
+    // Then set the active model
+    return {
+      activeModel: modelName,
+      modelStates: modelName ? {
+        ...resetModels,
+        [modelName]: { ...resetModels[modelName], visible: true }
+      } : resetModels
+    };
+  }),
+
+  updateModelState: (modelName, updates) => set((state) => ({
+    modelStates: {
+      ...state.modelStates,
+      [modelName]: {
+        ...state.modelStates[modelName],
+        ...updates
+      }
+    }
+  })),
+
+  resetSceneState: () => set((state) => ({
+    activeModel: null,
+    modelStates: Object.keys(state.modelStates).reduce((acc, key) => ({
+      ...acc,
+      [key]: { ...state.modelStates[key], visible: false }
+    }), {})
+  })),
 }));
 
 export default useStore;

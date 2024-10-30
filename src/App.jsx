@@ -11,7 +11,7 @@ import LandscapeEnforcer from './LandscapeEnforcer';
 
 import useStore from './stores/zustandStore';
 import useAudioStore from './Audio/audioStore';
-// import { useActionStore } from './stores/actionStore';
+import { useActionStore } from './stores/actionStore';
 
 import Experience from './Experience';
 import './styles.css';
@@ -23,15 +23,12 @@ import { motion } from 'framer-motion'
 import { Tooltip } from '@mui/material'
 import cyberpunkIcon from '/src/assets/icons/X31.png?url'
 import FullscreenButton from './UI/FullscreenButton'
-// import PushButton from './UI/PushButton'
 import { isMobile, isTablet } from 'react-device-detect';
 import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 import Info from './UI/InfoPanel';
-import MorphingButton from './MorphingButton';
-import MorphingButton2 from './MorphingButton2';
+import MorphingButton from './SceneMods/MorphingButton';
 import CustomCursor from './UI/CustomCursor';
 import { makeInteractive } from './utils/styles';
-// import DynamicSceneControl from './SceneMods/DynamicSceneControl';
 
 
 

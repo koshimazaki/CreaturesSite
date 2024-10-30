@@ -18,7 +18,7 @@ import AudioPlayer from './Audio/AudioPlayer';
 import useAudioStore from './Audio/audioStore';
 import './styles.css';
 import { Science } from '@mui/icons-material';
-
+import DynamicSceneControl from './SceneMods/DynamicSceneControl';
 
 
 const CameraRig = () => {
@@ -86,6 +86,9 @@ function Experience({ audioPlayerRef }) {
           <Speeder position={[1.98, -.8, 2.5]} scale={[0.8, 0.8, 0.8]} rotation={[0, 9.2, 0]} />
           <Moog position={[1.5, -1.2, 1]} scale={[0.1, 0.3, 0.1]} rotation={[0, 5.2, 0]} />
   
+          <DynamicSceneControl />
+
+
           {/* Sparkles */}
           <Sparkles 
             count={80} 

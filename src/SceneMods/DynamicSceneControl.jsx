@@ -1,36 +1,69 @@
-// import { useEffect } from 'react';
-// import { useThree } from '@react-three/fiber';
-// import { useActionStore } from '../stores/actionStore'; // New store
-// import { useStore } from '../stores/zustandStore';
+import { useEffect, useState } from 'react';
+import { useThree } from '@react-three/fiber';
+import { useActionStore } from '../stores/actionStore';
+import { 
+    StartAction,
+    WorldsAction, 
+    SpellsAction, 
+    BossAction, 
+    PhysicsAction 
+} from './SceneActions';
 
+const DynamicSceneControl = () => {
+    const { activeAction } = useActionStore();
+    const { scene } = useThree();
+    const [isLoading, setIsLoading] = useState(false);
 
-// const DynamicSceneControl = () => {
-//     const { activeAction, toggleVisibility } = useActionStore(state => ({
-//         activeAction: state.activeAction,
-//         toggleVisibility: state.toggleVisibility,
-//     }));
-    
-//     const { scene } = useThree();
+    useEffect(() => {
+        if (!activeAction || !activeAction.function) return;
 
-//     useEffect(() => {
-//         scene.children.forEach(child => {
-//             if (child.userData.model) {
-//                 child.visible = false;
-//             }
-//         });
+        const executeAction = async () => {
+            setIsLoading(true);
+            try {
+                let action;
+                
+                // Add StartAction to switch case
+                switch (activeAction.function) {
+                    case 'StartAction':
+                        action = new StartAction(scene);
+                        break;
+                    case 'WorldsAction':
+                        action = new WorldsAction(scene);
+                        break;
+                    case 'SpellsAction':
+                        action = new SpellsAction(scene);
+                        break;
+                    case 'BossAction':
+                        action = new BossAction(scene);
+                        break;
+                    case 'PhysicsAction':
+                        action = new PhysicsAction(scene);
+                        break;
+                }
 
-//         if (activeAction === 'ExploreWorlds') {
-//             toggleVisibility('pyramid', true);
-//         } else if (activeAction === 'CastSpells') {
-//             toggleVisibility('fire', true);
-//         } else if (activeAction === 'FightBosses') {
-//             toggleVisibility('boss', true);
-//         } else if (activeAction === 'BendPhysics') {
-//             toggleVisibility('mainCharacter', true);
-//         }
-//     }, [activeAction, toggleVisibility, scene]);
+                if (action) {
+                    const success = await action.execute();
+                    if (!success) {
+                        console.warn(`Action ${activeAction.function} did not complete successfully`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error executing action:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-//     return null;
-// };
+        executeAction();
+    }, [scene, activeAction]);
 
-// export default DynamicSceneControl;
+    // Initialize with StartAction
+    useEffect(() => {
+        const startAction = new StartAction(scene);
+        startAction.execute();
+    }, [scene]);
+
+    return null;
+};
+
+export default DynamicSceneControl;

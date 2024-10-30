@@ -2,10 +2,9 @@ import React, { useRef, useMemo } from 'react'
 import { useTexture } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import bannerImage from '/src/assets/images/Logobaner.png'
-
-
-
+import defaultBanner from '/src/assets/images/Logobaner.png'
+import { useActionStore } from './stores/actionStore'
+import { ActionTypes, BANNER_CONFIGS } from './SceneMods/types'
 
 const vertexShader = `
   varying vec2 vUv;
@@ -66,14 +65,23 @@ const fragmentShader = `
 
 export function BannerPlane({ onClick, position = [0, 0, 0], rotation = [.2, 0, 0] }) {
   const meshRef = useRef()
-  const texture = useTexture(bannerImage)
+  const { activeAction } = useActionStore();
   const { size } = useThree()
+
+  // Determine which texture to load based on activeAction.id
+  const texturePath = useMemo(() => {
+    if (!activeAction || !activeAction.id) return defaultBanner;
+    return BANNER_CONFIGS[activeAction.id] || defaultBanner;
+  }, [activeAction]);
+
+  // Load texture with error handling
+  const texture = useTexture(texturePath);
 
   const uniforms = useMemo(() => ({
     bannerTexture: { value: texture },
     time: { value: 0 },
     resolution: { value: new THREE.Vector2(size.width, size.height) },
-    heightScale: { value: 0.03 } // Adjust this value to control the depth effect
+    heightScale: { value: 0.03 }
   }), [texture, size])
 
   const shaderMaterial = useMemo(() => {
