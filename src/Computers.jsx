@@ -104,12 +104,12 @@ export function Computers(props) {
       <instances.Object1 position={[-4.18, 1.83, -3.06]} rotation={[-Math.PI, -0.46, -Math.PI / 2]} scale={1.52} />
       <instances.Object1 position={[-1.76, 1.83, -3.6]} rotation={[0, -1.16, Math.PI / 2]} scale={1.52} />
       <instances.Object1 position={[-0.25, 1.83, -5.54]} rotation={[0, 1.55, 1.57]} scale={1.52} />
-      <instances.Object1 position={[-5.28, 2.14, -2.33]} rotation={[Math.PI, -0.75, Math.PI]} scale={1.52} />
-      <instances.Object1 position={[-5.49, 2.14, -1.38]} rotation={[0, 0.99, 0]} scale={1.52} />
+      {/* <instances.Object1 position={[-5.28, 2.14, -2.33]} rotation={[Math.PI, -0.75, Math.PI]} scale={1.52} /> */}
+      {/* <instances.Object1 position={[-5.49, 2.14, -1.38]} rotation={[0, 0.99, 0]} scale={1.52} /> */}
       <instances.Object1 position={[-3.01, 2.14, -3.79]} rotation={[Math.PI, -0.6, Math.PI]} scale={1.52} />
       <instances.Object1 position={[-2.08, 2.14, -4.32]} rotation={[0, 0.6, 0]} scale={1.52} />
       <instances.Object1 position={[-1.02, 2.14, -4.49]} rotation={[Math.PI, -0.31, Math.PI]} scale={1.52} />
-      <instances.Object1 position={[-5.31, 3.98, -1.41]} rotation={[0, 1.06, Math.PI / 2]} scale={1.52} />
+      {/* <instances.Object1 position={[-5.31, 3.98, -1.41]} rotation={[0, 1.06, Math.PI / 2]} scale={1.52} /> */}
       <instances.Object1 position={[-4.18, 3.98, -3.06]} rotation={[-Math.PI, -0.46, -Math.PI / 2]} scale={1.52} />
       <instances.Object1 position={[-1.17, 3.98, -4.45]} rotation={[0, 0.17, Math.PI / 2]} scale={1.52} />
       <instances.Object1 position={[-0.94, 3.98, -4.66]} rotation={[Math.PI, 0.02, -Math.PI / 2]} scale={1.52} />
@@ -138,9 +138,9 @@ export function Computers(props) {
       {/* <instances.Object24 position={[-2.19, 2.19, -1.87]} rotation={[0, 0.51, Math.PI / 2]} scale={-1.52} /> */}
       <instances.Object23 position={[-2.9, 0.3, -1.47]} rotation={[Math.PI, -1.35, Math.PI / 2]} scale={1.52} />
       {/* <instances.Object23 position={[3.22, 0, -0.8]} rotation={[0, -1.32, 0]} scale={1.52} /> */}
-      <instances.Object23 position={[3.53, 1.83, 0.44]} rotation={[-Math.PI, 1.32, Math.PI / 2]} scale={1.52} />
-      <instances.Object23 position={[4.26, 0.94, 2.22]} rotation={[0, -1, Math.PI / 2]} scale={1.52} />
-      <instances.Object24 position={[3.87, 0.32, 2.35]} rotation={[0, -1.53, -1.57]} scale={-1.52} />
+      {/* <instances.Object23 position={[3.53, 1.83, 0.44]} rotation={[-Math.PI, 1.32, Math.PI / 2]} scale={1.52} /> */}
+      {/* <instances.Object23 position={[4.26, 0.94, 2.22]} rotation={[0, -1, Math.PI / 2]} scale={1.52} /> */}
+      {/* <instances.Object24 position={[3.87, 0.32, 2.35]} rotation={[0, -1.53, -1.57]} scale={-1.52} /> */}
       {/* <instances.Object23 position={[-5.61, 0.94, 0.82]} rotation={[0, 1.32, 1.57]} scale={1.52} /> */}
       {/* <instances.Object24 position={[-5.26, 0.32, 1.01]} rotation={[0, 0.79, -Math.PI / 2]} scale={-1.52} /> */}
       {/* <instances.Object23 position={[-5.39, 4.03, 0.99]} rotation={[Math.PI, -0.61, Math.PI / 2]} scale={1.52} /> */}
@@ -151,10 +151,10 @@ export function Computers(props) {
       {/* <instances.Object23 position={[-0.08, 0, -5.03]} rotation={[Math.PI, -0.04, Math.PI]} scale={1.52} /> */}
       {/* <instances.Object24 position={[-4.19, 1.84, -2.77]} rotation={[Math.PI, -0.66, -Math.PI / 2]} scale={-1.52} /> */}
       {/* <instances.Object23 position={[-5.95, 2.14, -0.64]} rotation={[Math.PI, -0.95, Math.PI]} scale={1.52} /> */}
-      <instances.Object23 position={[-4.48, 2.14, -2.75]} rotation={[0, 0.57, 0]} scale={1.52} />
-      <instances.Object23 position={[-3.73, 2.14, -3.1]} rotation={[Math.PI, -0.64, Math.PI]} scale={1.52} />
-      <instances.Object23 position={[-0.08, 2.14, -5.03]} rotation={[0, 0.04, 0]} scale={1.52} />
-      <instances.Object24 position={[-4.19, 3.98, -2.77]} rotation={[Math.PI, -0.66, -Math.PI / 2]} scale={-1.52} />
+      {/* <instances.Object23 position={[-4.48, 2.14, -2.75]} rotation={[0, 0.57, 0]} scale={1.52} /> */}
+      {/* <instances.Object23 position={[-3.73, 2.14, -3.1]} rotation={[Math.PI, -0.64, Math.PI]} scale={1.52} />  */}
+      {/* <instances.Object23 position={[-0.08, 2.14, -5.03]} rotation={[0, 0.04, 0]} scale={1.52} /> */}
+      {/* {/* <instances.Object24 position={[-4.19, 3.98, -2.77]} rotation={[Math.PI, -0.66, -Math.PI / 2]} scale={-1.52} /> */}
       <mesh castShadow receiveShadow geometry={n.Object_142.geometry} material={m.Texture} position={[5.79, 0.94, 0.18]} rotation={[-Math.PI, 0, 0]} scale={-1} />
       <mesh castShadow receiveShadow geometry={n.Object_146.geometry} material={m.Texture} position={[5.43, 0.32, 0.37]} rotation={[-Math.PI, 0, 0]} scale={-1} />
       <mesh castShadow receiveShadow geometry={n.Object_150.geometry} material={m.Texture} position={[5.56, 4.03, 0.35]} rotation={[-Math.PI, 0, 0]} scale={-1} />
@@ -380,7 +380,7 @@ function DragonsEye({ instances }) {
         color='#03d7fc'
       />
       <instances.Sphere 
-        position={[-3.22, 1.37, 4.56]} 
+        position={[-4.42, 1.37, 4.76]} 
         scale={0.2} 
         color={'#03d7fc'}
         opacity={0.3}

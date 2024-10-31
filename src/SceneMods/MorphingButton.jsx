@@ -86,9 +86,9 @@ export const MorphingButton = () => {
             style={{
                 position: 'absolute',
                 bottom: '5rem',
-                right: '5rem',
-                width: '150px',
-                height: '150px',
+                right: 'clamp(42%,43%,45%)',
+                width: '240px',
+                height: '240px',
                 cursor: isTransitioning.current ? 'wait' : 'pointer',
                 zIndex: 1000,
                 display: 'flex',

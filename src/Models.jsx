@@ -11,6 +11,7 @@ import DragonModel from '/src/assets/models/Dragon-transformed.glb?url'
 import GamepadModel from '/src/assets/models/gamepad-transformed.glb?url'
 import PalmModel from '/src/assets/models/palm.glb?url'
 import PyramidModel from '/src/assets/models/pyramid.glb?url'
+import PlantModel from '/src/assets/models/plant1-transformed.glb?url'
 
 
 function Palm({ position, scale, rotation }) {
@@ -69,6 +70,18 @@ function Gamepad({ position, scale, rotation }) {
     )
 }
 
+
+function Plant({ position, scale, rotation }) {
+    const { nodes, materials } = useGLTF(PlantModel)
+    return (
+        <mesh castShadow receiveShadow geometry={nodes.w_pl17003.geometry} material={materials.Gradient} 
+        position={[-5.8065, -0.992, -5.03]} 
+        rotation={[-1.812, 1.396, 1.846]} 
+        scale={[2.312, 2.359, 2.343]} />
+    )
+}
+
+
 function Speeder({ position, scale, rotation }) {
     const groupRef = useRef()
     const { nodes, materials } = useGLTF(cyberpunkSpeederModel)
@@ -126,27 +139,27 @@ function Tripo({ position, scale, rotation }) {
     const { nodes, materials } = useGLTF(tripoModel)
     const groupRef = useRef()
     
-    // Add gentle animation using useFrame
-    useFrame((state) => {
-        const time = state.clock.getElapsedTime()
+    // // Add gentle animation using useFrame
+    // useFrame((state) => {
+    //     const time = state.clock.getElapsedTime()
         
-        if (groupRef.current) {
-            // Very subtle rotation around Y axis
-            groupRef.current.rotation.y = rotation[1] + Math.sin(time * 0.2) * 0.1
+    //     if (groupRef.current) {
+    //         // Very subtle rotation around Y axis
+    //         groupRef.current.rotation.y = rotation[1] + Math.sin(time * 0.2) * 0.1
             
-            // Extremely gentle tilt
-            groupRef.current.rotation.x = Math.sin(time * 0.15) * 0.08
-            groupRef.current.rotation.z = Math.cos(time * 0.15) * 0.08
+    //         // Extremely gentle tilt
+    //         groupRef.current.rotation.x = Math.sin(time * 0.15) * 0.08
+    //         groupRef.current.rotation.z = Math.cos(time * 0.15) * 0.08
             
-            // Very subtle breathing effect
-            const breathingScale = 1 + Math.sin(time * 0.3) * 0.008
-            groupRef.current.scale.set(
-                scale[0] * breathingScale,
-                scale[1] * breathingScale,
-                scale[2] * breathingScale
-            )
-        }
-    })
+    //         // Very subtle breathing effect
+    //         const breathingScale = 1 + Math.sin(time * 0.3) * 0.008
+    //         groupRef.current.scale.set(
+    //             scale[0] * breathingScale,
+    //             scale[1] * breathingScale,
+    //             scale[2] * breathingScale
+    //         )
+    //     }
+    // })
 
     return (
         <group 
@@ -216,7 +229,7 @@ function Pyramid({ position, scale, rotation }) {
     )
 }
 
-export { Palm, Gamepad, Dragon, Moog, Speeder, Tripo, VCS3, Pyramid }
+export { Palm, Plant,Gamepad, Dragon, Moog, Speeder, Tripo, VCS3, Pyramid }
 
 // Preload models using the same paths
 useGLTF.preload(PalmModel)
@@ -227,6 +240,6 @@ useGLTF.preload(vcs3Model)
 useGLTF.preload(moogModel)
 useGLTF.preload(tripoModel)
 useGLTF.preload(PyramidModel)
-
+useGLTF.preload(PlantModel)
 // Update the preload
 useGLTF.preload('/palm.glb')

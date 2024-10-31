@@ -3,12 +3,13 @@ import { useGLTF } from '@react-three/drei';
 import * as types from './types';
 import { useModelStore } from '../stores/modelStore';
 import { useActionStore } from '../stores/actionStore';
+import { MODEL_PATHS } from '../utils/modelPreloader';
 
 // Import models
 import pyramidModel from '/src/assets/models/pyramid2.glb?url'
 import palmModel from '/src/assets/models/palm.glb?url'
 import fireModel from '/src/assets/models/coconut.glb?url'
-import bossModel from '/src/assets/models/tripo1.glb?url'
+import bossModel from '/src/assets/models/boss.glb?url'
 import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
 
@@ -250,32 +251,108 @@ export class BossAction extends SceneAction {
         this.cleanup();
         
         try {
-            const modelStore = useModelStore.getState();
-            const bossModel = modelStore.getModel('boss');
+            const { nodes, materials } = useGLTF(MODEL_PATHS.boss);
             
-            if (!bossModel || !bossModel.nodes) {
-                console.error('Boss model not found in cache');
+            if (!nodes || !materials) {
+                console.error('Boss model resources not found');
                 return false;
             }
 
             const model = new THREE.Group();
-            const mainMesh = bossModel.nodes.Scene?.children[0] || 
-                           Object.values(bossModel.nodes)[0];
             
-            if (mainMesh) {
-                const mesh = mainMesh.clone();
+            // Main mesh
+            const mesh = new THREE.Mesh(
+                nodes['tripo_node_c7370c76-670d-447e-ad20-d9fa550c239b'].geometry,
+                materials['tripo_material_c7370c76-670d-447e-ad20-d9fa550c239b']
+            );
+
+            // Apply transformations
+            mesh.scale.set(5.5, 5.8, 5.5);
+            mesh.position.set(-4.6, 1.72, -2.6);
+            mesh.rotation.set(0, Math.PI * 3.9, 0);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            // Create skewed eye geometry
+            const eyeGeometry = new THREE.SphereGeometry(0.05, 32, 16);
+            // Flatten and stretch the sphere to make it more eye-like
+            eyeGeometry.scale(1.8, 0.7, 0.5);
+
+            const eyeMaterial = new THREE.MeshBasicMaterial({
+                color: new THREE.Color('#ff1f5a'),
+                transparent: true,
+                opacity: 0.2, // Start dim
+                blending: THREE.AdditiveBlending, // Add glow effect
+            });
+
+            // Create eyes with initial transforms
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial.clone());
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial.clone());
+
+            // Position eyes (adjust these values to match your model)
+            leftEye.position.set(1.29, 2.75, -3.26);
+            leftEye.scale.setScalar(0.09);
+            rightEye.position.set(2.1, 2.72,-3.07);
+            rightEye.scale.setScalar(0.08);
+
+
+ // Adjusted rotations for more dynamic look
+            // Left eye: rotate up and slightly to the left
+            leftEye.rotation.set(
+                THREE.MathUtils.degToRad(35), // X rotation (up/down)
+                THREE.MathUtils.degToRad(-25), // Y rotation (left/right)
+                THREE.MathUtils.degToRad(-15)  // Z rotation (tilt)
+            );
+
+            // Right eye: rotate up and slightly to the right
+            rightEye.rotation.set(
+                THREE.MathUtils.degToRad(20),  // X rotation (up/down)
+                THREE.MathUtils.degToRad(15),  // Y rotation (left/right)
+                THREE.MathUtils.degToRad(20)   // Z rotation (tilt)
+            );
+
+
+            // Add animation data to the eyes
+            leftEye.userData.initialOpacity = 0.1;
+            rightEye.userData.initialOpacity = 0.05;
+
+            // Add glow animation
+            const animate = (time) => {
+                const pulseT = (1 + Math.sin(time * 0.3)) / 2; // Slowed down the pulse
+                const minOpacity = 0.3;
+                const maxOpacity = 0.6;
                 
-                // Apply transformations to the mesh first
-                mesh.scale.set(5, 5.3, 5);
-                mesh.position.set(1.9, 1.8, -4.2);
-                mesh.rotation.set(0, Math.PI * 1.4, 0);
-                model.add(mesh);
-                model.userData.actionItem = true;
-                this.scene.add(model);
-                return true;
-            }
+                leftEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
+                rightEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
+
+                // Subtle scale breathing
+                const breathingScale = 1 + Math.sin(time * 0.2) * 0.05;
+                leftEye.scale.set(
+                    1.8 * breathingScale, 
+                    0.7 * breathingScale, 
+                    0.5 * breathingScale
+                );
+                rightEye.scale.set(
+                    1.8 * breathingScale, 
+                    0.7 * breathingScale, 
+                    0.5 * breathingScale
+                );
+
+                requestAnimationFrame(() => animate(time + 0.016));
+            };
+
+            // Start animation
+            animate(0);
+
+            // Add everything to the model group
+            model.add(mesh);
+            model.add(leftEye);
+            model.add(rightEye);
+            model.userData.actionItem = true;
             
-            return false;
+            this.scene.add(model);
+            return true;
+
         } catch (error) {
             console.error('Error in BossAction:', error);
             return false;

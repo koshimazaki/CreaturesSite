@@ -8,7 +8,7 @@ import { easing } from 'maath';
 import { motion } from 'framer-motion';
 import { Instances, Computers } from './Computers';
 import OG from './Creature';
-import { Palm, Gamepad, Dragon, Tripo, Moog, Speeder, VCS3, Pyramid } from './Models';
+import { Palm, Plant, Gamepad, Dragon, Tripo, Moog, Speeder, VCS3, Pyramid } from './Models';
 import HologramOG from './HologramOG'
 
 import useStore from './stores/zustandStore';
@@ -77,7 +77,10 @@ function Experience({ audioPlayerRef }) {
           </group>
   
           {/* Models */}
-          <Tripo position={[-1.98, -0.35, 1.99]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
+          <Tripo position={[-2.58, -0.35, 2.09]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} />
+         
+          {/* <Plant position={[-2.58, -0.35, 2.09]} scale={[1.5, 1.5, 1.5]} rotation={[0, 80, 0]} /> */}
+         
           <Palm position={[-2.4, -1.35, 1.3]} scale={[0.2, 0.2, 0.2]} rotation={[0, 0, 0]} />
           <Pyramid position={[-2.1, -1.25, 0.5]} scale={[0.04, 0.04, 0.04]} rotation={[0, 2.6, 0]} />
           <VCS3 position={[-1.7, 0.4, -.35]} scale={[1, 1, 1]} rotation={[0, 9, 0]} />
@@ -91,7 +94,7 @@ function Experience({ audioPlayerRef }) {
 
           {/* Sparkles */}
           <Sparkles 
-            count={80} 
+            count={60} 
             scale={[2, 2.5, 2]} 
             size={1} 
             speed={0.2} 
@@ -100,15 +103,15 @@ function Experience({ audioPlayerRef }) {
             opacity={0.75} 
           />
           <Sparkles 
-            count={50} 
-            scale={[2, 2.5, 2]} 
-            size={3} 
+            count={30} 
+            scale={[3, 2.5, 4]} 
+            size={2} 
             speed={0.2} 
-            color="pink" 
-            position={[-5.5, 0, 0.5]} 
+            color="lightblue" 
+            position={[-4.5, 0, -1.5]} 
           />
           <Sparkles 
-            count={50} 
+            count={30} 
             scale={[1, 2.5, 2]} 
             size={5} 
             speed={0.2} 
