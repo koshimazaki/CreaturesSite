@@ -15,9 +15,31 @@ export class SceneAction {
     }
 
     cleanup() {
-        this.scene.children
-            .filter(child => child.userData.actionItem)
-            .forEach(item => this.scene.remove(item));
+        console.log('Cleaning up scene items');
+        const itemsToRemove = this.scene.children.filter(child => child.userData.actionItem);
+        
+        itemsToRemove.forEach(item => {
+            // Remove animations
+            if (item.userData.animate) {
+                item.userData.animate = null;
+            }
+            
+            // Dispose of geometries and materials
+            if (item.geometry) {
+                item.geometry.dispose();
+            }
+            if (item.material) {
+                if (Array.isArray(item.material)) {
+                    item.material.forEach(mat => mat.dispose());
+                } else {
+                    item.material.dispose();
+                }
+            }
+            
+            this.scene.remove(item);
+        });
+        
+        console.log(`Cleaned up ${itemsToRemove.length} items`);
     }
 
     loadModel(modelUrl) {
@@ -26,14 +48,19 @@ export class SceneAction {
 }
 
 export class WorldsAction extends SceneAction {
-    execute() {
-        console.log('Starting WorldsAction execution');
+    async execute() {
+        console.log('Executing WorldsAction');
         this.cleanup();
         
         try {
-            // Load models synchronously since useGLTF caches the results
-            const pyramidGLTF = useGLTF(pyramidModel);
-            const palmGLTF = useGLTF(palmModel);
+            // Load models asynchronously
+            const pyramidGLTF = await useGLTF(pyramidModel);
+            const palmGLTF = await useGLTF(palmModel);
+
+            if (!pyramidGLTF.nodes || !palmGLTF.nodes) {
+                console.error('Models not loaded properly');
+                return false;
+            }
 
             // Create pyramid
             const pyramidGroup = new THREE.Group();
@@ -158,28 +185,92 @@ export class SpellsAction extends SceneAction {
     }
 }
 
+
+export class LootAction extends SceneAction {
+    execute() {
+        console.log('Executing LootAction');
+        this.cleanup();
+        
+        try {
+            const fireGLTF = this.loadModel(fireModel);
+            const model = new THREE.Group();
+            
+            // Clone the fire mesh and its materials
+            if (fireGLTF.scene) {
+                const fireMesh = fireGLTF.scene.clone();
+                model.add(fireMesh);
+                
+                // Position and scale the fire
+                model.position.set(-1, 0, -1);
+                model.scale.setScalar(0.2);
+                
+                model.userData.animate = (time) => {
+                    model.rotation.y += 0.01;
+                    const breathingScale = 0.5 + Math.sin(time * 0.8) * 0.05;
+                    model.scale.setScalar(breathingScale);
+                    
+                    // Add hovering effect
+                    model.position.y = Math.sin(time * 0.5) * 0.1;
+                };
+                
+                model.userData.actionItem = true;
+                this.scene.add(model);
+                return true;
+            }
+        } catch (error) {
+            console.error('Error in SpellsAction:', error);
+            return false;
+        }
+    }
+}
+
+
 export class BossAction extends SceneAction {
     async execute() {
         console.log('Executing BossAction');
         this.cleanup();
         
         try {
-            const { nodes, materials } = await this.loadModel(bossModel);
+            const bossGLTF = await this.loadModel(bossModel);
             const model = new THREE.Group();
             
-            // Add your boss model setup here
-            // Similar to WorldsAction but with boss-specific transforms and animations
-            
-            model.userData.animate = (time) => {
-                model.rotation.y = Math.sin(time * 0.2) * 0.1;
-                const breathingScale = 1 + Math.sin(time * 0.5) * 0.05;
-                model.scale.setScalar(breathingScale);
-            };
-            
-            model.userData.actionItem = true;
-            this.scene.add(model);
+            if (bossGLTF.scene) {
+                const bossMesh = bossGLTF.scene.clone();
+                
+                // Reset transformations
+                bossMesh.position.set(0, 0, 0);
+                bossMesh.rotation.set(0, 0, 0);
+                bossMesh.scale.set(1, 1, 1);
+                
+                model.add(bossMesh);
+                
+                // Adjust position and scale
+                model.position.set(1, 0, 1); // Lowered Y position
+                model.scale.setScalar(3); // Reduced scale
+                
+                // Smoother animations
+                model.userData.animate = (time) => {
+                    // Slower rotation
+                    model.rotation.y = Math.sin(time * 0.1) * 0.05;
+                    
+                    // Gentler breathing
+                    const breathingScale = 3 + Math.sin(time * 0.3) * 0.1;
+                    model.scale.setScalar(breathingScale);
+                    
+                    // Smoother hovering
+                    model.position.y = Math.sin(time * 0.2) * 0.1;
+                };
+                
+                model.userData.actionItem = true;
+                this.scene.add(model);
+                
+                console.log('Boss model added successfully');
+                return true;
+            }
+            return false;
         } catch (error) {
             console.error('Error in BossAction:', error);
+            return false;
         }
     }
 }

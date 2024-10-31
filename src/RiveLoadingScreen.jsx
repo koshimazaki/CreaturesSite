@@ -372,8 +372,8 @@ const RiveLoadingScreen = ({ onStart }) => {
             top: '-.5vw',
             right: '2vw',
             zIndex: 2002,
-            width: '10vw',
-            height: '10vw',
+            width: '6.8vw',
+            height: '6.8vw',
             pointerEvents: 'auto',
           }}
           initial={{ opacity: 0 }}
@@ -396,6 +396,58 @@ const RiveLoadingScreen = ({ onStart }) => {
           />
         </motion.div>
       )}
+
+{/* 
+<Tooltip title="Back to Start" arrow placement="bottom">
+                  <motion.div
+                    style={{
+                      position: 'absolute',
+                      bottom: '1vw',
+                      left: '11vw',
+                      zIndex: 2002,
+                      // padding: '0.1vw 0.1vw',
+
+                      pointerEvents: 'auto',
+                      backdropFilter: 'blur(4px)',
+                      WebkitBackdropFilter: 'blur(4px)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                      borderRadius: '4px',
+                      // border: '1px solid rgba(3, 215, 252, 0.2)',
+
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <button
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid #03d7fc',
+                    
+                        color: 'grey',
+                        padding: '0.5vw 1vw',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: 'clamp(12px, 1vw, 16px)',
+                        fontFamily: 'Monorama',
+                        filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.2)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.2))',
+                        transition: 'all 0.3s ease',
+                        width: 'auto',
+                        height: 'auto',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#03d7fc20';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'transparent';
+                      }}
+                    >
+                      Start
+                    </button>
+                  </motion.div>
+                </Tooltip> */}
+
+
+
 
       {/* About Game Button */}
       {showAboutButton && (

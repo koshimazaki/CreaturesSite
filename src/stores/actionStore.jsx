@@ -2,24 +2,15 @@ import { create } from 'zustand';
 import { ActionTypes } from '../SceneMods/types';
 
 export const useActionStore = create((set) => ({
-  activeAction: {
-    id: ActionTypes.EXPLORE_WORLDS.id,
-    function: 'WorldsAction',
-    type: 'model',
-    model: 'pyramid'
-  },
+  currentAction: ActionTypes.START,
   
   setAction: (action) => {
-    console.log('Setting action:', action);
-    set({ activeAction: action });
+    console.log('Setting action in store:', action);
+    set({ currentAction: action });
   },
 
   resetScene: () => set({ 
-    activeAction: {
-      id: ActionTypes.START.id,
-      function: 'reset',
-      type: 'reset'
-    }
+    currentAction: ActionTypes.START
   })
 }));
 

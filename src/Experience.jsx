@@ -13,7 +13,7 @@ import HologramOG from './HologramOG'
 
 import useStore from './stores/zustandStore';
 import Orb from './Orb';
-import { BannerPlane } from './BannerPlane';
+import { BannerPlane } from './SceneMods/BannerPlane';
 import AudioPlayer from './Audio/AudioPlayer';
 import useAudioStore from './Audio/audioStore';
 import './styles.css';

@@ -1,69 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useThree } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
 import { useActionStore } from '../stores/actionStore';
-import { 
-    StartAction,
-    WorldsAction, 
-    SpellsAction, 
-    BossAction, 
-    PhysicsAction 
-} from './SceneActions';
+import { BANNER_ACTION_MAP } from './BannerActions';
+import * as SceneActions from './SceneActions';
 
-const DynamicSceneControl = () => {
-    const { activeAction } = useActionStore();
-    const { scene } = useThree();
-    const [isLoading, setIsLoading] = useState(false);
+export function DynamicSceneControl({ scene }) {
+  const { currentAction } = useActionStore();
+  const lastAction = useRef(null);
 
-    useEffect(() => {
-        if (!activeAction || !activeAction.function) return;
+  const executeAction = async (action) => {
+    console.log('Executing action:', action); // Debug log
 
-        const executeAction = async () => {
-            setIsLoading(true);
-            try {
-                let action;
-                
-                // Add StartAction to switch case
-                switch (activeAction.function) {
-                    case 'StartAction':
-                        action = new StartAction(scene);
-                        break;
-                    case 'WorldsAction':
-                        action = new WorldsAction(scene);
-                        break;
-                    case 'SpellsAction':
-                        action = new SpellsAction(scene);
-                        break;
-                    case 'BossAction':
-                        action = new BossAction(scene);
-                        break;
-                    case 'PhysicsAction':
-                        action = new PhysicsAction(scene);
-                        break;
-                }
+    // Get the correct scene action class
+    const ActionClass = SceneActions[`${action.function}`];
+    if (!ActionClass) {
+      console.error('No action class found for:', action.function);
+      return;
+    }
 
-                if (action) {
-                    const success = await action.execute();
-                    if (!success) {
-                        console.warn(`Action ${activeAction.function} did not complete successfully`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error executing action:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    // Execute scene action
+    const sceneAction = new ActionClass(scene);
+    await sceneAction.execute();
 
-        executeAction();
-    }, [scene, activeAction]);
+    // Execute banner action
+    const BannerActionClass = BANNER_ACTION_MAP[action.id];
+    if (BannerActionClass) {
+      const bannerAction = new BannerActionClass();
+      bannerAction.execute();
+    }
+  };
 
-    // Initialize with StartAction
-    useEffect(() => {
-        const startAction = new StartAction(scene);
-        startAction.execute();
-    }, [scene]);
+  useEffect(() => {
+    if (currentAction && currentAction !== lastAction.current) {
+      console.log('Action changed to:', currentAction); // Debug log
+      executeAction(currentAction);
+      lastAction.current = currentAction;
+    }
+  }, [currentAction, scene]);
 
-    return null;
-};
-
+  return null;
+}
 export default DynamicSceneControl;

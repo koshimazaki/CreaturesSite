@@ -4,13 +4,14 @@ import FireModel from '/src/assets/models/coconut.glb?url'
 import BossModel from '/src/assets/models/boss.glb?url'
 import CharacterModel from '/src/assets/models/OGanim-transformed.glb?url'
 import PalmModel from '/src/assets/models/palm.glb?url'
-
+import LootModel from '/src/assets/models/coconut.glb?url'
 // Model Types
 export const ModelTypes = {
   PYRAMID: 'pyramid',
   PALM: 'palm',
   FIRE: 'fire',
   BOSS: 'boss',
+  LOOT: 'loot',
   MAIN_CHARACTER: 'mainCharacter'
 };
 
@@ -20,35 +21,78 @@ export const MODEL_SOURCES = {
   [ModelTypes.PALM]: PalmModel,
   [ModelTypes.FIRE]: FireModel,
   [ModelTypes.BOSS]: BossModel,
-  [ModelTypes.MAIN_CHARACTER]: CharacterModel
+  [ModelTypes.MAIN_CHARACTER]: CharacterModel,
+  [ModelTypes.LOOT]: LootModel
 };
 
-// Action Types
+// Action Types with function names matching BannerActions
 export const ActionTypes = {
   START: {
-    id: 'Start',
-    type: 'reset'
+    id: 'START',
+    function: 'StartAction',
+    type: 'model'
   },
   EXPLORE_WORLDS: {
-    id: 'ExploreWorlds',
-    type: 'model',
-    model: 'pyramid'
+    id: 'EXPLORE_WORLDS',
+    function: 'WorldsAction',
+    type: 'model'
   },
   CAST_SPELLS: {
-    id: 'CastSpells',
-    type: 'model',
-    model: 'fire'
+    id: 'CAST_SPELLS',
+    function: 'SpellsAction',
+    type: 'model'
+  },
+  LOOT: {
+    id: 'LOOT',
+    function: 'LootAction',
+    type: 'model'
   },
   FIGHT_BOSSES: {
-    id: 'FightBosses',
-    type: 'model',
-    model: 'boss'
+    id: 'FIGHT_BOSSES',
+    function: 'BossAction',
+    type: 'model'
   },
-  BEND_PHYSICS: {
-    id: 'BendPhysics',
-    type: 'animation',
-    target: 'mainCharacter',
-    triggers: ['physics', 'animation']
+  PHYSICS: {
+    id: 'PHYSICS',
+    function: 'PhysicsAction',
+    type: 'model'
+  }
+};
+
+// Simplified Action to Model Mapping
+export const ACTION_TO_MODEL = {
+  'StartAction': null,
+  'WorldsAction': ModelTypes.PYRAMID,
+  'SpellsAction': ModelTypes.FIRE,
+  'BossAction': ModelTypes.BOSS,
+  'PhysicsAction': ModelTypes.MAIN_CHARACTER
+};
+
+// Button configurations for MorphingButton
+export const BUTTON_CONFIGS = {
+  'StartAction': {
+    text: 'Start',
+    nextAction: 'WorldsAction'
+  },
+  'WorldsAction': {
+    text: 'Explore Worlds',
+    nextAction: 'SpellsAction'
+  },
+  'SpellsAction': {
+    text: 'Cast Spells',
+    nextAction: 'LootAction'
+  },
+  'LootAction': {
+    text: 'Loot',
+    nextAction: 'BossAction'
+  },
+  'BossAction': {
+    text: 'Fight Bosses',
+    nextAction: 'PhysicsAction'
+  },
+  'PhysicsAction': {
+    text: 'Bend Physics',
+    nextAction: 'StartAction'
   }
 };
 
@@ -95,6 +139,15 @@ export const MODEL_CONFIGS = {
       hover: true
     }
   },
+  [ModelTypes.LOOT]: {
+    source: MODEL_SOURCES[ModelTypes.LOOT],
+    position: [0, 0, 0],
+    rotation: [0, 0, 0],
+    scale: 1,
+    animations: {
+      hover: true
+    }
+  },
   [ModelTypes.MAIN_CHARACTER]: {
     source: MODEL_SOURCES[ModelTypes.MAIN_CHARACTER],
     position: [0, 0, 0],
@@ -107,23 +160,17 @@ export const MODEL_CONFIGS = {
   }
 };
 
-// Action to Model Mapping
-export const ACTION_TO_MODEL = {
-  [ActionTypes.START]: null,
-  [ActionTypes.EXPLORE_WORLDS]: ModelTypes.PYRAMID,
-  [ActionTypes.CAST_SPELLS]: ModelTypes.FIRE,
-  [ActionTypes.FIGHT_BOSSES]: ModelTypes.BOSS,
-  [ActionTypes.BEND_PHYSICS]: ModelTypes.MAIN_CHARACTER
-};
-
 // Banner configurations
 export const BANNER_CONFIGS = {
-  [ActionTypes.START]: '/src/assets/images/Logobaner.png',
-  [ActionTypes.EXPLORE_WORLDS]: '/src/assets/images/exploreWorlds.png',
-  [ActionTypes.CAST_SPELLS]: '/src/assets/images/castSpells.png',
-  [ActionTypes.FIGHT_BOSSES]: '/src/assets/images/fightBosses.png',
-  [ActionTypes.BEND_PHYSICS]: '/src/assets/images/bendPhysics.png'
+  [ActionTypes.START.id]: '/src/assets/images/Logobaner.png',
+  [ActionTypes.EXPLORE_WORLDS.id]: '/src/assets/images/exploreWorlds.png',
+  [ActionTypes.CAST_SPELLS.id]: '/src/assets/images/castSpells.png',
+  [ActionTypes.LOOT.id]: '/src/assets/images/loot.png',
+  [ActionTypes.FIGHT_BOSSES.id]: '/src/assets/images/fightBosses.png',
+  [ActionTypes.PHYSICS.id]: '/src/assets/images/bendPhysics.png'
 };
+
+
 
 // Action handlers
 export const ACTION_HANDLERS = {
@@ -159,6 +206,14 @@ export const MODEL_ACTION_MAP = {
     banner: BANNER_CONFIGS[ActionTypes.CAST_SPELLS.id],
     type: 'model'
   },
+
+  [ModelTypes.LOOT]: {
+    action: ActionTypes.LOOT.id,
+    config: MODEL_CONFIGS[ModelTypes.LOOT],
+    banner: BANNER_CONFIGS[ActionTypes.LOOT.id],
+    type: 'model'
+  },
+
   [ModelTypes.BOSS]: {
     action: ActionTypes.FIGHT_BOSSES.id,
     config: MODEL_CONFIGS[ModelTypes.BOSS],
@@ -166,9 +221,19 @@ export const MODEL_ACTION_MAP = {
     type: 'model'
   },
   [ModelTypes.MAIN_CHARACTER]: {
-    action: ActionTypes.BEND_PHYSICS.id,
+    action: ActionTypes.PHYSICS.id,
     type: 'animation',
     triggers: ['physics', 'animation'],
-    banner: BANNER_CONFIGS[ActionTypes.BEND_PHYSICS.id]
+    banner: BANNER_CONFIGS[ActionTypes.PHYSICS.id]
   }
+};
+
+// Action to Function mapping
+export const ACTION_FUNCTIONS = {
+  'StartAction': 'StartAction',
+  'WorldsAction': 'WorldsAction',
+  'SpellsAction': 'SpellsAction',
+  'LootAction': 'LootAction',
+  'BossAction': 'BossAction',
+  'PhysicsAction': 'PhysicsAction'
 }; 

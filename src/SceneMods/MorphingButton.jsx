@@ -4,28 +4,17 @@ import { motion } from 'framer-motion';
 import { useActionStore } from '../stores/actionStore';
 import { ActionTypes } from './types';
 
-// Fix the STATE_TO_ACTION mapping to have unique keys
+// Fix the STATE_TO_ACTION mapping to match ActionTypes
 const STATE_TO_ACTION = {
-  3: {
-    ...ActionTypes.START,
-    function: 'StartAction'
-  },
-  0: {
-    ...ActionTypes.EXPLORE_WORLDS,
-    function: 'WorldsAction'
-  },
-  1: {
-    ...ActionTypes.CAST_SPELLS,
-    function: 'SpellsAction'
-  },
-  2: {
-    ...ActionTypes.FIGHT_BOSSES,
-    function: 'BossAction'
-  }
+  0: ActionTypes.START,
+  1: ActionTypes.EXPLORE_WORLDS,
+  2: ActionTypes.CAST_SPELLS,
+  3: ActionTypes.LOOT,
+  4: ActionTypes.FIGHT_BOSSES,
+  5: ActionTypes.PHYSICS
 };
 
-// Update the state order to match your intended flow
-const stateOrder = [3, 0, 1, 2]; // START -> EXPLORE -> CAST -> FIGHT
+const stateOrder = [0, 1, 2, 3, 4, 5]; // START -> EXPLORE -> CAST -> LOOT -> FIGHT -> PHYSICS
 
 const MorphingButton = () => {
   const [isPressed, setIsPressed] = useState(false);
@@ -47,23 +36,28 @@ const MorphingButton = () => {
   const handleStateChange = (nextState) => {
     const action = STATE_TO_ACTION[nextState];
     if (action) {
-      // Pass both the action ID and the function name
       setAction({
         id: action.id,
-        function: action.function,
-        type: action.type,
-        model: action.model
+        function: `${action.id}Action`,
+        type: 'model'
       });
       console.log('Changed to state:', nextState, 'Action:', action);
     }
   };
 
-  // Initial state effect - now just sets up Rive without triggering action
+  // Safe way to get Rive inputs
+  const getRiveInput = (inputName) => {
+    if (!menuRive) return null;
+    const inputs = menuRive.stateMachineInputs('State Machine 1');
+    if (!inputs) return null;
+    return inputs.find(input => input.name === inputName);
+  };
+
+  // Initial state effect
   useEffect(() => {
     if (menuRive) {
-      const initialState = stateOrder[0]; // State 3 (EXPLORE_WORLDS)
-      const textInput = menuRive.stateMachineInputs('State Machine 1')
-        .find(input => input.name === 'Text String');
+      const initialState = stateOrder[0];
+      const textInput = getRiveInput('Text String');
       if (textInput) {
         textInput.value = initialState;
         console.log('Initial Rive state set to:', initialState);
@@ -72,108 +66,61 @@ const MorphingButton = () => {
   }, [menuRive]);
 
   const handleClick = () => {
-    if (menuRive) {
-      const nextIndex = (currentStateIndex + 1) % stateOrder.length;
-      const nextState = stateOrder[nextIndex];
-      
-      const textInput = menuRive.stateMachineInputs('State Machine 1')
-        .find(input => input.name === 'Text String');
-      
-      if (textInput) {
+    if (!menuRive) return;
+
+    // Calculate next state index, wrapping around to 0 after last state
+    const nextIndex = (currentStateIndex + 1) % stateOrder.length;
+    const nextState = stateOrder[nextIndex];
+    const textInput = getRiveInput('Text String');
+    
+    if (textInput) {
+        // Set new state
         textInput.value = nextState;
         setCurrentStateIndex(nextIndex);
         handleStateChange(nextState);
-      }
+        
+        console.log('Moving from state', currentStateIndex, 'to', nextIndex);
     }
   };
 
   const handleMouseDown = () => {
-    if (menuRive) {
-      const hoverInput = menuRive.stateMachineInputs('State Machine 1')
-        .find(input => input.name === 'isHovered');
-      if (hoverInput) hoverInput.value = true;
+    const hoverInput = getRiveInput('isHovered');
+    if (hoverInput) {
+      hoverInput.value = true;
       setIsPressed(true);
     }
   };
 
-  const handleMouseUp = () => {
+  // Initial state setup
+  useEffect(() => {
     if (menuRive) {
-      const hoverInput = menuRive.stateMachineInputs('State Machine 1')
-        .find(input => input.name === 'isHovered');
-      if (hoverInput) hoverInput.value = false;
+      const textInput = menuRive.stateMachineInputs('State Machine 1')
+        ?.find(input => input.name === 'Text String');
       
-      if (isPressed) {
-        const nextIndex = (currentStateIndex + 1) % stateOrder.length;
-        const nextState = stateOrder[nextIndex];
-        const action = STATE_TO_ACTION[nextState];
-
-        // Update Rive state
-        const textInput = menuRive.stateMachineInputs('State Machine 1')
-          .find(input => input.name === 'Text String');
-        if (textInput) {
-          textInput.value = nextState;
-        }
-
-        // Update our state and trigger action
-        setCurrentStateIndex(nextIndex);
-        if (action) {
-          setAction({
-            id: action.id,
-            function: action.function,
-            type: action.type,
-            model: action.model
-          });
-          console.log('Triggering action:', action);
+      if (textInput) {
+        textInput.value = stateOrder[0];
+        const initialAction = STATE_TO_ACTION[stateOrder[0]];
+        if (initialAction) {
+          setAction(initialAction);
         }
       }
       setIsPressed(false);
     }
-  };
-
-  const handleMouseLeave = () => {
-    if (menuRive && isPressed) {
-      const hoverInput = menuRive.stateMachineInputs('State Machine 1')
-        .find(input => input.name === 'isHovered');
-      if (hoverInput) hoverInput.value = false;
-      setIsPressed(false);
-    }
-  };
+  }, [menuRive, setAction]);
 
   return (
-    <div style={{
-      position: 'relative',
-      width: '240px',
-      height: '240px',
-      background: 'rgba(0, 0, 0, 0.02)',
-      borderRadius: '12px',
-      overflow: 'hidden',
-    }}>
-      <motion.div
-        style={{
-          width: '100%',
-          height: '100%',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transformOrigin: 'center',
-        }}
-        animate={{
-          scale: isPressed ? 0.95 : 1,
-          background: isPressed ? 'rgba(0, 0, 0, 0.02)' : 'rgba(0, 0, 0, 0.01)'
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 30
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-      >
-        <MenuComponent />
-      </motion.div>
-    </div>
+    <motion.div
+      onClick={handleClick}
+      style={{
+        width: '240px',
+        height: '240px',
+        cursor: 'pointer'
+      }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <MenuComponent />
+    </motion.div>
   );
 };
 

@@ -431,9 +431,9 @@ export default function App() {
                     <motion.div
                       style={{
                         position: 'absolute',
-                        bottom: 'clamp(2vw, 2.5vw, 3vw)',
+                        bottom: 'clamp(1.5vw, 2vw, 2.5vw)',
                         left: 'clamp(43%, 44%, 45%)',
-                        transform: 'translateY(-50%)',
+                        transform: 'translateX(-50%)',
                         zIndex: 2002,
                         pointerEvents: 'auto',
                       }}
