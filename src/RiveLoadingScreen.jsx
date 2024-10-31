@@ -13,6 +13,7 @@ import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 import ColorTransition from './ColorTransition';
 // Import the full runtime
 import { Runtime } from '@rive-app/canvas';
+import { preloadAllModels, validateModelCache } from './utils/modelPreloader';
 
 
 const RiveLoadingScreen = ({ onStart }) => {
@@ -94,6 +95,7 @@ const RiveLoadingScreen = ({ onStart }) => {
   const [showLogo, setShowLogo] = useState(false);
   const [showAboutButton, setShowAboutButton] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
 
   const { initializeAudio, playAudio } = useAudioStore();
 
@@ -192,11 +194,53 @@ const RiveLoadingScreen = ({ onStart }) => {
     }
   }, [textIndex, setTextIndex]);
 
+  // Add model preloading to initial load sequence
+  useEffect(() => {
+    if (isInitialLoad) {
+      const loadSequence = async () => {
+        try {
+          // Start preloading models immediately
+          const modelLoadPromise = preloadAllModels();
+
+          // Show text after 2s
+          setTimeout(() => setShowTextLore(true), 2000);
+
+          // Wait for models to load
+          await modelLoadPromise;
+          setModelsLoaded(true);
+          console.log('Models loaded successfully');
+
+          // Show UI elements after models are loaded
+          setTimeout(() => {
+            setShowPlayButton(true);
+            setShowLogo(true);
+            setShowAboutButton(true);
+          }, 7000);
+
+        } catch (error) {
+          console.error('Error in load sequence:', error);
+          // Still show UI even if model loading fails
+          setShowPlayButton(true);
+          setShowLogo(true);
+          setShowAboutButton(true);
+        }
+      };
+
+      loadSequence();
+    }
+  }, [isInitialLoad]);
+
+  // Validate model cache before allowing start
   const handleStart = useCallback(async () => {
-    if (isStarted) return;
-    
+    if (isStarted || !modelsLoaded) return;
+
+    // Double-check cache before proceeding
+    if (!validateModelCache()) {
+      console.warn('Model cache validation failed, reloading models...');
+      await preloadAllModels();
+    }
+
     try {
-      // Reset and play audio from beginning
       await initializeAudio();
       await playAudio();
       setIsStarted(true);
@@ -218,7 +262,8 @@ const RiveLoadingScreen = ({ onStart }) => {
       console.error('Error in start sequence:', error);
       setIsStarted(false);
     }
-  }, [isStarted, setIsStarted, initializeAudio, playAudio, incrementOpacity]);
+  }, [isStarted, modelsLoaded, setIsStarted, initializeAudio, playAudio]);
+
 
 
 

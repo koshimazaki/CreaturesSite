@@ -236,4 +236,15 @@ export const ACTION_FUNCTIONS = {
   'LootAction': 'LootAction',
   'BossAction': 'BossAction',
   'PhysicsAction': 'PhysicsAction'
+};
+
+export const stateOrder = [0, 1, 2, 3, 4, 5];
+
+export const STATE_TO_ACTION = {
+    0: ActionTypes.START,
+    1: ActionTypes.EXPLORE_WORLDS,
+    2: ActionTypes.CAST_SPELLS,
+    3: ActionTypes.LOOT,
+    4: ActionTypes.FIGHT_BOSSES,
+    5: ActionTypes.PHYSICS
 }; 

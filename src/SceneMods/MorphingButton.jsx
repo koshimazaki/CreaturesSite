@@ -1,127 +1,104 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
-import { motion } from 'framer-motion';
 import { useActionStore } from '../stores/actionStore';
-import { ActionTypes } from './types';
+import { stateOrder, STATE_TO_ACTION } from './types';
 
-// Fix the STATE_TO_ACTION mapping to match ActionTypes
-const STATE_TO_ACTION = {
-  0: ActionTypes.START,
-  1: ActionTypes.EXPLORE_WORLDS,
-  2: ActionTypes.CAST_SPELLS,
-  3: ActionTypes.LOOT,
-  4: ActionTypes.FIGHT_BOSSES,
-  5: ActionTypes.PHYSICS
-};
+export const MorphingButton = () => {
+    const [currentStateIndex, setCurrentStateIndex] = useState(0);
+    const { setAction } = useActionStore();
+    const isTransitioning = useRef(false);
+    const lastActionTime = useRef(Date.now());
 
-const stateOrder = [0, 1, 2, 3, 4, 5]; // START -> EXPLORE -> CAST -> LOOT -> FIGHT -> PHYSICS
+    const { rive: menuRive, RiveComponent: MenuComponent } = useRive({
+        src: '/Creature_uiV3.riv',
+        artboard: 'Menu-Item',
+        stateMachines: 'State Machine 1',
+        preload: true,
+        autoplay: true,
+        layout: new Layout({
+            fit: Fit.Cover,
+            alignment: Alignment.Center
+        })
+    });
 
-const MorphingButton = () => {
-  const [isPressed, setIsPressed] = useState(false);
-  const [currentStateIndex, setCurrentStateIndex] = useState(0);
-  const { setAction } = useActionStore();
+    const handleClick = () => {
+        // Prevent rapid clicks and double transitions
+        const now = Date.now();
+        if (!menuRive || isTransitioning.current || (now - lastActionTime.current) < 500) return;
 
-  const { rive: menuRive, RiveComponent: MenuComponent } = useRive({
-    src: '/Creature_uiV3.riv',
-    artboard: 'Menu-Item',
-    stateMachines: 'State Machine 1',
-    preload: true,
-    autoplay: true,
-    layout: new Layout({
-      fit: Fit.Cover,
-      alignment: Alignment.Center
-    })
-  });
-
-  const handleStateChange = (nextState) => {
-    const action = STATE_TO_ACTION[nextState];
-    if (action) {
-      setAction({
-        id: action.id,
-        function: `${action.id}Action`,
-        type: 'model'
-      });
-      console.log('Changed to state:', nextState, 'Action:', action);
-    }
-  };
-
-  // Safe way to get Rive inputs
-  const getRiveInput = (inputName) => {
-    if (!menuRive) return null;
-    const inputs = menuRive.stateMachineInputs('State Machine 1');
-    if (!inputs) return null;
-    return inputs.find(input => input.name === inputName);
-  };
-
-  // Initial state effect
-  useEffect(() => {
-    if (menuRive) {
-      const initialState = stateOrder[0];
-      const textInput = getRiveInput('Text String');
-      if (textInput) {
-        textInput.value = initialState;
-        console.log('Initial Rive state set to:', initialState);
-      }
-    }
-  }, [menuRive]);
-
-  const handleClick = () => {
-    if (!menuRive) return;
-
-    // Calculate next state index, wrapping around to 0 after last state
-    const nextIndex = (currentStateIndex + 1) % stateOrder.length;
-    const nextState = stateOrder[nextIndex];
-    const textInput = getRiveInput('Text String');
-    
-    if (textInput) {
-        // Set new state
-        textInput.value = nextState;
-        setCurrentStateIndex(nextIndex);
-        handleStateChange(nextState);
+        isTransitioning.current = true;
+        lastActionTime.current = now;
         
-        console.log('Moving from state', currentStateIndex, 'to', nextIndex);
-    }
-  };
-
-  const handleMouseDown = () => {
-    const hoverInput = getRiveInput('isHovered');
-    if (hoverInput) {
-      hoverInput.value = true;
-      setIsPressed(true);
-    }
-  };
-
-  // Initial state setup
-  useEffect(() => {
-    if (menuRive) {
-      const textInput = menuRive.stateMachineInputs('State Machine 1')
-        ?.find(input => input.name === 'Text String');
-      
-      if (textInput) {
-        textInput.value = stateOrder[0];
-        const initialAction = STATE_TO_ACTION[stateOrder[0]];
-        if (initialAction) {
-          setAction(initialAction);
+        // Calculate next state index
+        const nextIndex = (currentStateIndex + 1) % stateOrder.length;
+        console.log('Transitioning from state', currentStateIndex, 'to', nextIndex);
+        
+        // Get Rive inputs
+        const inputs = menuRive.stateMachineInputs('State Machine 1');
+        const textInput = inputs?.find(input => input.name === 'Text String');
+        
+        if (textInput) {
+            // Update Rive state
+            textInput.value = nextIndex;
+            
+            // Update local state
+            setCurrentStateIndex(nextIndex);
+            
+            // Update scene action
+            const action = STATE_TO_ACTION[nextIndex];
+            if (action) {
+                setAction({
+                    id: action.id,
+                    function: `${action.id}Action`,
+                    type: 'model'
+                });
+            }
         }
-      }
-      setIsPressed(false);
-    }
-  }, [menuRive, setAction]);
 
-  return (
-    <motion.div
-      onClick={handleClick}
-      style={{
-        width: '240px',
-        height: '240px',
-        cursor: 'pointer'
-      }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <MenuComponent />
-    </motion.div>
-  );
+        // Reset transition lock after animation completes
+        setTimeout(() => {
+            isTransitioning.current = false;
+        }, 500);
+    };
+
+    // Initial state setup - with cleanup prevention
+    useEffect(() => {
+        if (menuRive && !isTransitioning.current) {
+            const inputs = menuRive.stateMachineInputs('State Machine 1');
+            const textInput = inputs?.find(input => input.name === 'Text String');
+            if (textInput) {
+                textInput.value = 0;
+                const action = STATE_TO_ACTION[0];
+                if (action) {
+                    setAction({
+                        id: action.id,
+                        function: `${action.id}Action`,
+                        type: 'model'
+                    });
+                }
+            }
+        }
+    }, [menuRive]); // Only depend on menuRive
+
+    return (
+        <div 
+            onClick={handleClick}
+            style={{
+                position: 'absolute',
+                bottom: '5rem',
+                right: '5rem',
+                width: '150px',
+                height: '150px',
+                cursor: isTransitioning.current ? 'wait' : 'pointer',
+                zIndex: 1000,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}
+        >
+            <MenuComponent />
+        </div>
+    );
 };
 
 export default MorphingButton;

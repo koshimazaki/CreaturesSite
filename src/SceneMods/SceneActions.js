@@ -1,14 +1,40 @@
 import * as THREE from 'three';
 import { useGLTF } from '@react-three/drei';
+import * as types from './types';
+import { useModelStore } from '../stores/modelStore';
+import { useActionStore } from '../stores/actionStore';
 
-// Import models using relative paths with ?url
+// Import models
 import pyramidModel from '/src/assets/models/pyramid2.glb?url'
 import palmModel from '/src/assets/models/palm.glb?url'
 import fireModel from '/src/assets/models/coconut.glb?url'
-import bossModel from '/src/assets/models/boss.glb?url'
+import bossModel from '/src/assets/models/tripo1.glb?url'
+import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
 
-// Base Scene Action class
+// Preload all models
+export const preloadModels = () => {
+    console.log('Preloading models for SceneActions');
+    useGLTF.preload(pyramidModel);
+    useGLTF.preload(palmModel);
+    useGLTF.preload(fireModel);
+    useGLTF.preload(bossModel);
+    useGLTF.preload(lootModel);
+    useGLTF.preload(characterModel);
+};
+
+// Create a model loader that uses cached models
+const loadModel = async (modelUrl) => {
+    try {
+        const { scene: modelScene, nodes, materials } = await useGLTF(modelUrl);
+        return { scene: modelScene, nodes, materials };
+    } catch (error) {
+        console.error('Error loading model:', modelUrl, error);
+        throw error;
+    }
+};
+
+// Base Scene Action class with updated loadModel method
 export class SceneAction {
     constructor(scene) {
         this.scene = scene;
@@ -42,8 +68,8 @@ export class SceneAction {
         console.log(`Cleaned up ${itemsToRemove.length} items`);
     }
 
-    loadModel(modelUrl) {
-        return useGLTF(modelUrl);
+    async loadModel(modelUrl) {
+        return loadModel(modelUrl);
     }
 }
 
@@ -148,36 +174,34 @@ export class WorldsAction extends SceneAction {
 }
 
 export class SpellsAction extends SceneAction {
-    execute() {
+    async execute() {
         console.log('Executing SpellsAction');
         this.cleanup();
         
         try {
-            const fireGLTF = this.loadModel(fireModel);
+            const fireGLTF = await this.loadModel(fireModel);
             const model = new THREE.Group();
             
-            // Clone the fire mesh and its materials
             if (fireGLTF.scene) {
                 const fireMesh = fireGLTF.scene.clone();
                 model.add(fireMesh);
                 
-                // Position and scale the fire
+                // Add FireShader
+                model.userData.shaderComponent = 'FireShader';
+                model.userData.shaderVisible = true;
+                
                 model.position.set(0, 0, 0);
                 model.scale.setScalar(0.5);
                 
                 model.userData.animate = (time) => {
                     model.rotation.y += 0.01;
-                    const breathingScale = 0.5 + Math.sin(time * 0.8) * 0.05;
-                    model.scale.setScalar(breathingScale);
-                    
-                    // Add hovering effect
-                    model.position.y = Math.sin(time * 0.5) * 0.1;
                 };
                 
                 model.userData.actionItem = true;
                 this.scene.add(model);
                 return true;
             }
+            return false;
         } catch (error) {
             console.error('Error in SpellsAction:', error);
             return false;
@@ -185,31 +209,26 @@ export class SpellsAction extends SceneAction {
     }
 }
 
-
 export class LootAction extends SceneAction {
-    execute() {
+    async execute() {
         console.log('Executing LootAction');
         this.cleanup();
         
         try {
-            const fireGLTF = this.loadModel(fireModel);
+            const fireGLTF = await this.loadModel(fireModel);
             const model = new THREE.Group();
             
-            // Clone the fire mesh and its materials
             if (fireGLTF.scene) {
                 const fireMesh = fireGLTF.scene.clone();
                 model.add(fireMesh);
                 
-                // Position and scale the fire
-                model.position.set(-1, 0, -1);
-                model.scale.setScalar(0.2);
+                model.position.set(-1, -0.7, 1.5);
+                model.scale.setScalar(0.3);
                 
                 model.userData.animate = (time) => {
                     model.rotation.y += 0.01;
                     const breathingScale = 0.5 + Math.sin(time * 0.8) * 0.05;
                     model.scale.setScalar(breathingScale);
-                    
-                    // Add hovering effect
                     model.position.y = Math.sin(time * 0.5) * 0.1;
                 };
                 
@@ -217,13 +236,13 @@ export class LootAction extends SceneAction {
                 this.scene.add(model);
                 return true;
             }
+            return false;
         } catch (error) {
             console.error('Error in SpellsAction:', error);
             return false;
         }
     }
 }
-
 
 export class BossAction extends SceneAction {
     async execute() {
@@ -231,42 +250,31 @@ export class BossAction extends SceneAction {
         this.cleanup();
         
         try {
-            const bossGLTF = await this.loadModel(bossModel);
-            const model = new THREE.Group();
+            const modelStore = useModelStore.getState();
+            const bossModel = modelStore.getModel('boss');
             
-            if (bossGLTF.scene) {
-                const bossMesh = bossGLTF.scene.clone();
+            if (!bossModel || !bossModel.nodes) {
+                console.error('Boss model not found in cache');
+                return false;
+            }
+
+            const model = new THREE.Group();
+            const mainMesh = bossModel.nodes.Scene?.children[0] || 
+                           Object.values(bossModel.nodes)[0];
+            
+            if (mainMesh) {
+                const mesh = mainMesh.clone();
                 
-                // Reset transformations
-                bossMesh.position.set(0, 0, 0);
-                bossMesh.rotation.set(0, 0, 0);
-                bossMesh.scale.set(1, 1, 1);
-                
-                model.add(bossMesh);
-                
-                // Adjust position and scale
-                model.position.set(1, 0, 1); // Lowered Y position
-                model.scale.setScalar(3); // Reduced scale
-                
-                // Smoother animations
-                model.userData.animate = (time) => {
-                    // Slower rotation
-                    model.rotation.y = Math.sin(time * 0.1) * 0.05;
-                    
-                    // Gentler breathing
-                    const breathingScale = 3 + Math.sin(time * 0.3) * 0.1;
-                    model.scale.setScalar(breathingScale);
-                    
-                    // Smoother hovering
-                    model.position.y = Math.sin(time * 0.2) * 0.1;
-                };
-                
+                // Apply transformations to the mesh first
+                mesh.scale.set(5, 5.3, 5);
+                mesh.position.set(1.9, 1.8, -4.2);
+                mesh.rotation.set(0, Math.PI * 1.4, 0);
+                model.add(mesh);
                 model.userData.actionItem = true;
                 this.scene.add(model);
-                
-                console.log('Boss model added successfully');
                 return true;
             }
+            
             return false;
         } catch (error) {
             console.error('Error in BossAction:', error);
@@ -283,6 +291,10 @@ export class PhysicsAction extends SceneAction {
         try {
             const { nodes, materials } = await this.loadModel(characterModel);
             const model = new THREE.Group();
+            
+            // Add PhysicsField shader
+            model.userData.shaderComponent = 'PhysicsField';
+            model.userData.shaderVisible = true;
             
             // Add your character model setup here
             // Similar to WorldsAction but with character-specific transforms and animations
