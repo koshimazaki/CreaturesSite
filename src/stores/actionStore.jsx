@@ -4,8 +4,10 @@ import { useModelStore } from './modelStore';
 
 export const useActionStore = create((set, get) => ({
   currentAction: ActionTypes.START,
+  previousAction: null,
   activeModel: null,
   isTransitioning: false,
+  transitionProgress: 0,
   
   setAction: async (action) => {
     const modelStore = useModelStore.getState();
@@ -13,8 +15,13 @@ export const useActionStore = create((set, get) => ({
     // Prevent actions during transitions
     if (get().isTransitioning) return;
     
-    set({ isTransitioning: true });
-    console.log('Setting action:', action);
+    set({ 
+      isTransitioning: true,
+      previousAction: get().currentAction,
+      transitionProgress: 0
+    });
+    
+    console.log('Starting transition to:', action);
 
     try {
       // Validate model cache before transition
@@ -23,22 +30,33 @@ export const useActionStore = create((set, get) => ({
         await modelStore.preloadModels();
       }
 
+      // Delay the actual state change
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Set new action
       set({ 
         currentAction: action,
-        activeModel: action.modelId // If you have this mapping
+        activeModel: action.modelId
       });
+
+      // Allow time for transition to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
     } catch (error) {
       console.error('Error in action transition:', error);
     } finally {
-      set({ isTransitioning: false });
+      set({ 
+        isTransitioning: false,
+        transitionProgress: 1
+      });
     }
   },
 
   resetScene: () => set({ 
     currentAction: ActionTypes.START,
-    activeModel: null
+    previousAction: null,
+    activeModel: null,
+    transitionProgress: 0
   })
 }));
 

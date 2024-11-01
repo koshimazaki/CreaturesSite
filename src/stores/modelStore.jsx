@@ -3,35 +3,12 @@ import { useGLTF } from '@react-three/drei';
 import { MODEL_PATHS } from '../utils/modelPreloader';
 
 export const useModelStore = create((set, get) => ({
-    // Loading states
     isLoading: false,
     loadedModels: {},
     loadingErrors: {},
-    
-    // Model cache status
     modelCache: {},
     
-    // Loading management
-    startLoading: () => set({ isLoading: true }),
-    finishLoading: () => set({ isLoading: false }),
-    
-    // Track loaded models
-    setModelLoaded: (modelId, success = true) => set(state => ({
-        loadedModels: {
-            ...state.loadedModels,
-            [modelId]: success
-        }
-    })),
-
-    // Track loading errors
-    setModelError: (modelId, error) => set(state => ({
-        loadingErrors: {
-            ...state.loadingErrors,
-            [modelId]: error
-        }
-    })),
-
-    // Preload all models
+    // Simplified preload that maintains performance
     preloadModels: async () => {
         const state = get();
         if (state.isLoading) return;
@@ -43,10 +20,11 @@ export const useModelStore = create((set, get) => ({
                 return new Promise((resolve, reject) => {
                     try {
                         useGLTF.preload(path);
+                        // Small delay to prevent GPU bottleneck
                         setTimeout(() => {
                             get().setModelLoaded(id);
                             resolve();
-                        }, 100);
+                        }, 50);
                     } catch (error) {
                         get().setModelError(id, error);
                         reject(error);
@@ -55,7 +33,6 @@ export const useModelStore = create((set, get) => ({
             });
 
             await Promise.all(loadPromises);
-            console.log('All models preloaded successfully');
         } catch (error) {
             console.error('Error preloading models:', error);
         } finally {
@@ -63,22 +40,46 @@ export const useModelStore = create((set, get) => ({
         }
     },
 
-    // Validate model cache
+    // Simple model loading status tracking
+    setModelLoaded: (modelId, success = true) => set(state => ({
+        loadedModels: {
+            ...state.loadedModels,
+            [modelId]: success
+        }
+    })),
+
+    setModelError: (modelId, error) => set(state => ({
+        loadingErrors: {
+            ...state.loadingErrors,
+            [modelId]: error
+        }
+    })),
+
+    // Basic cache validation with safety checks
     validateCache: () => {
+        if (!useGLTF.cache) {
+            console.warn('GLTF cache not initialized');
+            return false;
+        }
+
         const validations = Object.entries(MODEL_PATHS).map(([id, path]) => {
             try {
-                const cached = useGLTF.cache.get(path);
-                return [id, cached !== undefined];
-            } catch {
+                // Safely check cache
+                const cached = useGLTF.cache.get?.(path);
+                const isValid = Boolean(cached);
+                return [id, isValid];
+            } catch (error) {
+                console.warn(`Cache validation failed for ${id}:`, error);
                 return [id, false];
             }
         });
 
-        set({ modelCache: Object.fromEntries(validations) });
+        const cacheStatus = Object.fromEntries(validations);
+        set({ modelCache: cacheStatus });
         return validations.every(([, isValid]) => isValid);
     },
 
-    // Get a loaded model
+    // Simple model getter
     getModel: (modelId) => {
         try {
             return useGLTF(MODEL_PATHS[modelId]);
@@ -86,5 +87,42 @@ export const useModelStore = create((set, get) => ({
             console.error(`Error getting model ${modelId}:`, error);
             return null;
         }
+    },
+
+    // Safe cache clearing
+    clearCache: () => {
+        if (!useGLTF.cache) {
+            console.warn('GLTF cache not initialized');
+            return;
+        }
+
+        try {
+            Object.values(MODEL_PATHS).forEach(path => {
+                const cached = useGLTF.cache.get?.(path);
+                if (cached && useGLTF.cache.delete) {
+                    useGLTF.cache.delete(path);
+                }
+            });
+            
+            set({ 
+                loadedModels: {},
+                loadingErrors: {},
+                modelCache: {}
+            });
+        } catch (error) {
+            console.error('Error clearing cache:', error);
+        }
     }
-})); 
+}));
+
+// Safer cache validation on window focus
+window.addEventListener('focus', () => {
+    // Add small delay to ensure cache is initialized
+    setTimeout(() => {
+        const isValid = useModelStore.getState().validateCache();
+        if (!isValid) {
+            console.log('Cache invalid, reloading...');
+            useModelStore.getState().clearCache();
+        }
+    }, 100);
+}); 
