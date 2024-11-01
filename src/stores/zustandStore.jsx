@@ -7,6 +7,12 @@ const useStore = create((set, get) => ({
   isIOS: isIOS,
   isAndroid: isAndroid,
   
+textLoopLore: [
+  "Press to uncover the core loop that fuels the realms, where spells, creatures, and art collide.", 
+  "Dive into the assembly of shifting worlds and decode the journey ahead...",
+  "Is the Creature strong enough to survive the loop?",
+],
+
   // Text content for different devices
   textLoreContent: {
     desktop: [

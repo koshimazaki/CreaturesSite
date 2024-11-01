@@ -29,6 +29,7 @@ import Info from './UI/InfoPanel';
 import MorphingButton from './SceneMods/MorphingButton';
 import CustomCursor from './UI/CustomCursor';
 import { makeInteractive } from './utils/styles';
+import LoopLoreText from './LoopLoreText';
 
 
 
@@ -443,20 +444,10 @@ export default function App() {
                       <MorphingButton />
                     </motion.div>
 
-                    {/* <motion.div
-                      style={{
-                        position: 'absolute',
-                        bottom: '1vw',
-                        left: '20%',
-                        transform: 'translateY(-50%)',
-                        zIndex: 2002,
-                        pointerEvents: 'auto',
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <MorphingButton2 />
-                    </motion.div> */}
+                  
+
+                    {/* Add this as a separate element, near but independent from MorphingButton */}
+                    <LoopLoreText />
 
                     </>
                   )}
