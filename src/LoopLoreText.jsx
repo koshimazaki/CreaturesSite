@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useStore from './stores/zustandStore';
 
@@ -8,7 +8,15 @@ export function LoopLoreText() {
   const [displayTexts, setDisplayTexts] = useState(['', '', '']);
   const [isVisible, setIsVisible] = useState(true);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const textLoopLore = useStore(state => state.textLoopLore);
+  const animationRef = useRef(null);
+  const isCompleteRef = useRef(false);
+  
+  // Get text only once at mount
+  const textLoopLore = useRef(
+    useStore.getState().textLoopLore.map(text => 
+      text.endsWith('') ? text : text + ''
+    )
+  ).current;
 
   const scramble = useCallback((text, progress) => {
     const chars = SCRAMBLE_CHARS;
@@ -22,46 +30,75 @@ export function LoopLoreText() {
   }, []);
 
   useEffect(() => {
-    let frameId;
-    let startTime = Date.now();
-    const duration = 2400; // Duration per line
+    const startTime = Date.now();
+    const duration = 3000; // Duration per line
     const totalDuration = duration * textLoopLore.length;
-    let isComplete = false;
     
     const animate = () => {
-      const elapsed = Date.now() - startTime;
+      if (isCompleteRef.current) return;
       
-      if (!isComplete) {
-        const currentLine = Math.min(Math.floor(elapsed / duration), textLoopLore.length - 1);
+      const elapsed = Date.now() - startTime;
+      const currentLine = Math.min(Math.floor(elapsed / duration), textLoopLore.length - 1);
+      
+      if (currentLine !== currentLineIndex) {
+        setCurrentLineIndex(currentLine);
+      }
+
+      const lineProgress = Math.min((elapsed % duration) / duration, 1);
+      const targetLength = textLoopLore[currentLine].length;
+      const progress = Math.floor(lineProgress * targetLength);
+
+      setDisplayTexts(prev => {
+        const newTexts = [...prev];
+        // Ensure previous lines stay complete
+        for (let i = 0; i < currentLine; i++) {
+          newTexts[i] = textLoopLore[i];
+        }
+        // Scramble current line
+        newTexts[currentLine] = scramble(textLoopLore[currentLine], progress);
+        return newTexts;
+      });
+
+      // Check if all lines are complete
+      if (elapsed >= totalDuration && !isCompleteRef.current) {
+        isCompleteRef.current = true;
         
-        if (currentLine !== currentLineIndex) {
-          setCurrentLineIndex(currentLine);
-        }
-
-        const lineProgress = Math.min((elapsed % duration) / duration, 1);
-        const targetLength = textLoopLore[currentLine].length;
-        const progress = Math.floor(lineProgress * targetLength);
-
+        // Ensure last line is complete
         setDisplayTexts(prev => {
-          const newTexts = [...prev];
-          newTexts[currentLine] = scramble(textLoopLore[currentLine], progress);
-          return newTexts;
+          const finalTexts = [...prev];
+          finalTexts[textLoopLore.length - 1] = textLoopLore[textLoopLore.length - 1];
+          return finalTexts;
         });
-
-        // Check if all lines are complete
-        if (elapsed >= totalDuration) {
-          isComplete = true;
-          // Keep visible for 3 more seconds after completion
-          setTimeout(() => setIsVisible(false),6000);
-        } else {
-          frameId = requestAnimationFrame(animate);
-        }
+        
+        // Add scramble effect before fade
+        setTimeout(() => {
+          let scrambleCount = 0;
+          const scrambleInterval = setInterval(() => {
+            scrambleCount++;
+            setDisplayTexts(prev => 
+              prev.map(text => scramble(text, 0))
+            );
+            
+            if (scrambleCount >= 8) { // Limit scramble iterations
+              clearInterval(scrambleInterval);
+              setIsVisible(false);
+            }
+          }, 50);
+        }, 5000);
+      } else if (!isCompleteRef.current) {
+        animationRef.current = requestAnimationFrame(animate);
       }
     };
 
-    frameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frameId);
-  }, [textLoopLore, scramble]);
+    animationRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      isCompleteRef.current = true;
+    };
+  }, [textLoopLore, scramble]); // Reduced dependencies
 
   return (
     <AnimatePresence>

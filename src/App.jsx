@@ -30,7 +30,8 @@ import MorphingButton from './SceneMods/MorphingButton';
 import CustomCursor from './UI/CustomCursor';
 import { makeInteractive } from './utils/styles';
 import LoopLoreText from './LoopLoreText';
-
+import { Leva } from 'leva'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
 
 
 export default function App() {
@@ -175,6 +176,26 @@ export default function App() {
 
   return (
     <>
+    <TooltipProvider>
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        right: 0, 
+        zIndex: 20999,
+        pointerEvents: 'auto'
+      }}>
+        <Leva 
+          collapsed={false} 
+          oneLineLabels={false}
+          flat={true}
+          theme={{
+            sizes: {
+              rootWidth: '320px',
+              controlWidth: '170px'
+            }
+          }}
+        />
+      </div>
       <CustomCursor />
       
       <style>
@@ -184,6 +205,12 @@ export default function App() {
           }
           a, button, [role="button"] {
             cursor: none;
+          }
+          // Add this to ensure Leva panel is always on top
+          .leva-container {
+            z-index: 9999 !important;
+            position: relative;
+            pointer-events: auto !important;
           }
         `}
       </style>
@@ -446,9 +473,28 @@ export default function App() {
 
                   
 
-                    {/* Add this as a separate element, near but independent from MorphingButton */}
+                    {/* Add this as a separate element, near but independent from MorphingButton
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 'clamp(0.5vw, 0.8vw, 1vw)',
+                        left: 'clamp(25%, 35%, 45%)', // Adjust position as needed
+                        zIndex: 2002,
+                        fontFamily: 'Monorama, sans-serif',
+                        fontSize: 'clamp(12px, 1vw, 16px)',
+                        color: '#03d7fc',
+                        textShadow: '0 0 10px rgba(0,255,255,0.7)',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                        userSelect: 'none',
+                      }}
+                    >
+                      {useStore.getState().textLoopLore[0]}
+                    </motion.div> */}
                     <LoopLoreText />
-
                     </>
                   )}
                 </div>
@@ -481,11 +527,11 @@ export default function App() {
             <EffectComposer>
           {/* Only show effects on non-Android devices */}
           {shouldShowEffects && (
-              <ChromaticAberration
-                offset={[0.012, 0.002]}
-                blendFunction={BlendFunction.NORMAL}
-              />
-                )}
+              // <ChromaticAberration
+              //   offset={[0.012, 0.002]}
+              //   blendFunction={BlendFunction.NORMAL}
+              // />
+              //   )}
               <Glitch
                 delay={[1.5, 3.5]}
                 duration={[0.6, 1.0]}
@@ -494,6 +540,7 @@ export default function App() {
                 active
                 ratio={0.8}
               />
+          )}
             </EffectComposer>
           </Canvas>
 
@@ -525,6 +572,8 @@ export default function App() {
 
 
     </LandscapeEnforcer>
+    </TooltipProvider>
   </>
+    
   );
 }

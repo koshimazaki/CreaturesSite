@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { useActionStore } from '../stores/actionStore';
-import { stateOrder, STATE_TO_ACTION } from './types';
+import { stateOrder, STATE_TO_ACTION, MODEL_PATHS } from './types';
 
 export const MorphingButton = () => {
     const [currentStateIndex, setCurrentStateIndex] = useState(0);

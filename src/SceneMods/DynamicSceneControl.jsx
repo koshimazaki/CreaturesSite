@@ -15,7 +15,6 @@ export function DynamicSceneControl() {
   const lastAction = useRef(null);
   const { scene } = useThree();
 
-  // Direct mapping of action IDs to action classes
   const ACTION_CLASS_MAP = {
     'START': StartAction,
     'EXPLORE_WORLDS': WorldsAction,
@@ -25,20 +24,19 @@ export function DynamicSceneControl() {
     'PHYSICS': PhysicsAction
   };
 
+
+  
   const executeAction = async (action) => {
     console.log('Executing action:', action);
 
     try {
-      // Get the action class using the action ID
       const ActionClass = ACTION_CLASS_MAP[action.id];
       
       if (!ActionClass) {
         console.error('No action class found for:', action.id);
-        console.log('Available actions:', Object.keys(ACTION_CLASS_MAP));
         return;
       }
 
-      console.log('Creating new instance of:', ActionClass.name);
       const sceneAction = new ActionClass(scene);
       const result = await sceneAction.execute();
       console.log('Action execution result:', result);

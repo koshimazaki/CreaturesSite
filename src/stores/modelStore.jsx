@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { useGLTF } from '@react-three/drei';
-import { MODEL_PATHS } from '../utils/modelPreloader';
+import { MODEL_PATHS } from '../SceneMods/types';
 
 export const useModelStore = create((set, get) => ({
     isLoading: false,
@@ -116,8 +116,16 @@ export const useModelStore = create((set, get) => ({
 }));
 
 // Safer cache validation on window focus
+let lastValidationTime = 0;
+const VALIDATION_COOLDOWN = 5000; // 5 seconds cooldown
+
 window.addEventListener('focus', () => {
-    // Add small delay to ensure cache is initialized
+    const now = Date.now();
+    if (now - lastValidationTime < VALIDATION_COOLDOWN) {
+        return; // Skip if we validated recently
+    }
+    
+    lastValidationTime = now;
     setTimeout(() => {
         const isValid = useModelStore.getState().validateCache();
         if (!isValid) {

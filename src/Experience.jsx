@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, Suspense, useRef, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sparkles, MeshReflectorMaterial, BakeShadows, Html, useProgress } from '@react-three/drei';
+import { Sparkles, MeshReflectorMaterial, BakeShadows, Html, useProgress, Preload } from '@react-three/drei';
 import { Glitch, EffectComposer, Bloom, ChromaticAberration, DepthOfField } from '@react-three/postprocessing'
 import { GlitchMode } from 'postprocessing' 
 import { BlendFunction } from 'postprocessing'
@@ -19,7 +19,8 @@ import useAudioStore from './Audio/audioStore';
 import './styles.css';
 import { Science } from '@mui/icons-material';
 import DynamicSceneControl from './SceneMods/DynamicSceneControl';
-
+import { ShaderManager } from './components/ShaderManager';
+// import { PurpleFire } from './shaders/FireSpell';
 
 const CameraRig = () => {
   useFrame((state, delta) => {
@@ -175,12 +176,25 @@ function Experience({ audioPlayerRef }) {
           
           {/* Only show effects on non-Android devices */}
           {shouldShowEffects && (
-            <EffectComposer disableNormalPass multisampling={16}>
-              <Bloom luminanceThreshold={0.25} mipmapBlur luminanceSmoothing={0.2} intensity={5} />
-              <DepthOfField target={[0, 0, 13]} focalLength={0.28} bokehScale={10} height={800} />
+            <EffectComposer disableNormalPass multisampling={8}>
+              <Bloom 
+                luminanceThreshold={0.25} 
+                mipmapBlur 
+                luminanceSmoothing={0.2} 
+                intensity={5}
+              />
+              <DepthOfField 
+                target={[0, 0, 13]} 
+                focalLength={0.28} 
+                bokehScale={10} 
+                height={800}
+              />
             </EffectComposer>
           )}
           <BakeShadows />
+          <ShaderManager />
+          {/* <PurpleFire /> */}
+          <Preload all />
         </Suspense>
       </>
     )

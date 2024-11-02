@@ -13,7 +13,8 @@ import GCLogo from './assets/images/GC_Creatures_Logo.svg';
 import ColorTransition from './ColorTransition';
 // Import the full runtime
 import { Runtime } from '@rive-app/canvas';
-import { preloadAllModels, validateModelCache } from './utils/modelPreloader';
+import { preloadAllModels, validateModelCache } from './utils/modelLoader';
+import { useModelPreloader } from './hooks/useModelPreloader';
 
 
 const RiveLoadingScreen = ({ onStart }) => {
@@ -98,6 +99,8 @@ const RiveLoadingScreen = ({ onStart }) => {
   const [modelsLoaded, setModelsLoaded] = useState(false);
 
   const { initializeAudio, playAudio } = useAudioStore();
+
+  const { isLoading, isLoaded } = useModelPreloader();
 
 
   // Creature setup
@@ -194,50 +197,23 @@ const RiveLoadingScreen = ({ onStart }) => {
     }
   }, [textIndex, setTextIndex]);
 
-  // Add model preloading to initial load sequence
   useEffect(() => {
-    if (isInitialLoad) {
-      const loadSequence = async () => {
-        try {
-          // Start preloading models immediately
-          const modelLoadPromise = preloadAllModels();
-
-          // Show text after 2s
-          setTimeout(() => setShowTextLore(true), 2000);
-
-          // Wait for models to load
-          await modelLoadPromise;
-          setModelsLoaded(true);
-          console.log('Models loaded successfully');
-
-          // Show UI elements after models are loaded
-          setTimeout(() => {
-            setShowPlayButton(true);
-            setShowLogo(true);
-            setShowAboutButton(true);
-          }, 7000);
-
-        } catch (error) {
-          console.error('Error in load sequence:', error);
-          // Still show UI even if model loading fails
-          setShowPlayButton(true);
-          setShowLogo(true);
-          setShowAboutButton(true);
-        }
-      };
-
-      loadSequence();
+    if (isInitialLoad && isLoaded) {
+      // Show UI elements after loading
+      setTimeout(() => setShowTextLore(true), 2000);
+      setTimeout(() => {
+        setShowPlayButton(true);
+        setShowLogo(true);
+        setShowAboutButton(true);
+      }, 7000);
     }
-  }, [isInitialLoad]);
+  }, [isInitialLoad, isLoaded]);
 
-  // Validate model cache before allowing start
+  // Simplified start handler
   const handleStart = useCallback(async () => {
-    if (isStarted || !modelsLoaded) return;
-
-    // Double-check cache before proceeding
-    if (!validateModelCache()) {
-      console.warn('Model cache validation failed, reloading models...');
-      await preloadAllModels();
+    if (!isLoaded) {
+      console.warn('Models not fully loaded yet');
+      return;
     }
 
     try {
@@ -255,14 +231,13 @@ const RiveLoadingScreen = ({ onStart }) => {
         clearInterval(fadeInterval);
       }, 200);
 
-      // Set isInitialLoad to false after first start
       setIsInitialLoad(false);
 
     } catch (error) {
       console.error('Error in start sequence:', error);
       setIsStarted(false);
     }
-  }, [isStarted, modelsLoaded, setIsStarted, initializeAudio, playAudio]);
+  }, [isLoaded, setIsStarted, initializeAudio, playAudio]);
 
 
 
@@ -305,6 +280,8 @@ const RiveLoadingScreen = ({ onStart }) => {
       }
     };
   }, [creatureRive]);
+
+ 
 
   return (
     <motion.div 

@@ -3,8 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import * as types from './types';
 import { useModelStore } from '../stores/modelStore';
 import { useActionStore } from '../stores/actionStore';
-import { MODEL_PATHS } from '../utils/modelPreloader';
-
+import { MODEL_PATHS } from './types';
 // Import models
 import pyramidModel from '/src/assets/models/pyramid2.glb?url'
 import palmModel from '/src/assets/models/palm.glb?url'
@@ -12,6 +11,7 @@ import fireModel from '/src/assets/models/coconut.glb?url'
 import bossModel from '/src/assets/models/boss.glb?url'
 import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
+import { FireSpell } from '../shaders/FireSpell'
 
 // Preload all models
 export const preloadModels = () => {
@@ -180,29 +180,16 @@ export class SpellsAction extends SceneAction {
         this.cleanup();
         
         try {
-            const fireGLTF = await this.loadModel(fireModel);
-            const model = new THREE.Group();
+            // No need to load any models, just mark that spell should be active
+            const spellContainer = new THREE.Group();
+            spellContainer.userData.isFireSpell = true;
+            spellContainer.userData.actionItem = true;
             
-            if (fireGLTF.scene) {
-                const fireMesh = fireGLTF.scene.clone();
-                model.add(fireMesh);
-                
-                // Add FireShader
-                model.userData.shaderComponent = 'FireShader';
-                model.userData.shaderVisible = true;
-                
-                model.position.set(0, 0, 0);
-                model.scale.setScalar(0.5);
-                
-                model.userData.animate = (time) => {
-                    model.rotation.y += 0.01;
-                };
-                
-                model.userData.actionItem = true;
-                this.scene.add(model);
-                return true;
-            }
-            return false;
+            // The actual FireSpell component is managed by ShaderManager
+            // This just serves as a marker that the spell should be active
+            this.scene.add(spellContainer);
+            
+            return true;
         } catch (error) {
             console.error('Error in SpellsAction:', error);
             return false;
