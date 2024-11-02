@@ -11,7 +11,20 @@ import fireModel from '/src/assets/models/coconut.glb?url'
 import bossModel from '/src/assets/models/boss.glb?url'
 import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
-import { FireSpell } from '../shaders/FireSpell'
+import { SHADER_PRESETS } from '../shaders/FireSpell'
+
+// Update the dispatch function at the top of the file
+const dispatchAnimationEvent = (type) => {
+    window.dispatchEvent(new CustomEvent('ecctrl-action', {
+        detail: { 
+            type: type === 'idle' ? 'idle' :
+            type === 'fireball' ? 'action1' : 
+            type === 'fly' ? 'action2' : 
+            type === 'ninja_idle' ? 'boss' : 'idle' 
+        }
+    }));
+};
+
 
 // Preload all models
 export const preloadModels = () => {
@@ -174,21 +187,25 @@ export class WorldsAction extends SceneAction {
     }
 }
 
+
 export class SpellsAction extends SceneAction {
     async execute() {
         console.log('Executing SpellsAction');
         this.cleanup();
         
         try {
-            // No need to load any models, just mark that spell should be active
+            // Dispatch the fireball animation
+            dispatchAnimationEvent('fireball');
+            
+            // Create a container for the spell
             const spellContainer = new THREE.Group();
             spellContainer.userData.isFireSpell = true;
             spellContainer.userData.actionItem = true;
             
-            // The actual FireSpell component is managed by ShaderManager
-            // This just serves as a marker that the spell should be active
+            // Add the container to the scene
+            // The actual FireSpell component will be rendered by ShaderManager
             this.scene.add(spellContainer);
-            
+
             return true;
         } catch (error) {
             console.error('Error in SpellsAction:', error);
@@ -238,6 +255,9 @@ export class BossAction extends SceneAction {
         this.cleanup();
         
         try {
+            // Only dispatch the ninja_idle animation
+            dispatchAnimationEvent('ninja_idle');
+            
             const { nodes, materials } = useGLTF(MODEL_PATHS.boss);
             
             if (!nodes || !materials) {
@@ -353,6 +373,9 @@ export class PhysicsAction extends SceneAction {
         this.cleanup();
         
         try {
+            // Only dispatch the fly animation
+            dispatchAnimationEvent('fly');
+            
             const { nodes, materials } = await this.loadModel(characterModel);
             const model = new THREE.Group();
             
@@ -373,6 +396,7 @@ export class PhysicsAction extends SceneAction {
             this.scene.add(model);
         } catch (error) {
             console.error('Error in PhysicsAction:', error);
+            return false;
         }
     }
 }
@@ -382,6 +406,10 @@ export class StartAction extends SceneAction {
     execute() {
         console.log('Executing StartAction - clearing scene');
         this.cleanup();
+        
+        // Only dispatch idle if this is the initial state
+        dispatchAnimationEvent('idle');
+        
         return true;
     }
 } 

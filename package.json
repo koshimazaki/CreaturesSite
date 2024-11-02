@@ -19,6 +19,7 @@
     "pmndrs"
   ],
   "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.2",
@@ -30,7 +31,9 @@
     "@react-three/drei": "^9.114.4",
     "@react-three/fiber": "^8.17.10",
     "@react-three/postprocessing": "^2.16.2",
+    "@react-three/rapier": "^1.5.0",
     "@rive-app/react-canvas": "^4.14.5",
+    "ecctrl": "^1.0.90",
     "framer-motion": "^11.11.1",
     "gsap": "^3.12.5",
     "howler": "^2.2.4",

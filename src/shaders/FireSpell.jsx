@@ -254,56 +254,143 @@ const FireMaterial = shaderMaterial(
 
 extend({ FireMaterial })
 
-export function FireSpell() {
+// Add preset configurations
+export const SHADER_PRESETS = {
+  FIREBALL: {
+    position: [0, 0, 0],
+    scale: 0.3,
+    speed: 0.1,
+    colorStart: '#931c7a',
+    colorEnd: '#ff0000',
+    intensity: 1.7,
+    noiseScale: 0.3,
+    noiseOctaves: 4.0,
+    displacement: 0.3,
+    frequency: 3,
+    voronoi: 1.5,
+    turbulence: 1.1,
+    rotationSpeed: 0.05,
+    fresnel: 0.8,
+    alpha: 0.8,
+    movementSpeed: 0.2,
+    zRange: { min: 0, max: 0.5 },
+    colorStartInstance: new THREE.Color('#c2196b'),
+    colorEndInstance: new THREE.Color('#ff8600'),
+  },
+  FORCEFIELD: {
+    position: [0, 1, 0],
+    scale: 2.5,
+    speed: 0.05,
+    colorStart: '#a409cb',
+    colorEnd: '#008cff',
+    intensity: 0.3,
+    noiseScale: 1.1,
+    noiseOctaves: 4.0,
+    displacement: 0.5,
+    frequency: 1.7,
+    voronoi: 1.5,
+    turbulence: 0.5,
+    rotationSpeed: 0.001,
+    fresnel: 1.7,
+    alpha: 0.8,
+    movementSpeed: 0.2,
+    zRange: { min: -0.2, max: 0.4 },
+    colorStartInstance: new THREE.Color('#a409cb'),
+    colorEndInstance: new THREE.Color('#1f4eff'),
+  }
+}
+
+export function FireSpell({ preset = 'FIREBALL', customSettings = {} }) {
   const materialRef = useRef()
   const meshRef = useRef()
+  const spawnTimeRef = useRef(null)
+  const hasSpawnedRef = useRef(false)
+  const startTimeRef = useRef(Date.now())
   
-  // Fixed settings as per your final design
+  // Merge preset with any custom settings
   const settings = useMemo(() => ({
-    position: [0, 0.5, 0],
-    scale: 0.9,
-    speed: 0.1,
-    colorStart: '#4457ff',
-    colorEnd: '#fc0398',
-    intensity: 0.9,
-    noiseScale: 2.3,
-    noiseOctaves: 2.0,
-    displacement: 0.2,
-    frequency: 2.8,
-    voronoi: 2.0,
-    turbulence: 0.05,
-    rotationSpeed: 0.0005,
-    fresnel: 0.8,
-    alpha: 0.9,
-    // Movement settings
-    movementSpeed: 0.2, // Similar to Orbs
-    zRange: { min: 0, max: 4.5 }, // Movement range on Z axis
-    colorStartInstance: new THREE.Color('#4457ff'),
-    colorEndInstance: new THREE.Color('#fc0398'),
-  }), [])
+    ...SHADER_PRESETS[preset],
+    ...customSettings
+  }), [preset, customSettings])
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime()
-    
+    const initialDelay = 2000 // 500ms delay before spawn
+    const spawnDuration = 500 // 200ms spawn animation
+    const currentTime = Date.now()
+    const delayElapsed = currentTime - startTimeRef.current
+
     if (meshRef.current) {
-      // Z-axis movement using sine wave (like Orbs)
-      const zMovement = THREE.MathUtils.mapLinear(
-        Math.sin(time * settings.movementSpeed),
-        -1,
-        1,
-        settings.zRange.min,
-        settings.zRange.max
-      )
-      
-      // Update position
-      meshRef.current.position.set(
-        settings.position[0],
-        settings.position[1],
-        zMovement
-      )
-      
-      // Apply rotation
-      meshRef.current.rotation.y += settings.rotationSpeed
+      if (preset === 'FIREBALL') {
+        // Wait for initial delay before starting spawn sequence
+        if (delayElapsed < initialDelay) {
+          // Keep mesh invisible during delay
+          meshRef.current.scale.setScalar(0)
+          return
+        }
+
+        // Initialize spawnTimeRef after delay
+        if (!spawnTimeRef.current && delayElapsed >= initialDelay) {
+          spawnTimeRef.current = currentTime
+        }
+
+        // Only proceed with spawn animation after delay
+        if (spawnTimeRef.current) {
+          const spawnElapsed = currentTime - spawnTimeRef.current
+
+          if (spawnElapsed < spawnDuration && !hasSpawnedRef.current) {
+            // Spawn animation
+            const progress = spawnElapsed / spawnDuration
+            const currentScale = THREE.MathUtils.lerp(0, settings.scale, progress)
+            
+            meshRef.current.position.set(0, 0.4, 0)
+            meshRef.current.scale.setScalar(currentScale)
+            
+            if (materialRef.current) {
+              materialRef.current.uVoronoi = THREE.MathUtils.lerp(0, settings.voronoi, progress)
+            }
+            
+            if (progress >= 1) {
+              hasSpawnedRef.current = true
+            }
+          } else if (hasSpawnedRef.current) {
+            // Normal movement after spawn
+            const zMovement = THREE.MathUtils.mapLinear(
+              Math.sin(time * settings.movementSpeed),
+              -1,
+              1,
+              settings.zRange.min,
+              settings.zRange.max
+            )
+            
+            meshRef.current.position.set(
+              settings.position[0] + Math.sin(time * 0.3) * 0.5,
+              settings.position[1] + Math.cos(time * 0.2) * 0.3,
+              zMovement
+            )
+            meshRef.current.rotation.y += settings.rotationSpeed
+          }
+        }
+      } else if (preset === 'FORCEFIELD') {
+        // Forcefield starts at full scale immediately
+        if (!hasSpawnedRef.current) {
+          meshRef.current.scale.setScalar(settings.scale)
+          meshRef.current.position.set(
+            settings.position[0],
+            settings.position[1],
+            settings.position[2]
+          )
+          hasSpawnedRef.current = true
+        }
+        
+        // Forcefield movement
+        meshRef.current.position.set(
+          settings.position[0],
+          settings.position[1] + Math.sin(time * 0.5) * 0.1,
+          settings.position[2] + Math.sin(time * settings.movementSpeed) * 0.2
+        )
+        meshRef.current.rotation.y += settings.rotationSpeed
+      }
     }
 
     if (materialRef.current) {
@@ -315,22 +402,20 @@ export function FireSpell() {
       materialRef.current.uNoiseOctaves = settings.noiseOctaves
       materialRef.current.uDisplacement = settings.displacement
       materialRef.current.uFrequency = settings.frequency
-      materialRef.current.uVoronoi = settings.voronoi
+      materialRef.current.uVoronoi = hasSpawnedRef.current ? settings.voronoi : 0
       materialRef.current.uTurbulence = settings.turbulence
       materialRef.current.uFresnel = settings.fresnel
       materialRef.current.uAlpha = settings.alpha
     }
   })
 
-
-
   return (
     <mesh 
       ref={meshRef} 
-      position={settings.position}
-      scale={settings.scale}
+      position={[0, 0.5, 0]} 
+      scale={0}
     >
-      <sphereGeometry args={[1, 30, 30]} />
+      <sphereGeometry args={[1, 32, 32]} />
       <fireMaterial 
         ref={materialRef} 
         transparent
@@ -342,3 +427,5 @@ export function FireSpell() {
     </mesh>
   )
 }
+
+export default FireSpell;
