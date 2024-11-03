@@ -94,16 +94,15 @@ export function BannerPlane({ onClick, position = [0, 0, 0], rotation = [.2, 0, 
   const transitionRef = useRef(0)
   const textureMapRef = useRef({})
   const { currentAction, isTransitioning } = useActionStore()
-  const { size } = useThree()
-
+  
   // Preload all textures and store them
   const textures = useTexture(Object.values(BANNER_IMAGES))
   
-  // Restore original scale calculation
+  // Increase the base scale for a larger banner
   const scale = useMemo(() => {
-    const baseScale = Math.min(size.width, size.height) * 0.0009
+    const baseScale = 768 * 0.0013 // Doubled from 0.0009
     return [baseScale * 3, baseScale, 1]
-  }, [size])
+  }, [])
 
   // Optimize textures function
   const optimizeTexture = (texture) => {
@@ -134,9 +133,9 @@ export function BannerPlane({ onClick, position = [0, 0, 0], rotation = [.2, 0, 
     prevTexture: { value: null },
     time: { value: 0 },
     transition: { value: 0 },
-    resolution: { value: new THREE.Vector2(size.width, size.height) },
-    heightScale: { value: 0.03 }
-  }), [size])
+    resolution: { value: new THREE.Vector2(768, 432) },
+    heightScale: { value: 0.05 }
+  }), []) // Remove size dependency
 
   // Handle texture transitions
   useEffect(() => {

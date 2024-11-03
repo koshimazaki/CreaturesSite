@@ -2,12 +2,12 @@ import { BANNER_CONFIGS, ActionTypes } from './types';
 import gsap from 'gsap';
 
 // Import banner images
-import startBanner from '/src/assets/images/Logobaner.png';
-import exploreBanner from '/src/assets/images/exploreWorlds.png';
-import spellsBanner from '/src/assets/images/castSpells.png';
-import lootBanner from '/src/assets/images/loot.png';
-import bossBanner from '/src/assets/images/fightBosses.png';
-import physicsBanner from '/src/assets/images/bendPhysics.png';
+import startBanner from '/src/assets/images/banners/Logobaner.jpg';
+import exploreBanner from '/src/assets/images/banners/exploreWorlds_compressed.png';
+import spellsBanner from '/src/assets/images/banners/castSpells_compressed.png';
+import lootBanner from '/src/assets/images/banners/loot_resized.jpg';
+import bossBanner from '/src/assets/images/banners/fightBosses_compressed.png';
+import physicsBanner from '/src/assets/images/banners/bendPhysics_compressed.png';
 
 // Create a mapping for easy access - use the exact IDs from ActionTypes
 export const BANNER_IMAGES = {

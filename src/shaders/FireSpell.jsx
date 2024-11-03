@@ -412,7 +412,7 @@ export function FireSpell({ preset = 'FIREBALL', customSettings = {} }) {
   return (
     <mesh 
       ref={meshRef} 
-      position={[0, 0.5, 0]} 
+      position={[0, 0.35, 0]} 
       scale={0}
     >
       <sphereGeometry args={[1, 32, 32]} />

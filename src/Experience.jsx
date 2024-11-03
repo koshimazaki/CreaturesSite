@@ -19,7 +19,7 @@ import useAudioStore from './Audio/audioStore';
 import './styles.css';
 import { Science } from '@mui/icons-material';
 import DynamicSceneControl from './SceneMods/DynamicSceneControl';
-import { ShaderManager } from './components/ShaderManager';
+import { ShaderManager } from './SceneMods/ShaderManager';
 // import { PurpleFire } from './shaders/FireSpell';
 
 const CameraRig = () => {
@@ -127,7 +127,7 @@ function Experience({ audioPlayerRef }) {
             colorA="#fe00fe"
             colorB="#0080ff"
             timeOffset={2}
-            yRange={{ min: -0.2, max: 0.1 }}
+            yRange={{ min: -0.2, max: 0.4 }}
           />
           <Orb 
             position={[0.9, -0.6, -.95]} 
