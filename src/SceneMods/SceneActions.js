@@ -55,7 +55,7 @@ export class SceneAction {
     }
 
     cleanup() {
-        console.log('Cleaning up scene items');
+        // console.log('Cleaning up scene items');
         const itemsToRemove = this.scene.children.filter(child => child.userData.actionItem);
         
         itemsToRemove.forEach(item => {
@@ -79,7 +79,7 @@ export class SceneAction {
             this.scene.remove(item);
         });
         
-        console.log(`Cleaned up ${itemsToRemove.length} items`);
+        // console.log(`Cleaned up ${itemsToRemove.length} items`);
     }
 
     async loadModel(modelUrl) {
@@ -89,7 +89,7 @@ export class SceneAction {
 
 export class WorldsAction extends SceneAction {
     async execute() {
-        console.log('Executing WorldsAction');
+        // console.log('Executing WorldsAction');
         this.cleanup();
         
         try {
@@ -177,7 +177,7 @@ export class WorldsAction extends SceneAction {
             this.scene.add(leftPalmGroup);
             this.scene.add(rightPalmGroup);
 
-            console.log('Pyramid and palms added to scene');
+            // console.log('Pyramid and palms added to scene');
             return true; // Indicate successful execution
 
         } catch (error) {
@@ -190,7 +190,7 @@ export class WorldsAction extends SceneAction {
 
 export class SpellsAction extends SceneAction {
     async execute() {
-        console.log('Executing SpellsAction');
+        // console.log('Executing SpellsAction');
         this.cleanup();
         
         try {
@@ -208,7 +208,7 @@ export class SpellsAction extends SceneAction {
 
             return true;
         } catch (error) {
-            console.error('Error in SpellsAction:', error);
+            // console.error('Error in SpellsAction:', error);
             return false;
         }
     }
@@ -216,7 +216,7 @@ export class SpellsAction extends SceneAction {
 
 export class LootAction extends SceneAction {
     async execute() {
-        console.log('Executing LootAction');
+        // console.log('Executing LootAction');
         this.cleanup();
         
         try {
@@ -251,7 +251,7 @@ export class LootAction extends SceneAction {
 
 export class BossAction extends SceneAction {
     async execute() {
-        console.log('Executing BossAction');
+        // console.log('Executing BossAction');
         this.cleanup();
         
         try {

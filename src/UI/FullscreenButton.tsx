@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { Tooltip } from '@mui/material'
+import { makeInteractive } from '../utils/styles';
+
 
 const FullscreenButton: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -47,13 +49,14 @@ const FullscreenButton: React.FC = () => {
   }, [isFullscreen])
 
   const iconStyle = {
+    ...makeInteractive,
     fontSize: 'clamp(24px, 10vw, 56px)',
     color: 'white',
     opacity: 0.75,
   }
 
   return (
-    <Tooltip title={`${isFullscreen ? "Exit" : "Enter"} Fullscreen (press '/')`} arrow placement="top">
+    <Tooltip {...makeInteractive} title={`${isFullscreen ? "Exit" : "Enter"} Fullscreen (press '/')`} arrow placement="top">
       <motion.div
         whileTap={{ scale: 0.9 }}
         style={{

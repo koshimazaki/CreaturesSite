@@ -33,7 +33,7 @@ export const useModelPreloader = () => {
                 }
 
                 setIsLoaded(true);
-                console.log('All models preloaded successfully');
+                console.log('All models preloaded successfully LFG!');
             } catch (error) {
                 console.error('Error in preload sequence:', error);
             } finally {

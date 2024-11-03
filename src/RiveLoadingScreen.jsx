@@ -15,6 +15,7 @@ import ColorTransition from './ColorTransition';
 import { Runtime } from '@rive-app/canvas';
 import { preloadAllModels, validateModelCache } from './utils/modelLoader';
 import { useModelPreloader } from './hooks/useModelPreloader';
+import { makeInteractive } from './utils/styles';
 
 
 const RiveLoadingScreen = ({ onStart }) => {
@@ -347,7 +348,7 @@ const RiveLoadingScreen = ({ onStart }) => {
         </>
       )}
       {!shouldAllowEntry && (
-        <div style={{
+        <div {...makeInteractive} style={{
           position: 'absolute',
           top: '5.2vw',
           left: '1vw',
@@ -372,6 +373,7 @@ const RiveLoadingScreen = ({ onStart }) => {
       )}
       {shouldAllowEntry && (
         <RiveControl 
+          {...makeInteractive}
           onStart={handleStart} 
           show={showPlayButton} 
           style={{
@@ -389,6 +391,7 @@ const RiveLoadingScreen = ({ onStart }) => {
       {/* GC Logo */}
       {showLogo && (
         <motion.div
+          {...makeInteractive}
           style={{
             position: 'absolute',
             top: '-.5vw',
@@ -405,6 +408,7 @@ const RiveLoadingScreen = ({ onStart }) => {
           whileTap={{ scale: 0.95 }}
         >
           <img 
+            {...makeInteractive}
             src={GCLogo} 
             alt="Glitch Candies Creatures"
             style={{

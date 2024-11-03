@@ -377,7 +377,8 @@ export default function App() {
                         </motion.div>
                       </Tooltip>
 
-                    
+                      <div {...makeInteractive} style={{ width: '100%', height: '100%' }}>
+
                       {/* X/Twitter Icon */}
                       <Tooltip title="Glitch Candies on X" arrow placement="top">
                         <motion.div
@@ -397,6 +398,7 @@ export default function App() {
                             rel="noopener noreferrer"
                           >
                             <img 
+                            {...makeInteractive}
                               src={cyberpunkIcon}
                               alt="Glitch Candies X"
                               style={{
@@ -409,11 +411,13 @@ export default function App() {
                           </a>
                         </motion.div>
                       </Tooltip>
+                      </div>
 
                       {/* Made by text */}
                       <Tooltip title="Visit our website" arrow placement="top">
                         <motion.div
                           style={{
+                         
                             position: 'absolute',
                             bottom: '1.9vw',
                             right: '11vw',
@@ -428,7 +432,7 @@ export default function App() {
                             target="_blank" 
                             rel="noopener noreferrer"
                           >
-                            <div style={{ 
+                            <div {...makeInteractive} style={{ 
                               fontSize: 'clamp(8px, 1.2vw, 12px)', 
                               opacity: 0.6, 
                               color: 'white', 
@@ -444,7 +448,7 @@ export default function App() {
 
                         {/* Fullscreen button - Only on desktop */}
                         {shouldShowFullscreen && (
-                      <div style={{ 
+                      <div {...makeInteractive} style={{ 
                         position: 'absolute',
                         bottom: '0vw',
                         right: '1vw',
@@ -457,7 +461,9 @@ export default function App() {
 
                     {/* Add MorphingButton here */}
                     <motion.div
+                      {...makeInteractive}
                       style={{
+                        
                         position: 'absolute',
                         bottom: 'clamp(0.5vw, 0.8vw, 1vw)',
                         left: 'clamp(43%,55%, 60%)',

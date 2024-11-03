@@ -25,9 +25,9 @@ export function DynamicSceneControl() {
   };
 
 
-  
+
   const executeAction = async (action) => {
-    console.log('Executing action:', action);
+    // console.log('Executing action:', action);
 
     try {
       const ActionClass = ACTION_CLASS_MAP[action.id];
@@ -39,7 +39,7 @@ export function DynamicSceneControl() {
 
       const sceneAction = new ActionClass(scene);
       const result = await sceneAction.execute();
-      console.log('Action execution result:', result);
+    //   console.log('Action execution result:', result);
     } catch (error) {
       console.error('Error executing action:', error);
     }
@@ -47,7 +47,7 @@ export function DynamicSceneControl() {
 
   useEffect(() => {
     if (currentAction && currentAction !== lastAction.current && scene) {
-      console.log('Action changed:', currentAction);
+    //   console.log('Action changed:', currentAction);
       executeAction(currentAction);
       lastAction.current = currentAction;
     }

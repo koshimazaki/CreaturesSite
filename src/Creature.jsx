@@ -22,7 +22,7 @@ const OG = (props) => {
 
   useEffect(() => {
     if (!scene || !animations) {
-      console.error('Failed to load model or animations');
+      // console.error('Failed to load model or animations');
       return;
     }
 
@@ -55,7 +55,7 @@ const OG = (props) => {
   };
 
   const playAnimation = (animationName) => {
-    console.log('Playing animation:', animationName)
+    // console.log('Playing animation:', animationName)
     
     // Clear any existing timeouts
     if (animationTimeoutRef.current) {
@@ -111,7 +111,7 @@ const OG = (props) => {
   useEffect(() => {
     const handleAnimationChange = (event) => {
       const { type } = event.detail;
-      console.log('Animation event received:', type);
+      // console.log('Animation event received:', type);
 
       // Map action types to animation names and durations
       const animationConfig = {
@@ -154,7 +154,7 @@ const OG = (props) => {
 
   // Debug current animation state
   useEffect(() => {
-    console.log('Current animation:', currentAnimation);
+    // console.log('Current animation:', currentAnimation);
   }, [currentAnimation]);
 
   return (

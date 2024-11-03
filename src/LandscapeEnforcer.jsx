@@ -30,7 +30,7 @@ const LandscapeEnforcer = forwardRef(({ children }, ref) => {
       alignment: Alignment.Center,
     }),
     onLoad: () => {
-      console.log('Rive file loaded successfully in LandscapeEnforcer');
+      // console.log('Rive file loaded successfully in LandscapeEnforcer');
     },
     onError: (e) => {
       console.error('Rive loading error in LandscapeEnforcer:', e);
