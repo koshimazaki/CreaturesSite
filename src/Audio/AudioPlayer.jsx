@@ -1,20 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AudioVisualizer from './AudioVisualizer';
 import useAudioStore from './audioStore';
+import { makeInteractive } from '../utils/styles';
 
 const AudioPlayer = ({ width, position }) => {
-  const { isInitialized, cleanup } = useAudioStore();
+  const { isInitialized, cleanup, gainNode, audioContext } = useAudioStore();
+  const unmountingRef = useRef(false);
+  const FADE_TIME = 100;
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      cleanup();
+      unmountingRef.current = true;
+      
+      if (isInitialized && gainNode && audioContext && audioContext.state !== 'closed') {
+        // Only fade if context is still active
+        const currentTime = audioContext.currentTime;
+        gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_TIME / 1000);
+
+        // Wait for fade before cleanup
+        setTimeout(() => {
+          if (unmountingRef.current && isInitialized) {
+            cleanup();
+          }
+        }, FADE_TIME);
+      }
     };
-  }, [cleanup]);
+  }, [cleanup, isInitialized, gainNode, audioContext]);
 
   if (!isInitialized) return null;
 
-  return <AudioVisualizer width={width} position={position} />;
+  return (
+    <div {...makeInteractive}>
+      <AudioVisualizer width={width} position={position} />
+    </div>
+  );
 };
 
 export default AudioPlayer;

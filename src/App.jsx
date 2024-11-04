@@ -250,11 +250,12 @@ export default function App() {
                 
                 <Tooltip title="Back to Start" arrow placement="bottom">
                   <motion.div
+                    {...makeInteractive}
                     style={{
                       position: 'absolute',
                       bottom: '1vw',
                       left: '11vw',
-                      zIndex: 2002,
+                      zIndex: 102,
                       // padding: '0.1vw 0.1vw',
 
                       pointerEvents: 'auto',
@@ -269,6 +270,7 @@ export default function App() {
                     whileTap={{ scale: 0.95 }}
                   >
                     <button
+                      {...makeInteractive}
                       onClick={handleReturnToRive}
                       style={{
                         background: 'transparent',
@@ -276,13 +278,14 @@ export default function App() {
                         color: '#03d7fc',
                         padding: '0.5vw 1vw',
                         borderRadius: '4px',
-                        cursor: 'pointer',
+                        // cursor: 'pointer',
                         fontSize: 'clamp(12px, 1vw, 16px)',
                         fontFamily: 'Monorama',
                         filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.7)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.5))',
                         transition: 'all 0.3s ease',
                         width: 'auto',
                         height: 'auto',
+                        cursor: 'none',
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.background = '#03d7fc20';
@@ -299,6 +302,7 @@ export default function App() {
 
                 <Tooltip title="Learn More" arrow placement="top">
                   <motion.div
+                    {...makeInteractive}
                     style={{
                       position: 'absolute',
                       bottom: '1vw',
@@ -306,16 +310,15 @@ export default function App() {
                       zIndex: 2002,
                       pointerEvents: 'auto',
                       backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)', // For Safari support
-                      backgroundColor: 'rgba(0, 0, 0, 0.4)', // Lighter dark overlay
+                      WebkitBackdropFilter: 'blur(8px)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.4)',
                       borderRadius: '4px',
-                      // padding: '0.1vw 0.5vw',
-
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <button
+                      {...makeInteractive}
                       ref={infoButtonRef}
                       onClick={() => setInfoVisible(!isInfoVisible)}
                       style={{
@@ -324,11 +327,11 @@ export default function App() {
                         color: '#03d7fc',
                         padding: '0.5vw 1.5vw',
                         borderRadius: '4px',
-                        cursor: 'pointer',
                         fontSize: 'clamp(12px, 1vw, 16px)',
                         fontFamily: 'Monorama',
                         filter: 'drop-shadow(0 0 5px rgba(3, 215, 252, 0.7)) drop-shadow(0 0 10px rgba(3, 215, 252, 0.5))',
                         transition: 'all 0.3s ease',
+                        cursor: 'none',
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.background = '#03d7fc20';

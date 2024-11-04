@@ -6,6 +6,7 @@ import NextIcon from '../assets/icons/next.svg';
 import PlayIcon from '../assets/icons/playpunkt.svg';  // Add this
 import PauseIcon from '../assets/icons/pause.svg';  // Add this
 import useAudioStore from './audioStore';
+import { makeInteractive } from '../utils/styles';
 
 const theme = createTheme({
   palette: {
@@ -375,7 +376,14 @@ const AudioVisualizer = ({ width = "18rem", position = { top: "20px", left: "20p
 
   return (
     <ThemeProvider theme={theme}>
-      <AudioPlayerContainer style={{ width, ...position }}>
+      <AudioPlayerContainer 
+        {...makeInteractive}
+        style={{ 
+          width, 
+          ...position,
+          cursor: 'none'  // Add this to ensure cursor behavior
+        }}
+      >
         <VisualizerCanvas ref={waveformRef} />
         <SpectrogramCanvas ref={spectrogramRef} />
         <FrequencyCanvas ref={frequencyRef} />

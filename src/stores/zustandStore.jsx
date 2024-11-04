@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { isMobile, isTablet, isIOS, isAndroid } from "react-device-detect";
+import { uiAudioManager } from '../audio/UIAudioManager';
 
 const useStore = create((set, get) => ({
   // Update device detection logic
@@ -135,6 +136,12 @@ textLoopLore: [
 
   // New Scene Control Actions
   setActiveModel: (modelName) => set((state) => {
+    // Get corresponding action type for the model
+    const actionType = MODEL_ACTION_MAP[modelName]?.action;
+    if (actionType) {
+      get().handleActionChange(actionType);
+    }
+    
     // Reset all models first
     const resetModels = Object.keys(state.modelStates).reduce((acc, key) => ({
       ...acc,
@@ -168,6 +175,14 @@ textLoopLore: [
       [key]: { ...state.modelStates[key], visible: false }
     }), {})
   })),
+
+  // Add this method to handle action changes
+  handleActionChange: (actionType) => {
+    if (!uiAudioManager.initialized) {
+      uiAudioManager.init();
+    }
+    uiAudioManager.playActionSound(actionType);
+  },
 }));
 
 export default useStore;

@@ -12,6 +12,8 @@ import bossModel from '/src/assets/models/boss.glb?url'
 import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
 import { SHADER_PRESETS } from '../shaders/FireSpell'
+import { uiAudioManager } from '../audio/UIAudioManager';
+import { ActionTypes } from './types';
 
 // Update the dispatch function at the top of the file
 const dispatchAnimationEvent = (type) => {
@@ -52,6 +54,10 @@ const loadModel = async (modelUrl) => {
 export class SceneAction {
     constructor(scene) {
         this.scene = scene;
+        // Initialize audio manager if not already done
+        if (!uiAudioManager.initialized) {
+            uiAudioManager.init();
+        }
     }
 
     cleanup() {
@@ -85,11 +91,16 @@ export class SceneAction {
     async loadModel(modelUrl) {
         return loadModel(modelUrl);
     }
+
+    // Add method to play action sound
+    playActionSound(actionType) {
+        uiAudioManager.playActionSound(actionType);
+    }
 }
 
 export class WorldsAction extends SceneAction {
     async execute() {
-        // console.log('Executing WorldsAction');
+        console.debug('WorldsAction - Starting execution');
         this.cleanup();
         
         try {

@@ -111,7 +111,7 @@ export function LoopLoreText() {
           style={{
             position: 'absolute',
             bottom: 'clamp(0.5vw, 0.8vw, 1vw)',
-            left: 'clamp(15%, 25%, 35%)',
+            left: 'clamp(30%, 32%, 35%)',
             zIndex: 2002,
             fontFamily: 'Monorama, sans-serif',
             fontSize: 'clamp(12px, 1vw, 16px)',

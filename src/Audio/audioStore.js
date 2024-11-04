@@ -12,14 +12,16 @@ import swampyCreatures from '/src/assets/audio/AI6.mp3?url';
 import morphings from '/src/assets/audio/Morphings.mp3?url';
 
 const playlist = [
+  { id: 'dubtech', title: "Dubtech", src: dubtech },
   { id: 'candies-exploration', title: "Candies Exploration", src: candiesExploration },
   { id: 'floral-mechas', title: "Floral Mechas", src: floralMechas },
-  { id: 'dubtech', title: "Dubtech", src: dubtech },
   { id: 'lofi-fields', title: "Lofi Fields", src: lofiFields },
   { id: 'sudden-ambush', title: "Sudden Ambush", src: suddenAmbush },
   { id: 'swampy-creatures', title: "Swampy Creatures", src: swampyCreatures },
   { id: 'morphings', title: "Morphings", src: morphings },
 ];
+
+const FADE_DURATION = 0.1; // 100ms fade
 
 const useAudioStore = create(
   persist(
@@ -36,6 +38,9 @@ const useAudioStore = create(
       gainNode: null,  // Add this line
       playlist: playlist,
       loop: true,
+
+      // Add fade duration to state
+      fadeDuration: FADE_DURATION,
 
       // Initialization
       initializeAudio: async () => {
@@ -129,6 +134,17 @@ const useAudioStore = create(
             await state.audioContext.resume();
           }
           
+          // Start with volume at 0 and fade in
+          if (state.gainNode) {
+            state.gainNode.gain.setValueAtTime(0, state.audioContext.currentTime);
+            const normalizedValue = state.volume / 100;
+            const exponentialValue = normalizedValue * normalizedValue;
+            state.gainNode.gain.linearRampToValueAtTime(
+              exponentialValue,
+              state.audioContext.currentTime + state.fadeDuration
+            );
+          }
+          
           state.howl.play();
           return true;
         } catch (error) {
@@ -152,8 +168,17 @@ const useAudioStore = create(
         const wasPlaying = state.isPlaying;
         
         if (state.howl) {
-          state.howl.stop();
-          state.howl.unload();
+          // Fade out current track
+          const fadeOutPromise = new Promise(resolve => {
+            state.howl.fade(state.howl.volume(), 0, state.fadeDuration * 1000);
+            setTimeout(() => {
+              state.howl.stop();
+              state.howl.unload();
+              resolve();
+            }, state.fadeDuration * 1000);
+          });
+
+          await fadeOutPromise;
         }
 
         set({ currentTrack: index });
@@ -169,11 +194,19 @@ const useAudioStore = create(
         try {
           const nextIndex = (state.currentTrack + 1) % playlist.length;
           
+          // Fade out current track
+          if (state.gainNode && state.audioContext) {
+            state.gainNode.gain.linearRampToValueAtTime(
+              0,
+              state.audioContext.currentTime + state.fadeDuration
+            );
+          }
+          
+          // Wait for fade out
+          await new Promise(resolve => setTimeout(resolve, state.fadeDuration * 1000));
+          
           // Complete cleanup
           await state.cleanup();
-          
-          // Add small delay to ensure cleanup is complete
-          await new Promise(resolve => setTimeout(resolve, 50));
           
           set({ currentTrack: nextIndex });
           await state.initializeAudio();
@@ -189,11 +222,19 @@ const useAudioStore = create(
         try {
           const prevIndex = (state.currentTrack - 1 + playlist.length) % playlist.length;
           
+          // Fade out current track
+          if (state.gainNode && state.audioContext) {
+            state.gainNode.gain.linearRampToValueAtTime(
+              0,
+              state.audioContext.currentTime + state.fadeDuration
+            );
+          }
+          
+          // Wait for fade out
+          await new Promise(resolve => setTimeout(resolve, state.fadeDuration * 1000));
+          
           // Complete cleanup
           await state.cleanup();
-          
-          // Add small delay to ensure cleanup is complete
-          await new Promise(resolve => setTimeout(resolve, 50));
           
           set({ currentTrack: prevIndex });
           await state.initializeAudio();
@@ -224,31 +265,66 @@ const useAudioStore = create(
       cleanup: async () => {
         const state = get();
         
-        if (state.sourceNode) {
-          state.sourceNode.disconnect();
-        }
+        try {
+          // Only proceed with fade if we have active audio components
+          if (state.gainNode && state.audioContext && state.audioContext.state !== 'closed') {
+            state.gainNode.gain.linearRampToValueAtTime(
+              0,
+              state.audioContext.currentTime + state.fadeDuration
+            );
 
-        if (state.gainNode) {
-          state.gainNode.disconnect();
-        }
+            // Wait for fade out
+            await new Promise(resolve => setTimeout(resolve, state.fadeDuration * 1000));
+          }
+          
+          // Safely disconnect nodes if they exist
+          if (state.sourceNode) {
+            try {
+              state.sourceNode.disconnect();
+            } catch (e) {
+              console.debug('Source node already disconnected');
+            }
+          }
 
-        if (state.howl) {
-          state.howl.unload();
-        }
+          if (state.gainNode) {
+            try {
+              state.gainNode.disconnect();
+            } catch (e) {
+              console.debug('Gain node already disconnected');
+            }
+          }
 
-        if (state.audioContext) {
-          await state.audioContext.close();
-        }
+          if (state.howl) {
+            state.howl.unload();
+          }
 
-        set({
-          howl: null,
-          analyser: null,
-          audioContext: null,
-          sourceNode: null,
-          gainNode: null,
-          isInitialized: false,
-          isPlaying: false
-        });
+          // Only close context if it's not already closed
+          if (state.audioContext && state.audioContext.state !== 'closed') {
+            await state.audioContext.close();
+          }
+
+          set({
+            howl: null,
+            analyser: null,
+            audioContext: null,
+            sourceNode: null,
+            gainNode: null,
+            isInitialized: false,
+            isPlaying: false
+          });
+        } catch (error) {
+          console.error('Error during cleanup:', error);
+          // Still reset the state even if there's an error
+          set({
+            howl: null,
+            analyser: null,
+            audioContext: null,
+            sourceNode: null,
+            gainNode: null,
+            isInitialized: false,
+            isPlaying: false
+          });
+        }
       },
 
       getCurrentTrack: () => {

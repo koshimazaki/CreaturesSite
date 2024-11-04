@@ -2,6 +2,7 @@
 import React from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { motion } from 'framer-motion';
+import { makeInteractive } from '../utils/styles';
 
 const RiveControl = ({ onStart, show }) => {
   const { rive: playRive, RiveComponent: PlayComponent } = useRive({
@@ -28,6 +29,7 @@ const RiveControl = ({ onStart, show }) => {
 
   return (
     <motion.div
+      {...makeInteractive}
       onClick={handleClick}
       style={{
         position: 'fixed',
@@ -35,7 +37,7 @@ const RiveControl = ({ onStart, show }) => {
         left: 'clamp(40%, 42%, 45%)',
         width: '240px',
         height: '240px',
-        cursor: 'pointer',
+        // cursor: 'pointer',
         zIndex: 10000,
         opacity: 0.7,
         transition: 'opacity 0.3s ease'
