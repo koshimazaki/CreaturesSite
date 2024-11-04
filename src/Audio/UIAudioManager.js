@@ -1,6 +1,26 @@
 import { Howl } from 'howler';
 import { ActionTypes } from '../SceneMods/types';
 
+// Import all audio files at the top
+import start1 from '@assets/audio/start1.mp3'
+import start2 from '@assets/audio/start2.mp3'
+import start3 from '@assets/audio/start3.mp3'
+import worlds1 from '@assets/audio/worlds1.mp3'
+import worlds2 from '@assets/audio/worlds2.mp3'
+import worlds3 from '@assets/audio/worlds3.mp3'
+import spells1 from '@assets/audio/spells1.mp3'
+import spells2 from '@assets/audio/spells2.mp3'
+import spells3 from '@assets/audio/spells3.mp3'
+import loot1 from '@assets/audio/loot1.mp3'
+import loot2 from '@assets/audio/loot2.mp3'
+import loot3 from '@assets/audio/loot3.mp3'
+import boss1 from '@assets/audio/boss1.mp3'
+import boss2 from '@assets/audio/boss2.mp3'
+import boss3 from '@assets/audio/boss3.mp3'
+import force1 from '@assets/audio/force1.mp3'
+import force2 from '@assets/audio/force2.mp3'
+import force3 from '@assets/audio/force3.mp3'
+
 // Map ActionTypes to sound categories
 const ACTION_TO_SOUND = {
     [ActionTypes.START.id]: 'START',
@@ -13,34 +33,34 @@ const ACTION_TO_SOUND = {
 
 const UI_SOUNDS = {
     START: [
-        '/src/assets/audio/UIaudio/start1.mp3',
-        '/src/assets/audio/UIaudio/start2.mp3',
-        '/src/assets/audio/UIaudio/start3.mp3'
+        start1,
+        start2,
+        start3
     ],
     WORLDS: [
-        '/src/assets/audio/UIaudio/worlds1.mp3',
-        '/src/assets/audio/UIaudio/worlds2.mp3',
-        '/src/assets/audio/UIaudio/worlds3.mp3'
+        worlds1,
+        worlds2,
+        worlds3
     ],
     SPELLS: [
-        '/src/assets/audio/UIaudio/spells1.mp3',
-        '/src/assets/audio/UIaudio/spells2.mp3',
-        '/src/assets/audio/UIaudio/spells3.mp3'
+        spells1,
+        spells2,
+        spells3
     ],
     LOOT: [
-        '/src/assets/audio/UIaudio/loot1.mp3',
-        '/src/assets/audio/UIaudio/loot2.mp3',
-        '/src/assets/audio/UIaudio/loot3.mp3'
+        loot1,
+        loot2,
+        loot3
     ],
     BOSS: [
-        '/src/assets/audio/UIaudio/boss1.mp3',
-        '/src/assets/audio/UIaudio/boss2.mp3',
-        '/src/assets/audio/UIaudio/boss3.mp3'
+        boss1,
+        boss2,
+        boss3
     ],
     PHYSICS: [
-        '/src/assets/audio/UIaudio/force1.mp3',
-        '/src/assets/audio/UIaudio/force2.mp3',
-        '/src/assets/audio/UIaudio/force3.mp3'
+        force1,
+        force2,
+        force3
     ]
 };
 

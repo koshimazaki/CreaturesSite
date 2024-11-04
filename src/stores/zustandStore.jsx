@@ -9,7 +9,7 @@ const useStore = create((set, get) => ({
   isAndroid: isAndroid,
   
 textLoopLore: [
-  "Press to uncover the core loop that fuels the realms, where spells, creatures, and art collide.", 
+  "Press the button to uncover the loop that fuels the realms, where creatures, spells, and art collide.", 
   "Dive into the assembly of shifting worlds and decode the journey ahead...",
   "Is the Creature strong enough to survive the loop?",
 ],

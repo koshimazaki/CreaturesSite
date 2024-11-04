@@ -1,6 +1,8 @@
-import { useGLTF } from '@react-three/drei'
-import React, { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useGLTF, useAnimations } from '@react-three/drei'
+import { useGraph, useFrame } from '@react-three/fiber'
+import { SkeletonUtils } from 'three-stdlib'
+import React, { useRef, useEffect } from 'react'
+import * as THREE from 'three'
 
 // Import models using relative paths with ?url
 import cyberpunkSpeederModel from '/src/assets/models/cyberpunk_speeder-transformed.glb?url'
@@ -12,6 +14,63 @@ import GamepadModel from '/src/assets/models/gamepad-transformed.glb?url'
 import PalmModel from '/src/assets/models/palm.glb?url'
 import PyramidModel from '/src/assets/models/pyramid.glb?url'
 import PlantModel from '/src/assets/models/plant1-transformed.glb?url'
+import PastelCreatureModel from '/src/assets/models/PastelAnim-transformed.glb?url'
+
+
+function PastelCreature({ position, scale, rotation }) {
+    const group = useRef()
+    const { scene, animations } = useGLTF(PastelCreatureModel)
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
+    const { nodes, materials } = useGraph(clone)
+    const { actions } = useAnimations(animations, group)
+
+    // Set initial visibility to false
+    useEffect(() => {
+        if (group.current) {
+            group.current.visible = false;
+        }
+    }, [])
+
+    useEffect(() => {
+        if (actions.idle) {
+            actions.idle
+                .reset()
+                .play()
+                .setEffectiveTimeScale(1)
+                .setLoop(THREE.LoopRepeat, Infinity)
+        }
+    }, [actions])
+
+    return (
+        <group 
+            ref={group} 
+            position={position} 
+            scale={scale} 
+            rotation={rotation} 
+            dispose={null}
+            userData={{ isLoot: true }}
+        >
+            <group name="Scene">
+                <group name="Armature004" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+                    <primitive object={nodes.mixamorigHips} />
+                </group>
+                <skinnedMesh 
+                    name="GlitchCandyCreature_Body001" 
+                    geometry={nodes.GlitchCandyCreature_Body001.geometry} 
+                    material={materials['Body.011']} 
+                    skeleton={nodes.GlitchCandyCreature_Body001.skeleton} 
+                />
+                <skinnedMesh 
+                    name="GlitchCandyCreature_Head001" 
+                    geometry={nodes.GlitchCandyCreature_Head001.geometry} 
+                    material={materials['Head.013']} 
+                    skeleton={nodes.GlitchCandyCreature_Head001.skeleton} 
+                />
+            </group>
+        </group>
+    )
+}
+
 
 
 function Palm({ position, scale, rotation }) {
@@ -229,7 +288,7 @@ function Pyramid({ position, scale, rotation }) {
     )
 }
 
-export { Palm, Plant,Gamepad, Dragon, Moog, Speeder, Tripo, VCS3, Pyramid }
+export { PastelCreature, Palm, Plant,Gamepad, Dragon, Moog, Speeder, Tripo, VCS3, Pyramid }
 
 // Preload models using the same paths
 useGLTF.preload(PalmModel)
@@ -241,5 +300,6 @@ useGLTF.preload(moogModel)
 useGLTF.preload(tripoModel)
 useGLTF.preload(PyramidModel)
 useGLTF.preload(PlantModel)
+useGLTF.preload(PastelCreatureModel)
 // Update the preload
 useGLTF.preload('/palm.glb')

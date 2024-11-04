@@ -70,20 +70,57 @@ export function LoopLoreText() {
           return finalTexts;
         });
         
-        // Add scramble effect before fade
+        // Modified end animation
         setTimeout(() => {
-          let scrambleCount = 0;
-          const scrambleInterval = setInterval(() => {
-            scrambleCount++;
+          const untypeStartTime = Date.now();
+          let currentLineToUntype = textLoopLore.length - 1;
+          
+          const animateUntype = () => {
+            const untypeElapsed = Date.now() - untypeStartTime;
+            const currentLineElapsed = untypeElapsed - (duration * (textLoopLore.length - 1 - currentLineToUntype));
+            const lineProgress = Math.min(currentLineElapsed / duration, 1);
+            
             setDisplayTexts(prev => 
-              prev.map(text => scramble(text, 0))
+              prev.map((text, index) => {
+                if (index > currentLineToUntype) return ''; // Lines already untyped
+                if (index < currentLineToUntype) return text; // Lines not yet being untyped
+                
+                // Current line being untyped
+                const originalText = textLoopLore[index];
+                const charsToKeep = Math.floor(originalText.length * (1 - lineProgress));
+                
+                // Keep the main part of the text
+                let resultText = originalText.slice(0, charsToKeep);
+                
+                // Add some scrambled characters at the end (3 characters or remaining length, whichever is smaller)
+                const scrambleLength = Math.min(10, charsToKeep);
+                if (scrambleLength > 0) {
+                  // Scramble the last few characters of the remaining text
+                  const scrambledEnd = Array(scrambleLength)
+                    .fill()
+                    .map(() => SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)])
+                    .join('');
+                  
+                  resultText = resultText.slice(0, -scrambleLength) + scrambledEnd;
+                }
+                
+                return resultText;
+              })
             );
             
-            if (scrambleCount >= 8) { // Limit scramble iterations
-              clearInterval(scrambleInterval);
+            if (lineProgress >= 1) {
+              currentLineToUntype--;
+            }
+            
+            if (currentLineToUntype >= 0) {
+              requestAnimationFrame(animateUntype);
+            } else {
+              setDisplayTexts(['', '', '']);
               setIsVisible(false);
             }
-          }, 50);
+          };
+          
+          requestAnimationFrame(animateUntype);
         }, 5000);
       } else if (!isCompleteRef.current) {
         animationRef.current = requestAnimationFrame(animate);
@@ -106,12 +143,11 @@ export function LoopLoreText() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
           style={{
             position: 'absolute',
             bottom: 'clamp(0.5vw, 0.8vw, 1vw)',
-            left: 'clamp(30%, 32%, 35%)',
+            left: 'clamp(28%, 30%, 35%)',
             zIndex: 2002,
             fontFamily: 'Monorama, sans-serif',
             fontSize: 'clamp(12px, 1vw, 16px)',

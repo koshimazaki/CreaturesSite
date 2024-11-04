@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, useAnimations } from '@react-three/drei';
 import * as types from './types';
 import { useModelStore } from '../stores/modelStore';
 import { useActionStore } from '../stores/actionStore';
@@ -14,6 +14,10 @@ import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
 import { SHADER_PRESETS } from '../shaders/FireSpell'
 import { uiAudioManager } from '../audio/UIAudioManager';
 import { ActionTypes } from './types';
+import PastelCreatureModel from '/src/assets/models/PastelAnim-transformed.glb?url'
+import { SkeletonUtils } from 'three-stdlib'
+import { PastelCreature } from '../Models'; // Make sure to import the component
+// import { LootDisplay } from '../components/LootDisplay'
 
 // Update the dispatch function at the top of the file
 const dispatchAnimationEvent = (type) => {
@@ -227,36 +231,94 @@ export class SpellsAction extends SceneAction {
 
 export class LootAction extends SceneAction {
     async execute() {
-        // console.log('Executing LootAction');
         this.cleanup();
         
         try {
+            // Load coconut model
             const fireGLTF = await this.loadModel(fireModel);
-            const model = new THREE.Group();
             
+            // Create container group for coconut
+            const lootGroup = new THREE.Group();
+            
+            // Setup coconut
             if (fireGLTF.scene) {
                 const fireMesh = fireGLTF.scene.clone();
-                model.add(fireMesh);
+                const fireContainer = new THREE.Group();
+                fireContainer.add(fireMesh);
                 
-                model.position.set(-1, -0.7, 1.5);
-                model.scale.setScalar(0.3);
+                fireContainer.position.set(-1, -0.7, 1.5);
+                fireContainer.scale.setScalar(0.3);
                 
-                model.userData.animate = (time) => {
-                    model.rotation.y += 0.01;
+                fireContainer.userData.animate = (time) => {
+                    fireContainer.rotation.y += 0.01;
                     const breathingScale = 0.5 + Math.sin(time * 0.8) * 0.05;
-                    model.scale.setScalar(breathingScale);
-                    model.position.y = Math.sin(time * 0.5) * 0.1;
+                    fireContainer.scale.setScalar(breathingScale);
+                    fireContainer.position.y = -0.7 + Math.sin(time * 0.5) * 0.1;
                 };
                 
-                model.userData.actionItem = true;
-                this.scene.add(model);
-                return true;
+                lootGroup.add(fireContainer);
             }
-            return false;
+            
+            // Find and show the PastelCreature
+            const pastelCreature = this.scene.children.find(child => 
+                child.userData && child.userData.isLoot
+            );
+            
+            if (pastelCreature) {
+                pastelCreature.visible = true;
+            }
+            
+            // Mark the group as an action item
+            lootGroup.userData.actionItem = true;
+            lootGroup.userData.animate = (time) => {
+                lootGroup.children.forEach(child => {
+                    if (child.userData.animate) {
+                        child.userData.animate(time);
+                    }
+                });
+            };
+            
+            this.scene.add(lootGroup);
+            return true;
+            
         } catch (error) {
-            console.error('Error in SpellsAction:', error);
+            console.error('Error in LootAction:', error);
             return false;
         }
+    }
+
+    cleanup() {
+        // Hide the PastelCreature
+        const pastelCreature = this.scene.children.find(child => 
+            child.userData && child.userData.isLoot === true
+        );
+        
+        if (pastelCreature) {
+            console.log('Hiding PastelCreature');
+            pastelCreature.visible = false;
+        }
+
+        // Regular cleanup for other items
+        const itemsToRemove = this.scene.children.filter(child => 
+            child.userData && child.userData.actionItem
+        );
+        
+        itemsToRemove.forEach(item => {
+            if (item.userData.animate) {
+                item.userData.animate = null;
+            }
+            if (item.geometry) {
+                item.geometry.dispose();
+            }
+            if (item.material) {
+                if (Array.isArray(item.material)) {
+                    item.material.forEach(mat => mat.dispose());
+                } else {
+                    item.material.dispose();
+                }
+            }
+            this.scene.remove(item);
+        });
     }
 }
 
@@ -266,6 +328,16 @@ export class BossAction extends SceneAction {
         this.cleanup();
         
         try {
+            
+            // Hide any visible PastelCreature first
+            const pastelCreature = this.scene.children.find(child => 
+                child.userData && child.userData.isLoot === true
+            );
+            
+            if (pastelCreature) {
+                pastelCreature.visible = false;
+            }
+            
             // Only dispatch the ninja_idle animation
             dispatchAnimationEvent('ninja_idle');
             
@@ -307,6 +379,10 @@ export class BossAction extends SceneAction {
             const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial.clone());
             const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial.clone());
 
+            // Start with fully transparent eyes
+            leftEye.material.opacity = 0;
+            rightEye.material.opacity = 0;
+
             // Position eyes (adjust these values to match your model)
             leftEye.position.set(1.29, 2.75, -3.26);
             leftEye.scale.setScalar(0.09);
@@ -334,16 +410,32 @@ export class BossAction extends SceneAction {
             leftEye.userData.initialOpacity = 0.1;
             rightEye.userData.initialOpacity = 0.05;
 
-            // Add glow animation
-            const animate = (time) => {
-                const pulseT = (1 + Math.sin(time * 0.3)) / 2; // Slowed down the pulse
-                const minOpacity = 0.3;
-                const maxOpacity = 0.6;
-                
-                leftEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
-                rightEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
+            // Add glow animation with fade-in
+            const startTime = performance.now();
+            const fadeInDelay = 400; // Delay before starting fade
+            const fadeInDuration = 200; // Duration of fade animation
 
-                // Subtle scale breathing
+            const animate = (time) => {
+                const elapsed = performance.now() - startTime;
+                
+                // Handle fade-in
+                if (elapsed > fadeInDelay && elapsed <= fadeInDelay + fadeInDuration) {
+                    // Calculate fade progress (0 to 1)
+                    const fadeProgress = (elapsed - fadeInDelay) / fadeInDuration;
+                    const minOpacity = 0.3;
+                    leftEye.material.opacity = minOpacity * fadeProgress;
+                    rightEye.material.opacity = minOpacity * fadeProgress;
+                } else if (elapsed > fadeInDelay + fadeInDuration) {
+                    // Normal pulsing animation after fade-in
+                    const pulseT = (1 + Math.sin(time * 0.3)) / 2;
+                    const minOpacity = 0.3;
+                    const maxOpacity = 0.6;
+                    
+                    leftEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
+                    rightEye.material.opacity = minOpacity + (maxOpacity - minOpacity) * pulseT;
+                }
+
+                // Existing breathing animation
                 const breathingScale = 1 + Math.sin(time * 0.2) * 0.05;
                 leftEye.scale.set(
                     1.8 * breathingScale, 
