@@ -34,7 +34,7 @@ const dispatchAnimationEvent = (type) => {
 
 // Preload all models
 export const preloadModels = () => {
-    console.log('Preloading models for SceneActions');
+    // console.log('Preloading models for SceneActions');
     useGLTF.preload(pyramidModel);
     useGLTF.preload(palmModel);
     useGLTF.preload(fireModel);
@@ -104,7 +104,7 @@ export class SceneAction {
 
 export class WorldsAction extends SceneAction {
     async execute() {
-        console.debug('WorldsAction - Starting execution');
+        // console.debug('WorldsAction - Starting execution');
         this.cleanup();
         
         try {
@@ -294,7 +294,7 @@ export class LootAction extends SceneAction {
         );
         
         if (pastelCreature) {
-            console.log('Hiding PastelCreature');
+         //   console.log('Hiding PastelCreature');
             pastelCreature.visible = false;
         }
 
@@ -472,7 +472,7 @@ export class BossAction extends SceneAction {
 
 export class PhysicsAction extends SceneAction {
     async execute() {
-        console.log('Executing PhysicsAction');
+        // console.log('Executing PhysicsAction');
         this.cleanup();
         
         try {
@@ -507,7 +507,7 @@ export class PhysicsAction extends SceneAction {
 // Add a new StartAction class
 export class StartAction extends SceneAction {
     execute() {
-        console.log('Executing StartAction - clearing scene');
+        // console.log('Executing StartAction - clearing scene');
         this.cleanup();
         
         // Only dispatch idle if this is the initial state

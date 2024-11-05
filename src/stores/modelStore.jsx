@@ -129,7 +129,7 @@ window.addEventListener('focus', () => {
     setTimeout(() => {
         const isValid = useModelStore.getState().validateCache();
         if (!isValid) {
-            console.log('Cache invalid, reloading...');
+           // console.log('Cache invalid, reloading...');
             useModelStore.getState().clearCache();
         }
     }, 100);

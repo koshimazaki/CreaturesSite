@@ -88,7 +88,7 @@ class UIAudioManager {
             });
 
             this.initialized = true;
-            console.debug('UIAudioManager initialized with sounds:', Object.keys(this.sounds));
+            // console.debug('UIAudioManager initialized with sounds:', Object.keys(this.sounds));
         } catch (error) {
             console.error('Error initializing UIAudioManager:', error);
         }
@@ -101,7 +101,7 @@ class UIAudioManager {
             return;
         }
 
-        console.debug('Attempting to play sound for action:', actionType);
+        // console.debug('Attempting to play sound for action:', actionType);
         
         // Map the action type to sound category
         const soundCategory = ACTION_TO_SOUND[actionType];
@@ -127,7 +127,7 @@ class UIAudioManager {
             const randomIndex = Math.floor(Math.random() * soundArray.length);
             const sound = soundArray[randomIndex];
 
-            console.debug(`Playing ${soundCategory} sound variation ${randomIndex + 1}`);
+            // console.debug(`Playing ${soundCategory} sound variation ${randomIndex + 1}`);
             sound.play();
             this.currentSound = sound;
 

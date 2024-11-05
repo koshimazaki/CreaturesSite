@@ -22,13 +22,13 @@ export const useModelPreloader = () => {
                 // Preload all models sequentially to avoid overwhelming
                 for (const [id, path] of Object.entries(ALL_MODELS)) {
                     try {
-                        console.log(`Preloading model: ${id}`);
+                        // console.log(`Preloading model: ${id}`);
                         await new Promise((resolve) => {
                             useGLTF.preload(path);
                             setTimeout(resolve, 100); // Small delay between loads
                         });
                     } catch (error) {
-                        console.error(`Error loading model ${id}:`, error);
+                        // console.error(`Error loading model ${id}:`, error);
                     }
                 }
 

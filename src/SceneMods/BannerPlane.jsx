@@ -154,10 +154,12 @@ export function BannerPlane({ onClick, position = [0, 0, 0], rotation = [.2, 0, 
       material.uniforms.transition.value = 0
       transitionRef.current = 0
       
-      console.log('Starting transition', {
-        from: prevTextureRef.current,
-        to: currentTexture,
-      })
+    //  console.log('Transition initiated!'
+    //     , 
+    //     {
+    //     from: prevTextureRef.current,
+    //     to: currentTexture,
+    //   })
     }
   }, [currentAction, isTransitioning])
 

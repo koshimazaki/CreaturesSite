@@ -150,7 +150,7 @@ const RiveLoadingScreen = ({ onStart }) => {
   useEffect(() => {
     if (menuStateInput && !isStarted) {
       try {
-        console.log("Setting menu state input to 2");
+        // console.log("Setting menu state input to 2");
         menuStateInput.value = 2;
       } catch (error) {
         console.error("Error setting menu state:", error);
@@ -161,8 +161,8 @@ const RiveLoadingScreen = ({ onStart }) => {
   // Debug logging
   useEffect(() => {
     if (menuStateInput) {
-      console.log("Menu state input:", menuStateInput);
-      console.log("Current value:", menuStateInput.value);
+      // console.log("Menu state input:", menuStateInput);
+      // console.log("Current value:", menuStateInput.value);
     }
   }, [menuStateInput]);
 

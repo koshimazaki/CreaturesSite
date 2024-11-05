@@ -16,7 +16,7 @@ export const preloadAllModels = async () => {
 
     try {
         await Promise.all(loadPromises);
-        console.log('All models preloaded successfully');
+        console.log('All candies preloaded successfully LFG!');
         return true;
     } catch (error) {
         console.error('Error preloading models:', error);
@@ -38,7 +38,7 @@ export const validateModelCache = () => {
 
 // Optional: Add function to preload specific models
 export const preloadModelsForAction = async (modelPaths) => {
-    console.log('Preloading models for action:', modelPaths);
+    // console.log('Preloading models for action:', modelPaths);
     const loadPromises = modelPaths.map(path => {
         return new Promise((resolve) => {
             useGLTF.preload(path);

@@ -20,6 +20,7 @@ import tripoModel from '/src/assets/models/tripo3EM3-transformed.glb?url'
 import DragonModel from '/src/assets/models/Dragon-transformed.glb?url'
 import GamepadModel from '/src/assets/models/gamepad-transformed.glb?url'
 import PlantModel from '/src/assets/models/plant1-transformed.glb?url'
+import PastelCreatureModel from '/src/assets/models/PastelAnim-transformed.glb?url'
 
 
 
@@ -40,7 +41,8 @@ export const SCENE_MODELS = {
   tripo: tripoModel,
   dragon: DragonModel,
   gamepad: GamepadModel,
-  plant: PlantModel
+  plant: PlantModel,
+  character: characterModel,
 };
 
 export const TRANSITION_MODELS = {
@@ -49,7 +51,8 @@ export const TRANSITION_MODELS = {
   fire: fireModel,
   boss: bossModel,
   loot: lootModel,
-  character: characterModel
+  character: characterModel,
+  pastelCreature: PastelCreatureModel
 };
 
 // Model Paths

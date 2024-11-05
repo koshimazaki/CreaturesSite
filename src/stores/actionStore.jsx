@@ -42,7 +42,7 @@ export const useActionStore = create((set, get) => ({
 
       // Validate and reload model cache if needed
       if (!modelStore.validateCache()) {
-        console.debug('Reloading model cache...');
+        // console.debug('Reloading model cache...');
         await modelStore.preloadModels();
       }
 

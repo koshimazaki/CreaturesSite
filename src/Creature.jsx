@@ -27,13 +27,13 @@ const OG = (props) => {
     }
 
     // Debug available animations
-    console.log('Available animations:', animations.map(a => a.name));
-    console.log('Available actions:', Object.keys(actions));
+   // console.log('Available animations:', animations.map(a => a.name));
+    //console.log('Available actions:', Object.keys(actions));
   }, [animations, actions, scene]);
 
   const crossFadeAnimation = (fromAction, toAction, duration = fadeTime) => {
     if (!fromAction || !toAction) {
-      console.warn('Invalid actions for crossfade');
+    //  console.warn('Invalid actions for crossfade');
       return null;
     }
 
@@ -122,7 +122,7 @@ const OG = (props) => {
       };
 
       const config = animationConfig[type] || animationConfig.idle;
-      console.log('Playing animation:', config.name, 'with duration:', config.duration);
+    //  console.log('Playing animation:', config.name, 'with duration:', config.duration);
       playAnimation(config.name);
     };
 
