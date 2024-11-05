@@ -7,9 +7,7 @@ import { MODEL_PATHS } from './types';
 // Import models
 import pyramidModel from '/src/assets/models/pyramid2.glb?url'
 import palmModel from '/src/assets/models/palm.glb?url'
-import fireModel from '/src/assets/models/coconut.glb?url'
 import bossModel from '/src/assets/models/boss.glb?url'
-import lootModel from '/src/assets/models/coconut.glb?url'
 import characterModel from '/src/assets/models/OGanim-transformed.glb?url'
 import { SHADER_PRESETS } from '../shaders/FireSpell'
 import { uiAudioManager } from '../audio/UIAudioManager';
@@ -234,31 +232,6 @@ export class LootAction extends SceneAction {
         this.cleanup();
         
         try {
-            // Load coconut model
-            const fireGLTF = await this.loadModel(fireModel);
-            
-            // Create container group for coconut
-            const lootGroup = new THREE.Group();
-            
-            // Setup coconut
-            if (fireGLTF.scene) {
-                const fireMesh = fireGLTF.scene.clone();
-                const fireContainer = new THREE.Group();
-                fireContainer.add(fireMesh);
-                
-                fireContainer.position.set(-1, -0.7, 1.5);
-                fireContainer.scale.setScalar(0.3);
-                
-                fireContainer.userData.animate = (time) => {
-                    fireContainer.rotation.y += 0.01;
-                    const breathingScale = 0.5 + Math.sin(time * 0.8) * 0.05;
-                    fireContainer.scale.setScalar(breathingScale);
-                    fireContainer.position.y = -0.7 + Math.sin(time * 0.5) * 0.1;
-                };
-                
-                lootGroup.add(fireContainer);
-            }
-            
             // Find and show the PastelCreature
             const pastelCreature = this.scene.children.find(child => 
                 child.userData && child.userData.isLoot
@@ -266,19 +239,17 @@ export class LootAction extends SceneAction {
             
             if (pastelCreature) {
                 pastelCreature.visible = true;
+                
+                pastelCreature.userData.animate = (time) => {
+                    // Gentle floating animation
+                    const hoverOffset = Math.sin(time * 0.5) * 0.1;
+                    pastelCreature.position.y = -0.7 + hoverOffset;
+                    
+                    // Subtle rotation
+                    pastelCreature.rotation.y = Math.sin(time * 0.3) * 0.1;
+                };
             }
             
-            // Mark the group as an action item
-            lootGroup.userData.actionItem = true;
-            lootGroup.userData.animate = (time) => {
-                lootGroup.children.forEach(child => {
-                    if (child.userData.animate) {
-                        child.userData.animate(time);
-                    }
-                });
-            };
-            
-            this.scene.add(lootGroup);
             return true;
             
         } catch (error) {
@@ -294,31 +265,11 @@ export class LootAction extends SceneAction {
         );
         
         if (pastelCreature) {
-         //   console.log('Hiding PastelCreature');
             pastelCreature.visible = false;
         }
 
         // Regular cleanup for other items
-        const itemsToRemove = this.scene.children.filter(child => 
-            child.userData && child.userData.actionItem
-        );
-        
-        itemsToRemove.forEach(item => {
-            if (item.userData.animate) {
-                item.userData.animate = null;
-            }
-            if (item.geometry) {
-                item.geometry.dispose();
-            }
-            if (item.material) {
-                if (Array.isArray(item.material)) {
-                    item.material.forEach(mat => mat.dispose());
-                } else {
-                    item.material.dispose();
-                }
-            }
-            this.scene.remove(item);
-        });
+        super.cleanup();
     }
 }
 
