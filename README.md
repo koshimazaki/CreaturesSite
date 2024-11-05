@@ -4,7 +4,8 @@ This is the landing page for the **GlitchCandies: Creatures** web experience, bu
 It leverages [PMDRS Drei](https://github.com/pmndrs/drei) examples and helpers, alongside a [**Space.js Hologram-inspired shader**](https://alien.js.org/examples/three/shader_hologram.html). 
 UI is styled with **MUI**, Framer motion and enhanced with a few CSS tricks and custom GLSL shaders.
 
-The 3D models are generated using a custom generative AI workflow with **Flux** and SDXL **LoRAs** (see [**Civitai profile**](https://civitai.com/user/koshimazaki) for download) alongside **Tripo3D** for image-to-3D generations.
+The 3D models are generated using a custom generative AI workflow with **Flux** and SDXL **LoRAs** (see [**Civitai profile**](https://civitai.com/user/koshimazaki) for download) alongside **Tripo3D** for image-to-3D generations. 
+Models are optimised with [gltfjsx](https://github.com/pmndrs/gltfjsx) and draco. Images with magick and pngquant.
 
 https://github.com/user-attachments/assets/8fbc6703-227b-4b47-bb0c-d86ee8d841fd
 
